@@ -217,7 +217,7 @@ export default function MonthRevise() {
           <div className="overflow-x-auto">
             <table className="table-auto border text-left">
               <thead>
-                <tr className="bg-gray-100">
+                <tr className="bg-gray-100 dark:bg-gray-800">
                   <th className="border p-2 text-center whitespace-nowrap">
                     Time Of Day (Hrs)
                   </th>
@@ -289,7 +289,7 @@ export default function MonthRevise() {
                       })}
 
                       {/* Total ของแถวนั้น (MW รวมของชั่วโมงนั้น) */}
-                      <td className="border bg-gray-50 px-2 py-1 text-center font-semibold dark:bg-gray-800">
+                      <td className="border bg-gray-50 px-2 py-1 text-center font-semibold dark:bg-gray-700">
                         {rowTotal.toFixed(2)}
                       </td>
 
@@ -307,7 +307,7 @@ export default function MonthRevise() {
                     </tr>
                   );
                 })}
-                <tr className="bg-gray-50 font-bold">
+                <tr className="bg-gray-50 font-bold dark:bg-gray-800">
                   <td className="border p-2 text-center">Total (MWh)</td>
                   {data?.currentTurbines.map((t: any) => (
                     <td

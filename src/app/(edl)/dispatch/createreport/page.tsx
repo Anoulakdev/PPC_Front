@@ -3,8 +3,8 @@ import { Metadata } from "next";
 import React from "react";
 
 export const metadata: Metadata = {
-  title: "Create Report",
-  description: "Create Report",
+  title: "Hydrology Report",
+  description: "Hydrology Report",
   // other metadata
 };
 

@@ -144,14 +144,19 @@ export default function DayAction() {
 
   // แปลง powerDate เป็น Date
   const isReviseDisabled = useMemo(() => {
-    if (!data?.powerDate) return true; // ถ้าไม่มี powerDate ให้ disable
+    if (!data?.powerDate) return true;
+
     const powerDate = new Date(data.powerDate);
+    powerDate.setHours(0, 0, 0, 0); // ตัดเวลา
 
-    // ลบเวลาของวันนี้ให้เป็น 00:00:00 เพื่อเทียบเฉพาะวันที่
+    // เพิ่มอีก 2 วันจาก powerDate
+    const maxDate = new Date(powerDate);
+    maxDate.setDate(maxDate.getDate() + 2); // powerDate + 2
+
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0); // เปรียบเทียบแค่วันที่
 
-    return powerDate < today;
+    return today > maxDate; // ถ้าวันนี้มากกว่า powerDate + 2 → disable
   }, [data?.powerDate]);
 
   const handleAcknowledge = async () => {

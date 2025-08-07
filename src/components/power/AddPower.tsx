@@ -71,6 +71,12 @@ export default function AddPower({ isOpen, onClose, onAdd }: AddPowerProps) {
     longitude: "",
     installCapacity: "",
     baseEnergy: "",
+    fullLevel: "",
+    deadLevel: "",
+    totalStorageFull: "",
+    totalStorageDead: "",
+    totalActiveFull: "",
+    totalActiveDead: "",
     codDate: "",
   });
   const [loading, setLoading] = useState(false);
@@ -206,6 +212,12 @@ export default function AddPower({ isOpen, onClose, onAdd }: AddPowerProps) {
       data.append("longitude", formData.longitude);
       data.append("installCapacity", formData.installCapacity);
       data.append("baseEnergy", formData.baseEnergy);
+      data.append("fullLevel", formData.fullLevel);
+      data.append("deadLevel", formData.deadLevel);
+      data.append("totalStorageFull", formData.totalStorageFull);
+      data.append("totalStorageDead", formData.totalStorageDead);
+      data.append("totalActiveFull", formData.totalActiveFull);
+      data.append("totalActiveDead", formData.totalActiveDead);
       data.append(
         "codDate",
         moment(formData.codDate, "DD-MM-YYYY").format("YYYY-MM-DD"),
@@ -240,6 +252,12 @@ export default function AddPower({ isOpen, onClose, onAdd }: AddPowerProps) {
         longitude: "",
         installCapacity: "",
         baseEnergy: "",
+        fullLevel: "",
+        deadLevel: "",
+        totalStorageFull: "",
+        totalStorageDead: "",
+        totalActiveFull: "",
+        totalActiveDead: "",
         codDate: "",
       });
 
@@ -485,7 +503,7 @@ export default function AddPower({ isOpen, onClose, onAdd }: AddPowerProps) {
               </div>
             </div>
 
-            <div className="mt-3 grid grid-cols-1 gap-x-3 gap-y-5 md:grid-cols-2">
+            <div className="mt-3 grid grid-cols-1 gap-x-3 gap-y-5 md:grid-cols-4">
               <div>
                 <Label>Owner</Label>
                 <div className="relative">
@@ -501,6 +519,74 @@ export default function AddPower({ isOpen, onClose, onAdd }: AddPowerProps) {
                     <ChevronDownIcon />
                   </span>
                 </div>
+              </div>
+
+              <div>
+                <Label>Full Level</Label>
+                <Input
+                  type="text"
+                  name="fullLevel"
+                  value={formData.fullLevel || ""}
+                  onChange={handleChange}
+                  placeholder="0.00"
+                />
+              </div>
+
+              <div>
+                <Label>Total Storage (Full Level)</Label>
+                <Input
+                  type="text"
+                  name="totalStorageFull"
+                  value={formData.totalStorageFull || ""}
+                  onChange={handleChange}
+                  placeholder="0.00"
+                />
+              </div>
+
+              <div>
+                <Label>Total Active (Full Level)</Label>
+                <Input
+                  type="text"
+                  name="totalActiveFull"
+                  value={formData.totalActiveFull || ""}
+                  onChange={handleChange}
+                  placeholder="0.00"
+                />
+              </div>
+            </div>
+
+            <div className="mt-3 grid grid-cols-1 gap-x-3 gap-y-5 md:grid-cols-4">
+              <div>
+                <Label>Dead Level</Label>
+                <Input
+                  type="text"
+                  name="deadLevel"
+                  value={formData.deadLevel || ""}
+                  onChange={handleChange}
+                  placeholder="0.00"
+                />
+              </div>
+
+              <div>
+                <Label>total Storage (Dead Level)</Label>
+                <Input
+                  type="text"
+                  name="totalStorageDead"
+                  value={formData.totalStorageDead || ""}
+                  onChange={handleChange}
+                  placeholder="0.00"
+                />
+              </div>
+
+              <div>
+                <Label>Total Active (Dead Level)</Label>
+                <Input
+                  type="text"
+                  name="totalActiveDead"
+                  value={formData.totalActiveDead || ""}
+                  onChange={handleChange}
+                  placeholder="0.00"
+                />
               </div>
 
               <div>

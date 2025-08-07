@@ -36,7 +36,7 @@ const navItems: NavItem[] = [
   },
   {
     icon: <PeopleIcon />,
-    name: "Power",
+    name: "Power Plant",
     path: "/power",
   },
   {

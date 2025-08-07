@@ -148,7 +148,7 @@ export const Step2 = () => {
             // inputMode="decimal"
             name="upstreamLevel"
             placeholder="masl"
-            value={formatValue(formData.upstreamLevel ?? 0)} // แสดง 2 ตำแหน่ง
+            value={formatValue(formData.upstreamLevel || 0)} // แสดง 2 ตำแหน่ง
             onChange={(e) => {
               const raw = parseFloat(e.target.value);
               updateFormData({
@@ -171,7 +171,7 @@ export const Step2 = () => {
             // inputMode="decimal"
             name="downstreamLevel"
             placeholder="masl"
-            value={formatValue(formData.downstreamLevel ?? 0)}
+            value={formatValue(formData.downstreamLevel || 0)}
             onChange={(e) => {
               const raw = parseFloat(e.target.value);
               updateFormData({
@@ -199,7 +199,7 @@ export const Step2 = () => {
                 // inputMode="decimal"
                 name="totalStorageamount"
                 placeholder="MCM"
-                value={formatValue(formData.totalStorageamount ?? 0)}
+                value={formatValue(formData.totalStorageamount || 0)}
                 onChange={(e) => {
                   const raw = parseFloat(e.target.value);
                   updateFormData({
@@ -222,7 +222,7 @@ export const Step2 = () => {
                 // inputMode="decimal"
                 name="totalStorageaverage"
                 placeholder="( % )"
-                value={formatValue(formData.totalStorageaverage ?? 0)}
+                value={formatValue(formData.totalStorageaverage || 0)}
                 onChange={(e) => {
                   const raw = parseFloat(e.target.value);
                   updateFormData({
@@ -250,7 +250,7 @@ export const Step2 = () => {
                 // inputMode="decimal"
                 name="activeStorageamount"
                 placeholder="MCM"
-                value={formatValue(formData.activeStorageamount ?? 0)}
+                value={formatValue(formData.activeStorageamount || 0)}
                 onChange={(e) => {
                   const raw = parseFloat(e.target.value);
                   updateFormData({
@@ -273,7 +273,7 @@ export const Step2 = () => {
                 // inputMode="decimal"
                 name="activeStorageaverage"
                 placeholder="( % )"
-                value={formatValue(formData.activeStorageaverage ?? 0)}
+                value={formatValue(formData.activeStorageaverage || 0)}
                 onChange={(e) => {
                   const raw = parseFloat(e.target.value);
                   updateFormData({
@@ -306,7 +306,7 @@ export const Step2 = () => {
                 // inputMode="decimal"
                 name="turbineDischargeamount"
                 placeholder="MCM"
-                value={formatValue(formData.turbineDischargeamount ?? 0)}
+                value={formatValue(formData.turbineDischargeamount || 0)}
                 onChange={(e) => {
                   const raw = parseFloat(e.target.value);
                   updateFormData({
@@ -329,7 +329,7 @@ export const Step2 = () => {
                 // inputMode="decimal"
                 name="turbineDischargeaverage"
                 placeholder="(m³/s)"
-                value={formatValue(formData.turbineDischargeaverage ?? 0)}
+                value={formatValue(formData.turbineDischargeaverage || 0)}
                 onChange={(e) => {
                   const raw = parseFloat(e.target.value);
                   updateFormData({
@@ -357,7 +357,7 @@ export const Step2 = () => {
                 // inputMode="decimal"
                 name="spillwayDischargeamount"
                 placeholder="MCM"
-                value={formatValue(formData.spillwayDischargeamount ?? 0)}
+                value={formatValue(formData.spillwayDischargeamount || 0)}
                 onChange={(e) => {
                   const raw = parseFloat(e.target.value);
                   updateFormData({
@@ -380,7 +380,7 @@ export const Step2 = () => {
                 // inputMode="decimal"
                 name="spillwayDischargeaverage"
                 placeholder="(m³/s)"
-                value={formatValue(formData.spillwayDischargeaverage ?? 0)}
+                value={formatValue(formData.spillwayDischargeaverage || 0)}
                 onChange={(e) => {
                   const raw = parseFloat(e.target.value);
                   updateFormData({
@@ -410,7 +410,7 @@ export const Step2 = () => {
                 // inputMode="decimal"
                 name="ecologicalDischargeamount"
                 placeholder="MCM"
-                value={formatValue(formData.ecologicalDischargeamount ?? 0)}
+                value={formatValue(formData.ecologicalDischargeamount || 0)}
                 onChange={(e) => {
                   const raw = parseFloat(e.target.value);
                   updateFormData({
@@ -433,7 +433,7 @@ export const Step2 = () => {
                 // inputMode="decimal"
                 name="ecologicalDischargeaverage"
                 placeholder="(m³/s)"
-                value={formatValue(formData.ecologicalDischargeaverage ?? 0)}
+                value={formatValue(formData.ecologicalDischargeaverage || 0)}
                 onChange={(e) => {
                   const raw = parseFloat(e.target.value);
                   updateFormData({

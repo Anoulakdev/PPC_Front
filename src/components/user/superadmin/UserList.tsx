@@ -282,7 +282,7 @@ export default function UserTable() {
 
   return (
     <>
-      <div className="rounded-xl bg-white p-6 shadow-lg">
+      <div className="rounded-xl bg-white p-6 shadow-lg transition-colors dark:bg-gray-800 dark:text-gray-100">
         <div className="mb-4 flex items-center justify-between">
           <button
             onClick={openAddModal}
@@ -310,7 +310,7 @@ export default function UserTable() {
         ) : (
           <div className="overflow-x-auto rounded-lg border">
             <table className="min-w-full rounded-lg border text-left">
-              <thead className="bg-gray-100 text-lg text-gray-700">
+              <thead className="bg-gray-100 text-lg text-gray-700 dark:bg-gray-700 dark:text-gray-100">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <tr key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
@@ -335,9 +335,15 @@ export default function UserTable() {
               </thead>
               <tbody className="text-sm text-gray-700">
                 {table.getRowModel().rows.map((row) => (
-                  <tr key={row.id} className="border-t hover:bg-gray-50">
+                  <tr
+                    key={row.id}
+                    className="border-t hover:bg-gray-50 dark:hover:bg-gray-700"
+                  >
                     {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="px-4 py-2 whitespace-nowrap">
+                      <td
+                        key={cell.id}
+                        className="px-4 py-2 whitespace-nowrap dark:text-gray-200"
+                      >
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext(),
@@ -380,7 +386,7 @@ export default function UserTable() {
             </label>
             <select
               id="rowsPerPage"
-              className="rounded border px-2 py-1"
+              className="rounded border px-2 py-1 dark:bg-gray-700"
               value={table.getState().pagination.pageSize}
               onChange={(e) => {
                 table.setPageSize(Number(e.target.value));

@@ -56,7 +56,7 @@ export const CardDay = ({ powerId }: CardDayProps) => {
   if (!data) return null;
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 md:gap-6">
+    <div className="grid grid-cols-1 gap-4 md:gap-6 xl:grid-cols-3">
       {/* <!-- Metric Item Start --> */}
       <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm md:p-6 dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="mb-2 flex w-full items-center justify-between">

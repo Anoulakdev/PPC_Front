@@ -74,6 +74,12 @@ type Power = {
   longitude: number;
   installCapacity: string;
   baseEnergy: string;
+  fullLevel: string;
+  deadLevel: string;
+  totalStorageFull: string;
+  totalStorageDead: string;
+  totalActiveFull: string;
+  totalActiveDead: string;
   codDate: string;
 };
 
@@ -177,6 +183,12 @@ export default function EditPower({
       formData.append("longitude", data.longitude.toString());
       formData.append("installCapacity", data.installCapacity);
       formData.append("baseEnergy", data.baseEnergy);
+      formData.append("fullLevel", data.fullLevel);
+      formData.append("deadLevel", data.deadLevel);
+      formData.append("totalStorageFull", data.totalStorageFull);
+      formData.append("totalStorageDead", data.totalStorageDead);
+      formData.append("totalActiveFull", data.totalActiveFull);
+      formData.append("totalActiveDead", data.totalActiveDead);
       formData.append(
         "codDate",
         moment(data.codDate, "DD-MM-YYYY").format("YYYY-MM-DD"),
@@ -250,7 +262,7 @@ export default function EditPower({
           }}
         >
           <div className="px-2">
-            <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-x-3 gap-y-5 md:grid-cols-4">
               <div>
                 <Label>Company</Label>
                 <div className="relative">
@@ -300,7 +312,7 @@ export default function EditPower({
               </div>
             </div>
 
-            <div className="mt-3 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-4">
+            <div className="mt-3 grid grid-cols-1 gap-x-3 gap-y-5 md:grid-cols-4">
               <div>
                 <Label>Address</Label>
                 <Input
@@ -352,7 +364,7 @@ export default function EditPower({
               </div>
             </div>
 
-            <div className="mt-3 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-4">
+            <div className="mt-3 grid grid-cols-1 gap-x-3 gap-y-5 md:grid-cols-4">
               <div>
                 <Label>Install Capacity</Label>
                 <Input
@@ -396,7 +408,7 @@ export default function EditPower({
               </div>
             </div>
 
-            <div className="mt-3 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-4">
+            <div className="mt-3 grid grid-cols-1 gap-x-3 gap-y-5 md:grid-cols-4">
               <div>
                 <Label>Contract</Label>
                 <div className="relative">
@@ -466,7 +478,7 @@ export default function EditPower({
               </div>
             </div>
 
-            <div className="mt-3 grid grid-cols-1 gap-x-6 lg:grid-cols-2">
+            <div className="mt-3 grid grid-cols-1 gap-x-3 gap-y-5 md:grid-cols-4">
               <div>
                 <Label>Owner</Label>
                 <div className="relative">
@@ -482,6 +494,72 @@ export default function EditPower({
                     <ChevronDownIcon />
                   </span>
                 </div>
+              </div>
+
+              <div>
+                <Label>Full Level</Label>
+                <Input
+                  type="text"
+                  name="fullLevel"
+                  value={data.fullLevel || ""}
+                  onChange={handleChange}
+                  placeholder="0.00"
+                />
+              </div>
+
+              <div>
+                <Label>Total Storage (Full Level)</Label>
+                <Input
+                  type="text"
+                  name="totalStorageFull"
+                  value={data.totalStorageFull || ""}
+                  onChange={handleChange}
+                  placeholder="0.00"
+                />
+              </div>
+              <div>
+                <Label>Total Active (Full Level)</Label>
+                <Input
+                  type="text"
+                  name="totalActiveFull"
+                  value={data.totalActiveFull || ""}
+                  onChange={handleChange}
+                  placeholder="0.00"
+                />
+              </div>
+            </div>
+
+            <div className="mt-3 grid grid-cols-1 gap-x-3 gap-y-5 md:grid-cols-4">
+              <div>
+                <Label>Dead Level</Label>
+                <Input
+                  type="text"
+                  name="deadLevel"
+                  value={data.deadLevel || ""}
+                  onChange={handleChange}
+                  placeholder="0.00"
+                />
+              </div>
+
+              <div>
+                <Label>Total Storage (Dead Level)</Label>
+                <Input
+                  type="text"
+                  name="totalStorageDead"
+                  value={data.totalStorageDead || ""}
+                  onChange={handleChange}
+                  placeholder="0.00"
+                />
+              </div>
+              <div>
+                <Label>Total Active (Dead Level)</Label>
+                <Input
+                  type="text"
+                  name="totalActiveDead"
+                  value={data.totalActiveDead || ""}
+                  onChange={handleChange}
+                  placeholder="0.00"
+                />
               </div>
               <div>
                 <Label>Upload Image</Label>

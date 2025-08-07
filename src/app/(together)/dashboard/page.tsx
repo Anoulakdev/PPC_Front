@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { CardDayDashboard } from "@/components/reportCard/cardDayDashboard";
+import ChartDashboard from "@/components/charts/chartDashboard";
 import React from "react";
 
 export const metadata: Metadata = {
@@ -7,12 +8,11 @@ export const metadata: Metadata = {
   description: "Dashboard",
 };
 
-export default function Ecommerce() {
+export default function Dashboard() {
   return (
-    <div className="grid grid-cols-12 gap-4 md:gap-6">
-      <div className="col-span-12">
-        <CardDayDashboard />
-      </div>
+    <div className="space-y-6">
+      <CardDayDashboard />
+      <ChartDashboard />
     </div>
   );
 }

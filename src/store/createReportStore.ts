@@ -22,8 +22,8 @@ type FormData = {
   pws: number | null;
   inflowamount: number | null;
   inflowaverage: number | null;
-  outflowamount: number | null;
-  outflowaverage: number | null;
+  tdAmount: number | null;
+  tdAverage: number | null;
   spillwayamount: number | null;
   spillwayaverage: number | null;
   owramount: number | null;
@@ -31,6 +31,8 @@ type FormData = {
   rainFall: number | null;
   netEnergyOutput: number | null;
   waterRate: number | null;
+  totalOutflow: number | null;
+  averageOutflow: number | null;
 };
 
 type CreateReportState = {
@@ -61,8 +63,8 @@ export const useCreateReportStore = create<CreateReportState>()(
         pws: null,
         inflowamount: null,
         inflowaverage: null,
-        outflowamount: null,
-        outflowaverage: null,
+        tdAmount: null,
+        tdAverage: null,
         spillwayamount: null,
         spillwayaverage: null,
         owramount: null,
@@ -70,6 +72,8 @@ export const useCreateReportStore = create<CreateReportState>()(
         rainFall: null,
         netEnergyOutput: null,
         waterRate: null,
+        totalOutflow: null,
+        averageOutflow: null,
       },
       currentStep: 1,
       updateFormData: (data) =>
@@ -96,8 +100,8 @@ export const useCreateReportStore = create<CreateReportState>()(
             pws: null,
             inflowamount: null,
             inflowaverage: null,
-            outflowamount: null,
-            outflowaverage: null,
+            tdAmount: null,
+            tdAverage: null,
             spillwayamount: null,
             spillwayaverage: null,
             owramount: null,
@@ -105,6 +109,8 @@ export const useCreateReportStore = create<CreateReportState>()(
             rainFall: null,
             netEnergyOutput: null,
             waterRate: null,
+            totalOutflow: null,
+            averageOutflow: null,
           },
           currentStep: 1,
         }),

@@ -64,7 +64,7 @@ const navItems: NavItem[] = [
   },
   {
     icon: <PaperPlaneIcon />,
-    name: "Create Report",
+    name: "Hydrology Report",
     path: "/dispatch/createreport",
   },
 ];

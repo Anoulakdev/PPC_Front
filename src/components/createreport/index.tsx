@@ -88,8 +88,8 @@ type Day = {
   pws: string;
   inflowamount: string;
   inflowaverage: string;
-  outflowamount: string;
-  outflowaverage: string;
+  tdAmount: string;
+  tdAverage: string;
   spillwayamount: string;
   spillwayaverage: string;
   owramount: string;
@@ -97,6 +97,8 @@ type Day = {
   rainFall: string;
   netEnergyOutput: string;
   waterRate: string;
+  totalOutflow: string;
+  averageOutflow: string;
   remarks: string;
   power?: Power;
   powerOriginal?: PowerOriginal;
@@ -236,10 +238,10 @@ export default function DayTable() {
       accessorKey: "inflowaverage",
     },
     {
-      accessorKey: "outflowamount",
+      accessorKey: "tdAmount",
     },
     {
-      accessorKey: "outflowaverage",
+      accessorKey: "tdAverage",
     },
     {
       accessorKey: "spillwayamount",
@@ -261,6 +263,12 @@ export default function DayTable() {
     },
     {
       accessorKey: "waterRate",
+    },
+    {
+      accessorKey: "totalOutflow",
+    },
+    {
+      accessorKey: "averageOutflow",
     },
     {
       accessorKey: "createdByUser",
@@ -337,8 +345,8 @@ export default function DayTable() {
           Active_Storage_Average: item.activeStorageaverage ?? "",
           Inflow_Amount: item.inflowamount ?? "",
           Inflow_Average: item.inflowaverage ?? "",
-          Outflow_Amount: item.outflowamount ?? "",
-          Outflow_Average: item.outflowaverage ?? "",
+          Outflow_Amount: item.tdAmount ?? "",
+          Outflow_Average: item.tdAverage ?? "",
           Spillway_Amount: item.spillwayamount ?? "",
           Spillway_Average: item.spillwayaverage ?? "",
           Other_Water_Released_Amount: item.owramount ?? "",
@@ -346,6 +354,8 @@ export default function DayTable() {
           Rain_Fall: item.rainFall ?? "",
           Net_Energy_Output: item.netEnergyOutput ?? "",
           Water_Rate: item.waterRate ?? "",
+          Total_Outflow: item.totalOutflow ?? "",
+          Average_Outflow: item.averageOutflow ?? "",
           CreatedBy: `${item.createdByUser?.firstname ?? ""} ${
             item.createdByUser?.lastname ?? ""
           }`.trim(),
@@ -390,7 +400,10 @@ export default function DayTable() {
       const blob = new Blob([excelBuffer], {
         type: "application/octet-stream",
       });
-      saveAs(blob, `Create_Report_${moment().format("DDMMYYYY_HHmmss")}.xlsx`);
+      saveAs(
+        blob,
+        `Hydrology_Report_${moment().format("DDMMYYYY_HHmmss")}.xlsx`,
+      );
     }
   };
 
@@ -480,7 +493,7 @@ export default function DayTable() {
           <div className="overflow-x-auto rounded-lg border">
             <table className="min-w-full rounded-lg border text-left dark:border-gray-700">
               <thead className="bg-gray-100 text-sm whitespace-nowrap text-gray-700 dark:bg-gray-800 dark:text-gray-200">
-                <tr className="bg-gray-100 text-center">
+                <tr className="bg-gray-100 text-center text-gray-700 dark:bg-gray-800 dark:text-gray-200">
                   <th rowSpan={2} className="border px-2 py-2">
                     Date
                   </th>
@@ -502,7 +515,7 @@ export default function DayTable() {
                     Inflow
                   </th>
                   <th colSpan={2} className="border px-2 py-2">
-                    Outflow
+                    Turbine Discharge
                   </th>
                   <th colSpan={2} className="border px-2 py-2">
                     Spill Way
@@ -513,6 +526,8 @@ export default function DayTable() {
                   <th className="border px-2 py-2">Rain fall</th>
                   <th className="border px-2 py-2">Net Energy Output (NEO)</th>
                   <th className="border px-2 py-2">Water Rate</th>
+                  <th className="border px-2 py-2">Total Outflow</th>
+                  <th className="border px-2 py-2">Average Outflow</th>
                   <th rowSpan={2} className="border px-2 py-2">
                     Created By
                   </th>
@@ -520,7 +535,7 @@ export default function DayTable() {
                     Action
                   </th>
                 </tr>
-                <tr className="bg-gray-100 text-center text-xs">
+                <tr className="bg-gray-100 text-center text-xs text-gray-700 dark:bg-gray-800 dark:text-gray-200">
                   <th className="border px-2 py-2">masl</th>
                   <th className="border px-2 py-2">m</th>
                   <th className="border px-2 py-2">m</th>
@@ -528,7 +543,6 @@ export default function DayTable() {
                   <th className="border px-2 py-2">MCM</th>
                   <th className="border px-2 py-2">MCM</th>
                   <th className="border px-2 py-2">(%)</th>
-                  <th className="border px-2 py-2">m³/s</th>
                   <th className="border px-2 py-2">MCM</th>
                   <th className="border px-2 py-2">m³/s</th>
                   <th className="border px-2 py-2">MCM</th>
@@ -536,9 +550,12 @@ export default function DayTable() {
                   <th className="border px-2 py-2">MCM</th>
                   <th className="border px-2 py-2">m³/s</th>
                   <th className="border px-2 py-2">MCM</th>
+                  <th className="border px-2 py-2">m³/s</th>
                   <th className="border px-2 py-2">mm</th>
                   <th className="border px-2 py-2">kWh</th>
                   <th className="border px-2 py-2">m³/kWh</th>
+                  <th className="border px-2 py-2">MCM</th>
+                  <th className="border px-2 py-2">m³/S</th>
                 </tr>
               </thead>
               <tbody className="text-center text-sm text-gray-700 dark:text-gray-300">
@@ -591,7 +608,7 @@ export default function DayTable() {
             </label>
             <select
               id="rowsPerPage"
-              className="rounded border px-2 py-1"
+              className="rounded border px-2 py-1 dark:bg-gray-700"
               value={table.getState().pagination.pageSize}
               onChange={(e) => {
                 table.setPageSize(Number(e.target.value));

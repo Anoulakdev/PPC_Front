@@ -457,7 +457,7 @@ export default function DayTable() {
             </label>
             <select
               id="rowsPerPage"
-              className="rounded border px-2 py-1"
+              className="rounded border px-2 py-1 dark:bg-gray-700"
               value={table.getState().pagination.pageSize}
               onChange={(e) => {
                 table.setPageSize(Number(e.target.value));

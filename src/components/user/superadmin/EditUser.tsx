@@ -85,6 +85,7 @@ export default function EditUser({
     try {
       setLoading(true);
       const formData = new FormData();
+      formData.append("email", data.email);
       formData.append("firstname", data.firstname);
       formData.append("lastname", data.lastname || "");
       formData.append("phone", data.phone || "");
@@ -126,6 +127,16 @@ export default function EditUser({
           <div className="px-2">
             <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-3">
               <div>
+                <Label>Email</Label>
+                <Input
+                  type="email"
+                  name="email"
+                  value={data.email || ""}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div>
                 <Label>Firstname</Label>
                 <Input
                   type="text"
@@ -145,6 +156,9 @@ export default function EditUser({
                   required
                 />
               </div>
+            </div>
+
+            <div className="mt-3 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-3">
               <div>
                 <Label>Phone</Label>
                 <Input
@@ -155,9 +169,6 @@ export default function EditUser({
                   maxLength={10}
                 />
               </div>
-            </div>
-
-            <div className="mt-3 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-3">
               <div>
                 <Label>Upload Image</Label>
                 <FileInput

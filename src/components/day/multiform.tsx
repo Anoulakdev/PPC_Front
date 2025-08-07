@@ -10,7 +10,7 @@ export default function MultiStepFormPage() {
   const { currentStep } = useDayPowerStore();
 
   return (
-    <div className="rounded-xl bg-white p-6 shadow-lg">
+    <div className="rounded-xl bg-white p-6 shadow-lg dark:bg-gray-900 dark:text-white">
       {/* ✅ ProgressBar ตรงกลางและเต็มความกว้าง */}
       <div className="mb-3 flex justify-center">
         <div className="max-w-8xl w-full md:ms-10 lg:ms-15 xl:ms-20 2xl:ms-35">

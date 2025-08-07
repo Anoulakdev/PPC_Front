@@ -161,7 +161,7 @@ export const Step2 = () => {
       <div className="overflow-x-auto">
         <table className="table-auto border text-left">
           <thead>
-            <tr className="bg-gray-100">
+            <tr className="bg-gray-100 dark:bg-gray-800">
               <th className="border p-2 text-center whitespace-nowrap">
                 Time Of Day (Hrs)
               </th>
@@ -226,7 +226,7 @@ export const Step2 = () => {
                       </td>
                     );
                   })}
-                  <td className="border bg-gray-50 p-2 text-center font-bold whitespace-nowrap">
+                  <td className="border bg-gray-50 p-2 text-center font-bold whitespace-nowrap dark:bg-gray-700">
                     {hourlyTotal.toFixed(2)} MWh
                   </td>
                   <td className="border p-1 whitespace-nowrap">
@@ -241,7 +241,7 @@ export const Step2 = () => {
                 </tr>
               );
             })}
-            <tr className="bg-gray-50 font-bold">
+            <tr className="bg-gray-50 font-bold dark:bg-gray-800">
               <td className="border p-2 text-center">Total (MWh)</td>
               {(formData.turbineData || []).map((t, tIdx) => (
                 <td

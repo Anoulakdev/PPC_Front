@@ -31,6 +31,12 @@ type Power = {
   address: string;
   installCapacity: string;
   baseEnergy: string;
+  fullLevel: string;
+  deadLevel: string;
+  totalStorageFull: string;
+  totalStorageDead: string;
+  totalActiveFull: string;
+  totalActiveDead: string;
   powerimg: string;
   company: Company;
   contract: Contract;
@@ -148,14 +154,23 @@ export default function CompanyTable() {
     {
       accessorKey: "unit",
       header: "Unit",
+      cell: ({ row }) => (
+        <div className="w-full text-center">{row.original?.unit}</div>
+      ),
     },
     {
       accessorKey: "abbreviation",
       header: "Abbreviation",
+      cell: ({ row }) => (
+        <div className="w-full text-center">{row.original?.abbreviation}</div>
+      ),
     },
     {
       accessorKey: "address",
       header: "Address",
+      cell: ({ row }) => (
+        <div className="w-full text-center">{row.original?.address}</div>
+      ),
     },
     {
       accessorKey: "phone",
@@ -178,8 +193,25 @@ export default function CompanyTable() {
       ),
     },
     {
+      accessorKey: "fullLevel",
+      header: () => <div className="w-full text-center">Full Level</div>,
+      cell: ({ row }) => (
+        <div className="w-full text-center">{row.original?.fullLevel}</div>
+      ),
+    },
+    {
+      accessorKey: "deadLevel",
+      header: () => <div className="w-full text-center">Dead Level</div>,
+      cell: ({ row }) => (
+        <div className="w-full text-center">{row.original?.deadLevel}</div>
+      ),
+    },
+    {
       accessorKey: "contract.name",
       header: "Contract",
+      cell: ({ row }) => (
+        <div className="w-full text-center">{row.original?.contract?.name}</div>
+      ),
     },
     {
       accessorKey: "powerimg",
@@ -240,7 +272,7 @@ export default function CompanyTable() {
 
   return (
     <>
-      <div className="rounded-xl bg-white p-6 shadow-lg">
+      <div className="rounded-xl bg-white p-6 shadow-lg transition-colors dark:bg-gray-800 dark:text-gray-100">
         <div className="mb-4 flex items-center justify-between">
           <button
             onClick={openAddModal}
@@ -268,7 +300,7 @@ export default function CompanyTable() {
         ) : (
           <div className="overflow-x-auto rounded-lg border">
             <table className="min-w-full rounded-lg border text-left">
-              <thead className="bg-gray-100 text-lg text-gray-700">
+              <thead className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-100">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <tr key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
@@ -293,9 +325,15 @@ export default function CompanyTable() {
               </thead>
               <tbody className="text-sm text-gray-700">
                 {table.getRowModel().rows.map((row) => (
-                  <tr key={row.id} className="border-t hover:bg-gray-50">
+                  <tr
+                    key={row.id}
+                    className="border-t hover:bg-gray-50 dark:hover:bg-gray-700"
+                  >
                     {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="px-4 py-2 whitespace-nowrap">
+                      <td
+                        key={cell.id}
+                        className="px-4 py-2 whitespace-nowrap dark:text-gray-200"
+                      >
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext(),
@@ -338,7 +376,7 @@ export default function CompanyTable() {
             </label>
             <select
               id="rowsPerPage"
-              className="rounded border px-2 py-1"
+              className="rounded border px-2 py-1 dark:bg-gray-700"
               value={table.getState().pagination.pageSize}
               onChange={(e) => {
                 table.setPageSize(Number(e.target.value));

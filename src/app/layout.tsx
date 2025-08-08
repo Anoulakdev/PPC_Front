@@ -18,6 +18,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="icon" href="/icons/icon-192x192.png" />
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href="/icons/icon-192x192.png"
+        />
+      </head>
       <body className={`${notoSansLao.className} dark:bg-gray-900`}>
         <AppInitializer />
         <ThemeProvider>

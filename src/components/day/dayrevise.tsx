@@ -95,14 +95,16 @@ export default function DayRevise() {
 
   const handleHourlyChange = (tIdx: number, hourIdx: number, value: string) => {
     const updated = [...data.currentTurbines];
-    let val = parseFloat(value) || 0;
+    let val = parseFloat(value);
+
+    if (isNaN(val)) val = 0;
 
     const turbineNum = updated[tIdx].turbine;
     const machine = data.machinesAvailability.find(
       (m: any) => m.turbine === turbineNum,
     );
 
-    if (machine) {
+    if (val !== 0 && machine) {
       if (val < machine.mins) val = machine.mins;
       if (val > machine.maxs) val = machine.maxs;
     }
@@ -134,11 +136,11 @@ export default function DayRevise() {
 
     for (let i = 0; i < 24; i++) {
       let val = values[i] ?? 0;
-      if (machine) {
+      if (val !== 0 && machine) {
         if (val < machine.mins) val = machine.mins;
         if (val > machine.maxs) val = machine.maxs;
       }
-      updated[tIdx].hourly[i] = val;
+      updated[tIdx].hourly[i] = parseFloat(val.toFixed(2));
     }
 
     setData({ ...data, currentTurbines: updated });
@@ -171,13 +173,15 @@ export default function DayRevise() {
     hourIdx: number,
     value: string,
   ) => {
-    let num = parseFloat(value) || 0;
+    let num = parseFloat(value);
+    if (isNaN(num)) num = 0;
+
     const turbine = data.currentTurbines[turbineIdx].turbine;
     const machine = data?.machinesAvailability.find(
       (m: any) => m.turbine === turbine,
     );
 
-    if (machine) {
+    if (num !== 0 && machine) {
       if (num < machine.mins) num = machine.mins;
       if (num > machine.maxs) num = machine.maxs;
     }

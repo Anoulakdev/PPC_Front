@@ -76,18 +76,19 @@ export const Step3 = () => {
     hourIdx: number,
     value: string,
   ) => {
-    let num = parseFloat(value) || 0;
+    let num = parseFloat(value);
+    if (isNaN(num)) num = 0;
+
     const turbine = formData.turbineData[turbineIdx].turbine;
     const machine = machinesAvailability.find((m) => m.turbine === turbine);
 
-    if (machine) {
+    // 👉 ถ้าเป็น 0 ไม่ต้อง validate
+    if (num !== 0 && machine) {
       if (num < machine.mins) num = machine.mins;
       if (num > machine.maxs) num = machine.maxs;
     }
 
     const updated = [...formData.turbineData];
-
-    // ใช้ค่า validated กับ index ตั้งแต่ hourIdx ถึง 23
     for (let i = hourIdx; i < 24; i++) {
       updated[turbineIdx].hourly[i] = parseFloat(num.toFixed(2));
     }

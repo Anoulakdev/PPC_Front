@@ -366,7 +366,7 @@ export default function EditPower({
 
             <div className="mt-3 grid grid-cols-1 gap-x-3 gap-y-5 md:grid-cols-4">
               <div>
-                <Label>Install Capacity</Label>
+                <Label>Install Capacity (MW)</Label>
                 <Input
                   type="text"
                   name="installCapacity"
@@ -377,7 +377,7 @@ export default function EditPower({
               </div>
 
               <div>
-                <Label>Base Energy</Label>
+                <Label>Base Energy (GWh)</Label>
                 <Input
                   type="text"
                   name="baseEnergy"
@@ -497,7 +497,7 @@ export default function EditPower({
               </div>
 
               <div>
-                <Label>Full Level</Label>
+                <Label>Full Level (masl)</Label>
                 <Input
                   type="text"
                   name="fullLevel"
@@ -508,7 +508,7 @@ export default function EditPower({
               </div>
 
               <div>
-                <Label>Total Storage (Full Level)</Label>
+                <Label>Total Storage at Full Level (MCM)</Label>
                 <Input
                   type="text"
                   name="totalStorageFull"
@@ -518,7 +518,7 @@ export default function EditPower({
                 />
               </div>
               <div>
-                <Label>Total Active (Full Level)</Label>
+                <Label>Total Active at Full Level (MCM)</Label>
                 <Input
                   type="text"
                   name="totalActiveFull"
@@ -531,7 +531,7 @@ export default function EditPower({
 
             <div className="mt-3 grid grid-cols-1 gap-x-3 gap-y-5 md:grid-cols-4">
               <div>
-                <Label>Dead Level</Label>
+                <Label>Dead Level (masl)</Label>
                 <Input
                   type="text"
                   name="deadLevel"
@@ -542,7 +542,7 @@ export default function EditPower({
               </div>
 
               <div>
-                <Label>Total Storage (Dead Level)</Label>
+                <Label>Total Storage at Dead Level (MCM)</Label>
                 <Input
                   type="text"
                   name="totalStorageDead"
@@ -552,7 +552,7 @@ export default function EditPower({
                 />
               </div>
               <div>
-                <Label>Total Active (Dead Level)</Label>
+                <Label>Total Active at Dead Level (MCM)</Label>
                 <Input
                   type="text"
                   name="totalActiveDead"

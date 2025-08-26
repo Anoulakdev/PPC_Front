@@ -12,6 +12,7 @@ import {
 } from "@tanstack/react-table";
 import { useState, useEffect } from "react";
 import axiosInstance from "@/utils/axiosInstance";
+import moment from "moment";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   EyeIcon,
@@ -53,6 +54,8 @@ type Week = {
   powerNo: string;
   sYear: string;
   sWeek: string;
+  startDate: string;
+  endDate: string;
   remarks: string;
   decAcknow: boolean;
   disAcknow: boolean;
@@ -172,6 +175,14 @@ export default function WeekTable() {
     {
       accessorKey: "sWeek",
       header: "WEEK",
+    },
+    {
+      header: "DATE RANGE",
+      cell: ({ row }) => {
+        const startDate = moment(row.original?.startDate).format("DD/MM/YYYY");
+        const endDate = moment(row.original?.endDate).format("DD/MM/YYYY");
+        return `${startDate} - ${endDate}`;
+      },
     },
     {
       accessorKey: "power.company.name",

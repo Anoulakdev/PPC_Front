@@ -51,6 +51,8 @@ type Week = {
   powerNo: string;
   sYear: string;
   sWeek: string;
+  startDate: string;
+  endDate: string;
   remarks: string;
   decAcknow: boolean;
   disAcknow: boolean;
@@ -181,6 +183,14 @@ export default function WeekTable() {
     {
       accessorKey: "sWeek",
       header: "WEEK",
+    },
+    {
+      header: "DATE RANGE",
+      cell: ({ row }) => {
+        const startDate = moment(row.original?.startDate).format("DD/MM/YYYY");
+        const endDate = moment(row.original?.endDate).format("DD/MM/YYYY");
+        return `${startDate} - ${endDate}`;
+      },
     },
     {
       accessorKey: "power.company.name",
@@ -351,6 +361,7 @@ export default function WeekTable() {
           No: index + 1,
           Year: item.sYear,
           Week: item.sWeek,
+          DateRange: `${moment(item.startDate).format("DD/MM/YYYY")} - ${moment(item.endDate).format("DD/MM/YYYY")}`,
           Company: item.power?.company?.name ?? "",
           Declaration: item.power?.name ?? "",
           WAD_WD: `${item.powerNo} - EDL`,
@@ -491,7 +502,7 @@ export default function WeekTable() {
               </tbody>
               <tfoot className="bg-gray-50 text-sm font-semibold whitespace-nowrap dark:bg-gray-800 dark:text-gray-200">
                 <tr>
-                  <td colSpan={5} className="px-4 py-3 text-center text-sm">
+                  <td colSpan={6} className="px-4 py-3 text-center text-sm">
                     Total
                   </td>
                   <td className="px-4 py-3">

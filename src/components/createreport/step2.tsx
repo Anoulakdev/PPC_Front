@@ -193,13 +193,13 @@ export const Step2 = () => {
   // --------------------------------------------------------------
 
   useEffect(() => {
-    const waterLevel = formData?.waterLevel ?? 0;
-    const activeStorageamount = formData?.activeStorageamount ?? 0;
-    const tdAmount = formData?.tdAmount ?? 0;
+    const waterLevel = Number(formData?.waterLevel ?? 0);
+    const activeStorageamount = Number(formData?.activeStorageamount ?? 0);
+    const tdAmount = Number(formData?.tdAmount ?? 0);
 
-    const netEnergyOutput = formData?.netEnergyOutput ?? 0;
-    const spillwayamount = formData?.spillwayamount ?? 0;
-    const owramount = formData?.owramount ?? 0;
+    const netEnergyOutput = Number(formData?.netEnergyOutput ?? 0);
+    const spillwayamount = Number(formData?.spillwayamount ?? 0);
+    const owramount = Number(formData?.owramount ?? 0);
 
     const totalActiveFull = Number(data?.totalActiveFull) || 0;
     const fullLevel = Number(data?.fullLevel) || 0;
@@ -247,12 +247,14 @@ export const Step2 = () => {
 
   useEffect(() => {
     if (editingInflow === "amount" && formData.inflowamount != null) {
-      const inflowaverage = (formData.inflowamount * 1000000) / (24 * 3600);
+      const inflowaverage =
+        (Number(formData.inflowamount) * 1000000) / (24 * 3600);
       updateFormData({
         inflowaverage: parseFloat(inflowaverage.toFixed(2)),
       });
     } else if (editingInflow === "average" && formData.inflowaverage != null) {
-      const inflowamount = (formData.inflowaverage * 24 * 3600) / 1000000;
+      const inflowamount =
+        (Number(formData.inflowaverage) * 24 * 3600) / 1000000;
       updateFormData({
         inflowamount: parseFloat(inflowamount.toFixed(2)),
       });
@@ -272,12 +274,12 @@ export const Step2 = () => {
 
   useEffect(() => {
     if (editingTD === "amount" && formData.tdAmount != null) {
-      const tdAverage = (formData.tdAmount * 1000000) / (24 * 3600);
+      const tdAverage = (Number(formData.tdAmount) * 1000000) / (24 * 3600);
       updateFormData({
         tdAverage: parseFloat(tdAverage.toFixed(2)),
       });
     } else if (editingTD === "average" && formData.tdAverage != null) {
-      const tdAmount = (formData.tdAverage * 24 * 3600) / 1000000;
+      const tdAmount = (Number(formData.tdAverage) * 24 * 3600) / 1000000;
       updateFormData({
         tdAmount: parseFloat(tdAmount.toFixed(2)),
       });
@@ -294,12 +296,14 @@ export const Step2 = () => {
 
   useEffect(() => {
     if (editingSW === "amount" && formData.spillwayamount != null) {
-      const spillwayaverage = (formData.spillwayamount * 1000000) / (24 * 3600);
+      const spillwayaverage =
+        (Number(formData.spillwayamount) * 1000000) / (24 * 3600);
       updateFormData({
         spillwayaverage: parseFloat(spillwayaverage.toFixed(2)),
       });
     } else if (editingSW === "average" && formData.spillwayaverage != null) {
-      const spillwayamount = (formData.spillwayaverage * 24 * 3600) / 1000000;
+      const spillwayamount =
+        (Number(formData.spillwayaverage) * 24 * 3600) / 1000000;
       updateFormData({
         spillwayamount: parseFloat(spillwayamount.toFixed(2)),
       });
@@ -319,12 +323,12 @@ export const Step2 = () => {
 
   useEffect(() => {
     if (editingOWR === "amount" && formData.owramount != null) {
-      const owraverage = (formData.owramount * 1000000) / (24 * 3600);
+      const owraverage = (Number(formData.owramount) * 1000000) / (24 * 3600);
       updateFormData({
         owraverage: parseFloat(owraverage.toFixed(2)),
       });
     } else if (editingOWR === "average" && formData.owraverage != null) {
-      const owramount = (formData.owraverage * 24 * 3600) / 1000000;
+      const owramount = (Number(formData.owraverage) * 24 * 3600) / 1000000;
       updateFormData({
         owramount: parseFloat(owramount.toFixed(2)),
       });
@@ -339,8 +343,11 @@ export const Step2 = () => {
 
   // ------------------------------------------
 
-  const toFixed2 = (n: number | undefined | null) =>
-    parseFloat((n ?? 0).toFixed(2));
+  const toFixed2 = (val: string | number | undefined | null): string => {
+    const num = typeof val === "string" ? parseFloat(val) : (val ?? 0);
+    if (isNaN(num)) return "0.00";
+    return num.toFixed(2); // return string เช่น "68.00"
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -491,18 +498,18 @@ export const Step2 = () => {
               <Input
                 type="number"
                 name="activeStorageamount"
-                placeholder="MCM"
-                value={formatValue(formData.activeStorageamount ?? 0)}
+                placeholder="0.00"
+                value={formData.activeStorageamount || ""}
                 onChange={(e) => {
-                  const raw = parseFloat(e.target.value);
                   updateFormData({
-                    activeStorageamount: isNaN(raw) ? 0 : raw, // อัปเดตระหว่างพิมพ์
+                    activeStorageamount: e.target.value,
                   });
                 }}
                 onBlur={(e) => {
                   const raw = parseFloat(e.target.value);
-                  const fixed = isNaN(raw) ? 0 : parseFloat(raw.toFixed(2)); // ตัดทศนิยมจริง
-                  updateFormData({ activeStorageamount: fixed });
+                  updateFormData({
+                    activeStorageamount: isNaN(raw) ? "" : raw,
+                  });
                 }}
                 required
               />
@@ -528,17 +535,18 @@ export const Step2 = () => {
           <Input
             type="number"
             name="waterLevel"
-            value={formatValue(formData.waterLevel ?? 0)}
+            placeholder="0.00"
+            value={formData.waterLevel || ""}
             onChange={(e) => {
-              const raw = parseFloat(e.target.value);
               updateFormData({
-                waterLevel: isNaN(raw) ? 0 : raw, // อัปเดตระหว่างพิมพ์
+                waterLevel: e.target.value,
               });
             }}
             onBlur={(e) => {
               const raw = parseFloat(e.target.value);
-              const fixed = isNaN(raw) ? 0 : parseFloat(raw.toFixed(2)); // ตัดทศนิยมจริง
-              updateFormData({ waterLevel: fixed });
+              updateFormData({
+                waterLevel: isNaN(raw) ? "" : raw,
+              });
             }}
             required
           />
@@ -599,7 +607,8 @@ export const Step2 = () => {
               <Input
                 type="number"
                 name="inflowamount"
-                value={formatValue(formData.inflowamount ?? 0)}
+                placeholder="0.00"
+                value={formData.inflowamount || ""}
                 onChange={(e) => {
                   const raw = parseFloat(e.target.value);
                   updateFormData({
@@ -617,7 +626,8 @@ export const Step2 = () => {
               <Input
                 type="number"
                 name="inflowaverage"
-                value={formatValue(formData.inflowaverage ?? 0)}
+                placeholder="0.00"
+                value={formData.inflowaverage || ""}
                 onChange={(e) => {
                   const raw = parseFloat(e.target.value);
                   updateFormData({
@@ -640,7 +650,8 @@ export const Step2 = () => {
               <Input
                 type="number"
                 name="tdAmount"
-                value={formatValue(formData.tdAmount ?? 0)}
+                placeholder="0.00"
+                value={formData.tdAmount || ""}
                 onChange={(e) => {
                   const raw = parseFloat(e.target.value);
                   updateFormData({
@@ -658,7 +669,8 @@ export const Step2 = () => {
               <Input
                 type="number"
                 name="tdAverage"
-                value={formatValue(formData.tdAverage ?? 0)}
+                placeholder="0.00"
+                value={formData.tdAverage || ""}
                 onChange={(e) => {
                   const raw = parseFloat(e.target.value);
                   updateFormData({
@@ -683,7 +695,8 @@ export const Step2 = () => {
               <Input
                 type="number"
                 name="spillwayamount"
-                value={formatValue(formData.spillwayamount ?? 0)}
+                placeholder="0.00"
+                value={formData.spillwayamount || ""}
                 onChange={(e) => {
                   const raw = parseFloat(e.target.value);
                   updateFormData({
@@ -701,7 +714,8 @@ export const Step2 = () => {
               <Input
                 type="number"
                 name="spillwayaverage"
-                value={formatValue(formData.spillwayaverage ?? 0)}
+                placeholder="0.00"
+                value={formData.spillwayaverage || ""}
                 onChange={(e) => {
                   const raw = parseFloat(e.target.value);
                   updateFormData({
@@ -724,7 +738,8 @@ export const Step2 = () => {
               <Input
                 type="number"
                 name="owramount"
-                value={formatValue(formData.owramount ?? 0)}
+                placeholder="0.00"
+                value={formData.owramount || ""}
                 onChange={(e) => {
                   const raw = parseFloat(e.target.value);
                   updateFormData({
@@ -742,7 +757,8 @@ export const Step2 = () => {
               <Input
                 type="number"
                 name="owraverage"
-                value={formatValue(formData.owraverage ?? 0)}
+                placeholder="0.00"
+                value={formData.owraverage || ""}
                 onChange={(e) => {
                   const raw = parseFloat(e.target.value);
                   updateFormData({
@@ -765,7 +781,8 @@ export const Step2 = () => {
           <Input
             type="number"
             name="rainFall"
-            value={formatValue(formData.rainFall ?? 0)}
+            placeholder="0.00"
+            value={formData.rainFall || ""}
             onChange={(e) => {
               const raw = parseFloat(e.target.value);
               updateFormData({
@@ -786,7 +803,8 @@ export const Step2 = () => {
           <Input
             type="number"
             name="netEnergyOutput"
-            value={formatValue(formData.netEnergyOutput ?? 0)}
+            placeholder="0.00"
+            value={formData.netEnergyOutput || ""}
             onChange={(e) => {
               const raw = parseFloat(e.target.value);
               updateFormData({

@@ -7,7 +7,7 @@ import { useParams, useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { decryptId, encryptId } from "@/lib/cryptoId";
 import { getLocalStorage } from "@/utils/storage";
-import { getCurrentWeek } from "@/utils/weeksInYear";
+// import { getCurrentWeek } from "@/utils/weeksInYear";
 
 const hours = [
   "00:00-01:00",
@@ -51,6 +51,8 @@ type WeekPowerData = {
   id: number;
   sYear?: string;
   sWeek?: string;
+  startDate?: string;
+  endDate?: string;
   powerCurrent?: CurrentPower;
   decAcknow?: boolean;
   disAcknow?: boolean;
@@ -95,15 +97,24 @@ export default function WeekAction() {
     fetchData();
   }, [id, router]);
 
+  // const isReviseDisabled = useMemo(() => {
+  //   if (!data?.sYear || !data?.sWeek) return true;
+
+  //   const now = new Date();
+  //   const currentYear = now.getFullYear().toString();
+  //   const currentWeek = getCurrentWeek();
+
+  //   return !(data.sYear === currentYear && data.sWeek === currentWeek);
+  // }, [data?.sYear, data?.sWeek]);
+
   const isReviseDisabled = useMemo(() => {
-    if (!data?.sYear || !data?.sWeek) return true;
+    if (!data?.endDate) return true;
 
-    const now = new Date();
-    const currentYear = now.getFullYear().toString();
-    const currentWeek = getCurrentWeek();
+    const today = new Date();
+    const endDate = new Date(data.endDate);
 
-    return !(data.sYear === currentYear && data.sWeek === currentWeek);
-  }, [data?.sYear, data?.sWeek]);
+    return today > endDate; // ถ้าวันนี้เกิน endDate → true (disabled)
+  }, [data?.endDate]);
 
   const handleAcknowledge = async () => {
     try {

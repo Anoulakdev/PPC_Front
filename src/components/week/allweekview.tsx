@@ -7,7 +7,7 @@ import moment from "moment";
 import { decryptId, encryptId } from "@/lib/cryptoId";
 import { ArrowLeftIcon, PencilIcon } from "@heroicons/react/24/solid";
 import { getLocalStorage } from "@/utils/storage";
-import { getCurrentWeek } from "@/utils/weeksInYear";
+// import { getCurrentWeek } from "@/utils/weeksInYear";
 
 const hours = [
   "00:00-01:00",
@@ -89,6 +89,8 @@ type WeekPowerData = {
   powerNo: string;
   sYear: string;
   sWeek: string;
+  startDate: string;
+  endDate: string;
   remarks: string | null;
   createdByUserId: number;
   createdAt: string;
@@ -137,15 +139,24 @@ export default function WeekView() {
     fetchData();
   }, [id, router]);
 
+  // const isReviseDisabled = useMemo(() => {
+  //   if (!data?.sYear || !data?.sWeek) return true;
+
+  //   const now = new Date();
+  //   const currentYear = now.getFullYear().toString();
+  //   const currentWeek = getCurrentWeek();
+
+  //   return !(data.sYear === currentYear && data.sWeek === currentWeek);
+  // }, [data?.sYear, data?.sWeek]);
+
   const isReviseDisabled = useMemo(() => {
-    if (!data?.sYear || !data?.sWeek) return true;
+    if (!data?.endDate) return true;
 
-    const now = new Date();
-    const currentYear = now.getFullYear().toString();
-    const currentWeek = getCurrentWeek();
+    const today = new Date();
+    const endDate = new Date(data.endDate);
 
-    return !(data.sYear === currentYear && data.sWeek === currentWeek);
-  }, [data?.sYear, data?.sWeek]);
+    return today > endDate; // ถ้าวันนี้เกิน endDate → true (disabled)
+  }, [data?.endDate]);
 
   const daysOfWeek = [
     "Monday",

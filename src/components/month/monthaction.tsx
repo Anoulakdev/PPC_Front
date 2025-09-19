@@ -99,10 +99,18 @@ export default function MonthAction() {
     if (!data?.sYear || !data?.sMonth) return true;
 
     const now = new Date();
-    const currentYear = now.getFullYear().toString();
-    const currentMonth = String(now.getMonth() + 1).padStart(2, "0");
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1; // 1-12
 
-    return !(data.sYear === currentYear && data.sMonth === currentMonth);
+    const dataYear = parseInt(data.sYear, 10);
+    const dataMonth = parseInt(data.sMonth, 10);
+
+    // disable ถ้าปี/เดือนในปัจจุบัน > data
+    if (currentYear > dataYear) return true;
+    if (currentYear === dataYear && currentMonth > dataMonth) return true;
+
+    // enable เฉพาะเดือนปัจจุบันหรือล่วงหน้า
+    return false;
   }, [data?.sYear, data?.sMonth]);
 
   const handleAcknowledge = async () => {

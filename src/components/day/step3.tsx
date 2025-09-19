@@ -135,8 +135,11 @@ export const Step3 = () => {
     updateFormData({ totalPower: fixedTotal });
   }, [grandTotal, updateFormData]);
 
-  const toFixed2 = (n: number | undefined | null) =>
-    parseFloat((n ?? 0).toFixed(2));
+  const toFixed2 = (val: string | number | undefined | null): string => {
+    const num = typeof val === "string" ? parseFloat(val) : (val ?? 0);
+    if (isNaN(num)) return "0.00";
+    return num.toFixed(2); // return string เช่น "68.00"
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

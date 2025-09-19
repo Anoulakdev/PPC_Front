@@ -149,14 +149,14 @@ export default function DayAction() {
     const powerDate = new Date(data.powerDate);
     powerDate.setHours(0, 0, 0, 0); // ตัดเวลา
 
-    // เพิ่มอีก 2 วันจาก powerDate
+    // เพิ่มอีก 3 วันจาก powerDate
     const maxDate = new Date(powerDate);
-    maxDate.setDate(maxDate.getDate() + 2); // powerDate + 2
+    maxDate.setDate(maxDate.getDate() + 3); // powerDate + 3
 
     const today = new Date();
     today.setHours(0, 0, 0, 0); // เปรียบเทียบแค่วันที่
 
-    return today > maxDate; // ถ้าวันนี้มากกว่า powerDate + 2 → disable
+    return today > maxDate; // ถ้าวันนี้มากกว่า powerDate + 3 → disable
   }, [data?.powerDate]);
 
   const handleAcknowledge = async () => {

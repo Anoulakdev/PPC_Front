@@ -8,6 +8,7 @@ import { ChevronDownIcon } from "@/icons";
 import { useWeekPowerStore } from "@/store/weekPowerStore";
 import axiosInstance from "@/utils/axiosInstance";
 import { getCurrentWeek, getWeeksInYear } from "@/utils/weeksInYear";
+import SelectDate from "../form/SelectDate";
 
 type Power = {
   id: number;
@@ -20,12 +21,16 @@ type User = {
 };
 
 export const Step1 = () => {
+  const now = new Date();
   const { formData, updateFormData, nextStep } = useWeekPowerStore();
   const [powerOptions, setPowerOptions] = useState<
     { value: string; label: string; abbreviation: string }[]
   >([]);
   const [isChecking, setIsChecking] = useState(false);
   const [isValidDate, setIsValidDate] = useState(false);
+  const [selectedYear, setSelectedYear] = useState<string>(
+    now.getFullYear().toString(),
+  );
 
   useEffect(() => {
     const now = new Date();
@@ -95,6 +100,12 @@ export const Step1 = () => {
     }
   }, [formData.powerId, formData.sYear, formData.sWeek]);
 
+  const currentYear = new Date().getFullYear();
+  const yearOptions = Array.from({ length: 2 }, (_, i) => {
+    const year = currentYear + i;
+    return { value: year.toString(), label: year.toString() };
+  });
+
   const weekOptions = (() => {
     const yearStr = formData.sYear || new Date().getFullYear().toString();
     const year = parseInt(yearStr, 10);
@@ -117,9 +128,9 @@ export const Step1 = () => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="px-2">
-        <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+        <div className="mb-3 flex flex-col items-center gap-3 md:flex-row">
           {/* Power Select */}
-          <div>
+          <div className="w-full md:w-1/2">
             <Label>Select Powersource</Label>
             <div className="relative">
               <Select
@@ -142,7 +153,23 @@ export const Step1 = () => {
               </span>
             </div>
           </div>
-          <div>
+          <div className="w-full md:w-1/4">
+            <Label>Choose Year</Label>
+            <div className="relative">
+              <SelectDate
+                options={yearOptions}
+                value={selectedYear}
+                onChange={(value) => {
+                  setSelectedYear(value);
+                  updateFormData({ sYear: value }); // sync เข้า formData ด้วย
+                }}
+              />
+              <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                <ChevronDownIcon />
+              </span>
+            </div>
+          </div>
+          <div className="w-full md:w-1/4">
             <Label>Choose Week</Label>
             <div className="relative">
               <Select

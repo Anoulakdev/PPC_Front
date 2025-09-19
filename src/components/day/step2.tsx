@@ -145,20 +145,19 @@ export const Step2 = () => {
           <Label>Upstream Level (masl)</Label>
           <Input
             type="number"
-            // inputMode="decimal"
             name="upstreamLevel"
-            placeholder="masl"
-            value={formatValue(formData.upstreamLevel || 0)} // แสดง 2 ตำแหน่ง
+            placeholder="0.00"
+            value={formData.upstreamLevel || ""}
             onChange={(e) => {
-              const raw = parseFloat(e.target.value);
               updateFormData({
-                upstreamLevel: isNaN(raw) ? 0 : raw, // อัปเดตระหว่างพิมพ์
+                upstreamLevel: e.target.value,
               });
             }}
             onBlur={(e) => {
               const raw = parseFloat(e.target.value);
-              const fixed = isNaN(raw) ? 0 : parseFloat(raw.toFixed(2)); // ตัดทศนิยมจริง
-              updateFormData({ upstreamLevel: fixed });
+              updateFormData({
+                upstreamLevel: isNaN(raw) ? "" : raw,
+              });
             }}
             required
           />
@@ -168,20 +167,15 @@ export const Step2 = () => {
           <Label>Downstream Level (masl)</Label>
           <Input
             type="number"
-            // inputMode="decimal"
             name="downstreamLevel"
-            placeholder="masl"
-            value={formatValue(formData.downstreamLevel || 0)}
-            onChange={(e) => {
-              const raw = parseFloat(e.target.value);
-              updateFormData({
-                downstreamLevel: isNaN(raw) ? 0 : raw, // อัปเดตระหว่างพิมพ์
-              });
-            }}
+            placeholder="0.00"
+            value={formData.downstreamLevel || ""}
+            onChange={(e) =>
+              updateFormData({ downstreamLevel: e.target.value })
+            }
             onBlur={(e) => {
               const raw = parseFloat(e.target.value);
-              const fixed = isNaN(raw) ? 0 : parseFloat(raw.toFixed(2)); // ตัดทศนิยมจริง
-              updateFormData({ downstreamLevel: fixed });
+              updateFormData({ downstreamLevel: isNaN(raw) ? "" : raw });
             }}
             required
           />
@@ -196,20 +190,15 @@ export const Step2 = () => {
               <Label>Amount (MCM)</Label>
               <Input
                 type="number"
-                // inputMode="decimal"
                 name="totalStorageamount"
-                placeholder="MCM"
-                value={formatValue(formData.totalStorageamount || 0)}
-                onChange={(e) => {
-                  const raw = parseFloat(e.target.value);
-                  updateFormData({
-                    totalStorageamount: isNaN(raw) ? 0 : raw, // อัปเดตระหว่างพิมพ์
-                  });
-                }}
+                placeholder="0.00"
+                value={formData.totalStorageamount || ""}
+                onChange={(e) =>
+                  updateFormData({ totalStorageamount: e.target.value })
+                }
                 onBlur={(e) => {
                   const raw = parseFloat(e.target.value);
-                  const fixed = isNaN(raw) ? 0 : parseFloat(raw.toFixed(2)); // ตัดทศนิยมจริง
-                  updateFormData({ totalStorageamount: fixed });
+                  updateFormData({ totalStorageamount: isNaN(raw) ? "" : raw });
                 }}
                 required
               />
@@ -219,20 +208,17 @@ export const Step2 = () => {
               <Label>Percent ( % )</Label>
               <Input
                 type="number"
-                // inputMode="decimal"
                 name="totalStorageaverage"
-                placeholder="( % )"
-                value={formatValue(formData.totalStorageaverage || 0)}
-                onChange={(e) => {
-                  const raw = parseFloat(e.target.value);
-                  updateFormData({
-                    totalStorageaverage: isNaN(raw) ? 0 : raw, // อัปเดตระหว่างพิมพ์
-                  });
-                }}
+                placeholder="0.00"
+                value={formData.totalStorageaverage || ""}
+                onChange={(e) =>
+                  updateFormData({ totalStorageaverage: e.target.value })
+                }
                 onBlur={(e) => {
                   const raw = parseFloat(e.target.value);
-                  const fixed = isNaN(raw) ? 0 : parseFloat(raw.toFixed(2)); // ตัดทศนิยมจริง
-                  updateFormData({ totalStorageaverage: fixed });
+                  updateFormData({
+                    totalStorageaverage: isNaN(raw) ? "" : raw,
+                  });
                 }}
                 required
               />
@@ -247,20 +233,17 @@ export const Step2 = () => {
               <Label>Amount (MCM)</Label>
               <Input
                 type="number"
-                // inputMode="decimal"
                 name="activeStorageamount"
-                placeholder="MCM"
-                value={formatValue(formData.activeStorageamount || 0)}
-                onChange={(e) => {
-                  const raw = parseFloat(e.target.value);
-                  updateFormData({
-                    activeStorageamount: isNaN(raw) ? 0 : raw, // อัปเดตระหว่างพิมพ์
-                  });
-                }}
+                placeholder="0.00"
+                value={formData.activeStorageamount || ""}
+                onChange={(e) =>
+                  updateFormData({ activeStorageamount: e.target.value })
+                }
                 onBlur={(e) => {
                   const raw = parseFloat(e.target.value);
-                  const fixed = isNaN(raw) ? 0 : parseFloat(raw.toFixed(2)); // ตัดทศนิยมจริง
-                  updateFormData({ activeStorageamount: fixed });
+                  updateFormData({
+                    activeStorageamount: isNaN(raw) ? "" : raw,
+                  });
                 }}
                 required
               />
@@ -270,20 +253,17 @@ export const Step2 = () => {
               <Label>Percent ( % )</Label>
               <Input
                 type="number"
-                // inputMode="decimal"
                 name="activeStorageaverage"
-                placeholder="( % )"
-                value={formatValue(formData.activeStorageaverage || 0)}
-                onChange={(e) => {
-                  const raw = parseFloat(e.target.value);
-                  updateFormData({
-                    activeStorageaverage: isNaN(raw) ? 0 : raw, // อัปเดตระหว่างพิมพ์
-                  });
-                }}
+                placeholder="0.00"
+                value={formData.activeStorageaverage || ""}
+                onChange={(e) =>
+                  updateFormData({ activeStorageaverage: e.target.value })
+                }
                 onBlur={(e) => {
                   const raw = parseFloat(e.target.value);
-                  const fixed = isNaN(raw) ? 0 : parseFloat(raw.toFixed(2)); // ตัดทศนิยมจริง
-                  updateFormData({ activeStorageaverage: fixed });
+                  updateFormData({
+                    activeStorageaverage: isNaN(raw) ? "" : raw,
+                  });
                 }}
                 required
               />
@@ -303,20 +283,17 @@ export const Step2 = () => {
               <Label>Amount (MCM)</Label>
               <Input
                 type="number"
-                // inputMode="decimal"
                 name="turbineDischargeamount"
-                placeholder="MCM"
-                value={formatValue(formData.turbineDischargeamount || 0)}
-                onChange={(e) => {
-                  const raw = parseFloat(e.target.value);
-                  updateFormData({
-                    turbineDischargeamount: isNaN(raw) ? 0 : raw, // อัปเดตระหว่างพิมพ์
-                  });
-                }}
+                placeholder="0.00"
+                value={formData.turbineDischargeamount || ""}
+                onChange={(e) =>
+                  updateFormData({ turbineDischargeamount: e.target.value })
+                }
                 onBlur={(e) => {
                   const raw = parseFloat(e.target.value);
-                  const fixed = isNaN(raw) ? 0 : parseFloat(raw.toFixed(2)); // ตัดทศนิยมจริง
-                  updateFormData({ turbineDischargeamount: fixed });
+                  updateFormData({
+                    turbineDischargeamount: isNaN(raw) ? "" : raw,
+                  });
                 }}
                 required
               />
@@ -326,20 +303,17 @@ export const Step2 = () => {
               <Label>Average (m³/s)</Label>
               <Input
                 type="number"
-                // inputMode="decimal"
                 name="turbineDischargeaverage"
-                placeholder="(m³/s)"
-                value={formatValue(formData.turbineDischargeaverage || 0)}
-                onChange={(e) => {
-                  const raw = parseFloat(e.target.value);
-                  updateFormData({
-                    turbineDischargeaverage: isNaN(raw) ? 0 : raw, // อัปเดตระหว่างพิมพ์
-                  });
-                }}
+                placeholder="0.00"
+                value={formData.turbineDischargeaverage || ""}
+                onChange={(e) =>
+                  updateFormData({ turbineDischargeaverage: e.target.value })
+                }
                 onBlur={(e) => {
                   const raw = parseFloat(e.target.value);
-                  const fixed = isNaN(raw) ? 0 : parseFloat(raw.toFixed(2)); // ตัดทศนิยมจริง
-                  updateFormData({ turbineDischargeaverage: fixed });
+                  updateFormData({
+                    turbineDischargeaverage: isNaN(raw) ? "" : raw,
+                  });
                 }}
                 required
               />
@@ -354,20 +328,17 @@ export const Step2 = () => {
               <Label>Amount (MCM)</Label>
               <Input
                 type="number"
-                // inputMode="decimal"
                 name="spillwayDischargeamount"
-                placeholder="MCM"
-                value={formatValue(formData.spillwayDischargeamount || 0)}
-                onChange={(e) => {
-                  const raw = parseFloat(e.target.value);
-                  updateFormData({
-                    spillwayDischargeamount: isNaN(raw) ? 0 : raw, // อัปเดตระหว่างพิมพ์
-                  });
-                }}
+                placeholder="0.00"
+                value={formData.spillwayDischargeamount || ""}
+                onChange={(e) =>
+                  updateFormData({ spillwayDischargeamount: e.target.value })
+                }
                 onBlur={(e) => {
                   const raw = parseFloat(e.target.value);
-                  const fixed = isNaN(raw) ? 0 : parseFloat(raw.toFixed(2)); // ตัดทศนิยมจริง
-                  updateFormData({ spillwayDischargeamount: fixed });
+                  updateFormData({
+                    spillwayDischargeamount: isNaN(raw) ? "" : raw,
+                  });
                 }}
                 required
               />
@@ -377,20 +348,17 @@ export const Step2 = () => {
               <Label>Average (m³/s)</Label>
               <Input
                 type="number"
-                // inputMode="decimal"
                 name="spillwayDischargeaverage"
-                placeholder="(m³/s)"
-                value={formatValue(formData.spillwayDischargeaverage || 0)}
-                onChange={(e) => {
-                  const raw = parseFloat(e.target.value);
-                  updateFormData({
-                    spillwayDischargeaverage: isNaN(raw) ? 0 : raw, // อัปเดตระหว่างพิมพ์
-                  });
-                }}
+                placeholder="0.00"
+                value={formData.spillwayDischargeaverage || ""}
+                onChange={(e) =>
+                  updateFormData({ spillwayDischargeaverage: e.target.value })
+                }
                 onBlur={(e) => {
                   const raw = parseFloat(e.target.value);
-                  const fixed = isNaN(raw) ? 0 : parseFloat(raw.toFixed(2)); // ตัดทศนิยมจริง
-                  updateFormData({ spillwayDischargeaverage: fixed });
+                  updateFormData({
+                    spillwayDischargeaverage: isNaN(raw) ? "" : raw,
+                  });
                 }}
                 required
               />
@@ -407,20 +375,17 @@ export const Step2 = () => {
               <Label>Amount (MCM)</Label>
               <Input
                 type="number"
-                // inputMode="decimal"
                 name="ecologicalDischargeamount"
-                placeholder="MCM"
-                value={formatValue(formData.ecologicalDischargeamount || 0)}
-                onChange={(e) => {
-                  const raw = parseFloat(e.target.value);
-                  updateFormData({
-                    ecologicalDischargeamount: isNaN(raw) ? 0 : raw, // อัปเดตระหว่างพิมพ์
-                  });
-                }}
+                placeholder="0.00"
+                value={formData.ecologicalDischargeamount || ""}
+                onChange={(e) =>
+                  updateFormData({ ecologicalDischargeamount: e.target.value })
+                }
                 onBlur={(e) => {
                   const raw = parseFloat(e.target.value);
-                  const fixed = isNaN(raw) ? 0 : parseFloat(raw.toFixed(2)); // ตัดทศนิยมจริง
-                  updateFormData({ ecologicalDischargeamount: fixed });
+                  updateFormData({
+                    ecologicalDischargeamount: isNaN(raw) ? "" : raw,
+                  });
                 }}
                 required
               />
@@ -430,20 +395,17 @@ export const Step2 = () => {
               <Label>Average (m³/s)</Label>
               <Input
                 type="number"
-                // inputMode="decimal"
                 name="ecologicalDischargeaverage"
-                placeholder="(m³/s)"
-                value={formatValue(formData.ecologicalDischargeaverage || 0)}
-                onChange={(e) => {
-                  const raw = parseFloat(e.target.value);
-                  updateFormData({
-                    ecologicalDischargeaverage: isNaN(raw) ? 0 : raw, // อัปเดตระหว่างพิมพ์
-                  });
-                }}
+                placeholder="0.00"
+                value={formData.ecologicalDischargeaverage || ""}
+                onChange={(e) =>
+                  updateFormData({ ecologicalDischargeaverage: e.target.value })
+                }
                 onBlur={(e) => {
                   const raw = parseFloat(e.target.value);
-                  const fixed = isNaN(raw) ? 0 : parseFloat(raw.toFixed(2)); // ตัดทศนิยมจริง
-                  updateFormData({ ecologicalDischargeaverage: fixed });
+                  updateFormData({
+                    ecologicalDischargeaverage: isNaN(raw) ? "" : raw,
+                  });
                 }}
                 required
               />

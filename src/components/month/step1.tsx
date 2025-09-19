@@ -7,6 +7,7 @@ import Select from "@/components/form/Select";
 import { ChevronDownIcon } from "@/icons";
 import { useMonthPowerStore } from "@/store/monthPowerStore";
 import axiosInstance from "@/utils/axiosInstance";
+import SelectDate from "../form/SelectDate";
 
 type Power = {
   id: number;
@@ -19,25 +20,26 @@ type User = {
 };
 
 export const Step1 = () => {
+  const now = new Date();
   const { formData, updateFormData, nextStep } = useMonthPowerStore();
   const [powerOptions, setPowerOptions] = useState<
     { value: string; label: string; abbreviation: string }[]
   >([]);
   const [isChecking, setIsChecking] = useState(false);
   const [isValidDate, setIsValidDate] = useState(false);
+  const [selectedYear, setSelectedYear] = useState<string>(
+    now.getFullYear().toString(),
+  );
+  const [selectedMonth, setSelectedMonth] = useState<string>(
+    (now.getMonth() + 1).toString().padStart(2, "0"),
+  );
 
   useEffect(() => {
-    const now = new Date();
-    const currentYear = now.getFullYear().toString();
-    const currentMonth = String(now.getMonth() + 1).padStart(2, "0");
-
-    if (!formData.sYear || !formData.sMonth) {
-      updateFormData({
-        sYear: currentYear,
-        sMonth: currentMonth,
-      });
-    }
-  }, []);
+    updateFormData({
+      sYear: selectedYear,
+      sMonth: selectedMonth,
+    });
+  }, [selectedYear, selectedMonth]);
 
   useEffect(() => {
     const { sYear, sMonth } = formData;
@@ -103,6 +105,17 @@ export const Step1 = () => {
     }
   }, [formData.powerId, formData.sYear, formData.sMonth]);
 
+  const currentYear = new Date().getFullYear();
+  const yearOptions = Array.from({ length: 2 }, (_, i) => {
+    const year = currentYear + i;
+    return { value: year.toString(), label: year.toString() };
+  });
+
+  const monthOptions = Array.from({ length: 12 }, (_, i) => {
+    const m = (i + 1).toString().padStart(2, "0");
+    return { value: m, label: m };
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.powerId && isValidDate) {
@@ -115,9 +128,9 @@ export const Step1 = () => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="px-2">
-        <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-1">
+        <div className="mb-3 flex flex-col items-center gap-3 md:flex-row">
           {/* Power Select */}
-          <div>
+          <div className="w-full md:w-1/2">
             <Label>Select Powersource</Label>
             <div className="relative">
               <Select
@@ -134,6 +147,34 @@ export const Step1 = () => {
                   });
                 }}
                 required
+              />
+              <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                <ChevronDownIcon />
+              </span>
+            </div>
+          </div>
+          <div className="w-full md:w-1/4">
+            <Label>Choose Year</Label>
+            <div className="relative">
+              <SelectDate
+                options={yearOptions}
+                value={selectedYear}
+                onChange={(value) => setSelectedYear(value)}
+              />
+              <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                <ChevronDownIcon />
+              </span>
+            </div>
+          </div>
+          <div className="w-full md:w-1/4">
+            <Label>Choose Month</Label>
+            <div className="relative">
+              <Select
+                options={monthOptions}
+                value={selectedMonth}
+                placeholder="Select All Month"
+                onChange={(value) => setSelectedMonth(value)}
+                className="dark:bg-dark-900"
               />
               <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 dark:text-gray-400">
                 <ChevronDownIcon />

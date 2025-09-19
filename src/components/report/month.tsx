@@ -148,8 +148,8 @@ export default function MonthTable() {
   }));
 
   const currentYear = new Date().getFullYear();
-  const yearOptions = Array.from({ length: 5 }, (_, i) => {
-    const year = currentYear - i;
+  const yearOptions = Array.from({ length: 7 }, (_, i) => {
+    const year = currentYear - 5 + i;
     return { value: year.toString(), label: year.toString() };
   });
 

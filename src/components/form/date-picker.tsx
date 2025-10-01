@@ -32,7 +32,8 @@ export default function DatePicker({
       monthSelectorType: "static",
       dateFormat: "d-m-Y",
       defaultDate,
-      minDate: new Date(),
+      // minDate: new Date(),
+      minDate: new Date(new Date().setDate(new Date().getDate() - 5)), // ✅ ย้อนหลังได้ 5 วัน
       onChange,
     });
 

@@ -190,7 +190,7 @@ export default function DayTable() {
     },
     {
       accessorKey: "powerOriginal.totalPower",
-      header: "DAD",
+      header: "DAILY DECLARATION",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";
@@ -199,7 +199,7 @@ export default function DayTable() {
     },
     {
       accessorKey: "powerCurrent.totalPower",
-      header: "DD",
+      header: "DAILY DISPATCH",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";
@@ -340,8 +340,12 @@ export default function DayTable() {
           Company: item.power?.company?.name ?? "",
           Declaration: item.power?.name ?? "",
           DAD_DD: `${item.powerNo} - EDL`,
-          DAD: parseFloat(item.powerOriginal?.totalPower?.toString() ?? "0"),
-          DD: parseFloat(item.powerCurrent?.totalPower?.toString() ?? "0"),
+          DAILY_DECLARATION: parseFloat(
+            item.powerOriginal?.totalPower?.toString() ?? "0",
+          ),
+          DAILY_DISPATCH: parseFloat(
+            item.powerCurrent?.totalPower?.toString() ?? "0",
+          ),
           Document: item.revise === false ? "Original" : "Revise",
           StatusDAD: item.decAcknowUser?.firstname
             ? `${item.decAcknowUser.firstname} ${item.decAcknowUser.lastname ?? ""}`.trim()

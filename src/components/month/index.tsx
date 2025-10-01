@@ -189,7 +189,7 @@ export default function MonthTable() {
     },
     {
       accessorKey: "powerOriginal.totalPower",
-      header: "MAD",
+      header: "MONTHLY DECLARATION",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";
@@ -198,7 +198,7 @@ export default function MonthTable() {
     },
     {
       accessorKey: "powerCurrent.totalPower",
-      header: "MD",
+      header: "MONTHLY DISPATCH",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";

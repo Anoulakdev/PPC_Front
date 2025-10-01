@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import axiosInstance from "@/utils/axiosInstance";
 import { useRouter, useParams } from "next/navigation";
 import { decryptId } from "@/lib/cryptoId";
+import { getMonthDaysWithWeekday } from "@/utils/dateHelpers";
 
 const hours = [
   "00:00-01:00",
@@ -41,6 +42,12 @@ type MonthReviseData = {
   remark: string;
   remarks: string[];
   reviseTurbines: ReviseTurbine[];
+  monthRevise?: {
+    monthPower?: {
+      sYear: string;
+      sMonth: string;
+    };
+  };
 };
 
 export default function UserRevise() {
@@ -48,6 +55,10 @@ export default function UserRevise() {
   const [data, setData] = useState<MonthReviseData | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
+
+  const year = Number(data?.monthRevise?.monthPower?.sYear);
+  const month = Number(data?.monthRevise?.monthPower?.sMonth) - 1;
+  const dayLabels = getMonthDaysWithWeekday(year, month);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -98,7 +109,7 @@ export default function UserRevise() {
                       key={`header-${turbine.turbine}`}
                       className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700"
                     >
-                      Day-{turbine.turbine} (MW)
+                      {dayLabels[turbine.turbine - 1]} (MW)
                     </th>
                   ))}
                   <th className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700">

@@ -135,11 +135,11 @@ export const Step3 = () => {
     updateFormData({ totalPower: fixedTotal });
   }, [grandTotal, updateFormData]);
 
-  const toFixed2 = (val: string | number | undefined | null): string => {
-    const num = typeof val === "string" ? parseFloat(val) : (val ?? 0);
-    if (isNaN(num)) return "0.00";
-    return num.toFixed(2); // return string เช่น "68.00"
-  };
+  // const toFixed2 = (val: string | number | undefined | null): string => {
+  //   const num = typeof val === "string" ? parseFloat(val) : (val ?? 0);
+  //   if (isNaN(num)) return "0.00";
+  //   return num.toFixed(2); // return string เช่น "68.00"
+  // };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -153,25 +153,23 @@ export const Step3 = () => {
         powerDate: moment(formData.powerDate, "DD-MM-YYYY").format(
           "YYYY-MM-DD",
         ),
-        upstreamLevel: toFixed2(formData.upstreamLevel),
-        downstreamLevel: toFixed2(formData.downstreamLevel),
-        totalStorageamount: toFixed2(formData.totalStorageamount),
-        totalStorageaverage: toFixed2(formData.totalStorageaverage),
-        activeStorageamount: toFixed2(formData.activeStorageamount),
-        activeStorageaverage: toFixed2(formData.activeStorageaverage),
-        turbineDischargeamount: toFixed2(formData.turbineDischargeamount),
-        turbineDischargeaverage: toFixed2(formData.turbineDischargeaverage),
-        spillwayDischargeamount: toFixed2(formData.spillwayDischargeamount),
-        spillwayDischargeaverage: toFixed2(formData.spillwayDischargeaverage),
-        ecologicalDischargeamount: toFixed2(formData.ecologicalDischargeamount),
-        ecologicalDischargeaverage: toFixed2(
-          formData.ecologicalDischargeaverage,
-        ),
+        upstreamLevel: formData.upstreamLevel,
+        downstreamLevel: formData.downstreamLevel,
+        totalStorageamount: formData.totalStorageamount,
+        totalStorageaverage: formData.totalStorageaverage,
+        activeStorageamount: formData.activeStorageamount,
+        activeStorageaverage: formData.activeStorageaverage,
+        turbineDischargeamount: formData.turbineDischargeamount,
+        turbineDischargeaverage: formData.turbineDischargeaverage,
+        spillwayDischargeamount: formData.spillwayDischargeamount,
+        spillwayDischargeaverage: formData.spillwayDischargeaverage,
+        ecologicalDischargeamount: formData.ecologicalDischargeamount,
+        ecologicalDischargeaverage: formData.ecologicalDischargeaverage,
         machinedata: formData.machinesAvailability || [],
         remark: formData.remark || "",
         remarks: formData.remarks || Array(24).fill(""),
         turbinedata: formData.turbineData || [],
-        totalPower: toFixed2(formData.totalPower),
+        totalPower: formData.totalPower,
         totalUnit: formData.unit ?? 0,
       };
 

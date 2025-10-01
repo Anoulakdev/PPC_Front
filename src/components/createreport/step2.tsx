@@ -187,8 +187,8 @@ export const Step2 = () => {
     updateFormData({ totalPower: fixedTotal });
   }, [grandTotal, updateFormData]);
 
-  const formatValue = (v: number | undefined) =>
-    typeof v === "number" ? v.toFixed(2) : "0.00";
+  // const formatValue = (v: number | undefined) =>
+  //   typeof v === "number" ? v.toFixed(2) : "0.00";
 
   // --------------------------------------------------------------
 
@@ -207,7 +207,7 @@ export const Step2 = () => {
     const yesWaterLevel = Number(dataReport?.waterLevel) || 0;
 
     const activeStorageaverage =
-      totalActiveFull !== 0 ? activeStorageamount / totalActiveFull : 0;
+      totalActiveFull !== 0 ? (activeStorageamount / totalActiveFull) * 100 : 0;
     const dwy =
       yesWaterLevel !== 0 ? waterLevel - yesWaterLevel : waterLevel - 0;
     const dwf = fullLevel !== 0 ? waterLevel - fullLevel : 0;
@@ -250,13 +250,13 @@ export const Step2 = () => {
       const inflowaverage =
         (Number(formData.inflowamount) * 1000000) / (24 * 3600);
       updateFormData({
-        inflowaverage: parseFloat(inflowaverage.toFixed(2)),
+        inflowaverage: Number(inflowaverage),
       });
     } else if (editingInflow === "average" && formData.inflowaverage != null) {
       const inflowamount =
         (Number(formData.inflowaverage) * 24 * 3600) / 1000000;
       updateFormData({
-        inflowamount: parseFloat(inflowamount.toFixed(2)),
+        inflowamount: Number(inflowamount),
       });
     }
   }, [formData.inflowamount, formData.inflowaverage, editingInflow]);
@@ -276,12 +276,12 @@ export const Step2 = () => {
     if (editingTD === "amount" && formData.tdAmount != null) {
       const tdAverage = (Number(formData.tdAmount) * 1000000) / (24 * 3600);
       updateFormData({
-        tdAverage: parseFloat(tdAverage.toFixed(2)),
+        tdAverage: Number(tdAverage),
       });
     } else if (editingTD === "average" && formData.tdAverage != null) {
       const tdAmount = (Number(formData.tdAverage) * 24 * 3600) / 1000000;
       updateFormData({
-        tdAmount: parseFloat(tdAmount.toFixed(2)),
+        tdAmount: Number(tdAmount),
       });
     }
   }, [formData.tdAmount, formData.tdAverage, editingTD]);
@@ -299,13 +299,13 @@ export const Step2 = () => {
       const spillwayaverage =
         (Number(formData.spillwayamount) * 1000000) / (24 * 3600);
       updateFormData({
-        spillwayaverage: parseFloat(spillwayaverage.toFixed(2)),
+        spillwayaverage: Number(spillwayaverage),
       });
     } else if (editingSW === "average" && formData.spillwayaverage != null) {
       const spillwayamount =
         (Number(formData.spillwayaverage) * 24 * 3600) / 1000000;
       updateFormData({
-        spillwayamount: parseFloat(spillwayamount.toFixed(2)),
+        spillwayamount: Number(spillwayamount),
       });
     }
   }, [formData.spillwayamount, formData.spillwayaverage, editingSW]);
@@ -325,12 +325,12 @@ export const Step2 = () => {
     if (editingOWR === "amount" && formData.owramount != null) {
       const owraverage = (Number(formData.owramount) * 1000000) / (24 * 3600);
       updateFormData({
-        owraverage: parseFloat(owraverage.toFixed(2)),
+        owraverage: Number(owraverage),
       });
     } else if (editingOWR === "average" && formData.owraverage != null) {
       const owramount = (Number(formData.owraverage) * 24 * 3600) / 1000000;
       updateFormData({
-        owramount: parseFloat(owramount.toFixed(2)),
+        owramount: Number(owramount),
       });
     }
   }, [formData.owramount, formData.owraverage, editingOWR]);
@@ -343,11 +343,11 @@ export const Step2 = () => {
 
   // ------------------------------------------
 
-  const toFixed2 = (val: string | number | undefined | null): string => {
-    const num = typeof val === "string" ? parseFloat(val) : (val ?? 0);
-    if (isNaN(num)) return "0.00";
-    return num.toFixed(2); // return string เช่น "68.00"
-  };
+  // const toFixed2 = (val: string | number | undefined | null): string => {
+  //   const num = typeof val === "string" ? parseFloat(val) : (val ?? 0);
+  //   if (isNaN(num)) return "0.00";
+  //   return num.toFixed(2); // return string เช่น "68.00"
+  // };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -360,26 +360,26 @@ export const Step2 = () => {
         powerDate: moment(formData.powerDate, "DD-MM-YYYY").format(
           "YYYY-MM-DD",
         ),
-        activeStorageamount: toFixed2(formData.activeStorageamount),
-        activeStorageaverage: toFixed2(formData.activeStorageaverage),
-        waterLevel: toFixed2(formData.waterLevel),
-        dwy: toFixed2(formData.dwy),
-        dwf: toFixed2(formData.dwf),
-        dwm: toFixed2(formData.dwm),
-        pws: toFixed2(formData.pws),
-        inflowamount: toFixed2(formData.inflowamount),
-        inflowaverage: toFixed2(formData.inflowaverage),
-        tdAmount: toFixed2(formData.tdAmount),
-        tdAverage: toFixed2(formData.tdAverage),
-        spillwayamount: toFixed2(formData.spillwayamount),
-        spillwayaverage: toFixed2(formData.spillwayaverage),
-        owramount: toFixed2(formData.owramount),
-        owraverage: toFixed2(formData.owraverage),
-        rainFall: toFixed2(formData.rainFall),
-        netEnergyOutput: toFixed2(formData.netEnergyOutput),
-        waterRate: toFixed2(formData.waterRate),
-        totalOutflow: toFixed2(formData.totalOutflow),
-        averageOutflow: toFixed2(formData.averageOutflow),
+        activeStorageamount: formData.activeStorageamount,
+        activeStorageaverage: formData.activeStorageaverage,
+        waterLevel: formData.waterLevel,
+        dwy: formData.dwy,
+        dwf: formData.dwf,
+        dwm: formData.dwm,
+        pws: formData.pws,
+        inflowamount: formData.inflowamount,
+        inflowaverage: formData.inflowaverage,
+        tdAmount: formData.tdAmount,
+        tdAverage: formData.tdAverage,
+        spillwayamount: formData.spillwayamount,
+        spillwayaverage: formData.spillwayaverage,
+        owramount: formData.owramount,
+        owraverage: formData.owraverage,
+        rainFall: formData.rainFall,
+        netEnergyOutput: formData.netEnergyOutput,
+        waterRate: formData.waterRate,
+        totalOutflow: formData.totalOutflow,
+        averageOutflow: formData.averageOutflow,
         totalPower: parseFloat((formData.totalPower ?? 0).toFixed(2)),
         totalUnit: formData.totalUnit ?? 0,
         remarks: formData.remarks || Array(24).fill(""),
@@ -499,7 +499,7 @@ export const Step2 = () => {
                 type="number"
                 name="activeStorageamount"
                 placeholder="0.00"
-                value={formData.activeStorageamount || ""}
+                value={formData.activeStorageamount ?? ""}
                 onChange={(e) => {
                   updateFormData({
                     activeStorageamount: e.target.value,
@@ -522,7 +522,7 @@ export const Step2 = () => {
                 disabled
                 name="activeStorageaverage"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={formatValue(formData.activeStorageaverage ?? 0)}
+                value={formData.activeStorageaverage ?? 0}
               />
             </div>
           </div>
@@ -536,7 +536,7 @@ export const Step2 = () => {
             type="number"
             name="waterLevel"
             placeholder="0.00"
-            value={formData.waterLevel || ""}
+            value={formData.waterLevel ?? ""}
             onChange={(e) => {
               updateFormData({
                 waterLevel: e.target.value,
@@ -559,7 +559,7 @@ export const Step2 = () => {
             disabled
             name="dwy"
             className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-            value={formatValue(formData.dwy ?? 0)}
+            value={formData.dwy ?? 0}
           />
         </div>
 
@@ -570,7 +570,7 @@ export const Step2 = () => {
             disabled
             name="dwf"
             className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-            value={formatValue(formData.dwf ?? 0)}
+            value={formData.dwf ?? 0}
           />
         </div>
 
@@ -581,7 +581,7 @@ export const Step2 = () => {
             disabled
             name="dwm"
             className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-            value={formatValue(formData.dwm ?? 0)}
+            value={formData.dwm ?? 0}
           />
         </div>
 
@@ -592,7 +592,8 @@ export const Step2 = () => {
             disabled
             name="pws"
             className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-            value={formatValue(formData.pws ?? 0)}
+            // value={formatValue(formData.pws ?? 0)}
+            value={formData.pws ?? 0}
           />
         </div>
       </div>
@@ -608,13 +609,22 @@ export const Step2 = () => {
                 type="number"
                 name="inflowamount"
                 placeholder="0.00"
-                value={formData.inflowamount || ""}
+                value={formData.inflowamount ?? ""}
                 onChange={(e) => {
                   const raw = parseFloat(e.target.value);
-                  updateFormData({
-                    inflowamount: isNaN(raw) ? 0 : raw,
-                  });
-                  setEditingInflow("amount");
+                  if (e.target.value === "") {
+                    // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
+                    updateFormData({
+                      inflowamount: "",
+                      inflowaverage: "",
+                    });
+                    setEditingInflow(null);
+                  } else {
+                    updateFormData({
+                      inflowamount: isNaN(raw) ? "" : raw,
+                    });
+                    setEditingInflow("amount");
+                  }
                 }}
                 readOnly={editingInflow === "average"}
                 required
@@ -627,13 +637,22 @@ export const Step2 = () => {
                 type="number"
                 name="inflowaverage"
                 placeholder="0.00"
-                value={formData.inflowaverage || ""}
+                value={formData.inflowaverage ?? ""}
                 onChange={(e) => {
                   const raw = parseFloat(e.target.value);
-                  updateFormData({
-                    inflowaverage: isNaN(raw) ? 0 : raw,
-                  });
-                  setEditingInflow("average");
+                  if (e.target.value === "") {
+                    // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
+                    updateFormData({
+                      inflowamount: "",
+                      inflowaverage: "",
+                    });
+                    setEditingInflow(null);
+                  } else {
+                    updateFormData({
+                      inflowaverage: isNaN(raw) ? "" : raw,
+                    });
+                    setEditingInflow("average");
+                  }
                 }}
                 readOnly={editingInflow === "amount"}
                 required
@@ -651,13 +670,23 @@ export const Step2 = () => {
                 type="number"
                 name="tdAmount"
                 placeholder="0.00"
-                value={formData.tdAmount || ""}
+                value={formData.tdAmount ?? ""}
                 onChange={(e) => {
                   const raw = parseFloat(e.target.value);
-                  updateFormData({
-                    tdAmount: isNaN(raw) ? 0 : raw,
-                  });
-                  setEditingTD("amount");
+
+                  if (e.target.value === "") {
+                    // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
+                    updateFormData({
+                      tdAmount: "",
+                      tdAverage: "",
+                    });
+                    setEditingTD(null);
+                  } else {
+                    updateFormData({
+                      tdAmount: isNaN(raw) ? "" : raw,
+                    });
+                    setEditingTD("amount");
+                  }
                 }}
                 readOnly={editingTD === "average"}
                 required
@@ -670,13 +699,23 @@ export const Step2 = () => {
                 type="number"
                 name="tdAverage"
                 placeholder="0.00"
-                value={formData.tdAverage || ""}
+                value={formData.tdAverage ?? ""}
                 onChange={(e) => {
                   const raw = parseFloat(e.target.value);
-                  updateFormData({
-                    tdAverage: isNaN(raw) ? 0 : raw, // อัปเดตระหว่างพิมพ์
-                  });
-                  setEditingTD("average");
+
+                  if (e.target.value === "") {
+                    // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
+                    updateFormData({
+                      tdAmount: "",
+                      tdAverage: "",
+                    });
+                    setEditingTD(null);
+                  } else {
+                    updateFormData({
+                      tdAverage: isNaN(raw) ? "" : raw,
+                    });
+                    setEditingTD("average");
+                  }
                 }}
                 readOnly={editingTD === "amount"}
                 required
@@ -696,13 +735,23 @@ export const Step2 = () => {
                 type="number"
                 name="spillwayamount"
                 placeholder="0.00"
-                value={formData.spillwayamount || ""}
+                value={formData.spillwayamount ?? ""}
                 onChange={(e) => {
                   const raw = parseFloat(e.target.value);
-                  updateFormData({
-                    spillwayamount: isNaN(raw) ? 0 : raw, // อัปเดตระหว่างพิมพ์
-                  });
-                  setEditingSW("amount");
+
+                  if (e.target.value === "") {
+                    // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
+                    updateFormData({
+                      spillwayamount: "",
+                      spillwayaverage: "",
+                    });
+                    setEditingSW(null);
+                  } else {
+                    updateFormData({
+                      spillwayamount: isNaN(raw) ? "" : raw,
+                    });
+                    setEditingSW("amount");
+                  }
                 }}
                 readOnly={editingSW === "average"}
                 required
@@ -715,13 +764,23 @@ export const Step2 = () => {
                 type="number"
                 name="spillwayaverage"
                 placeholder="0.00"
-                value={formData.spillwayaverage || ""}
+                value={formData.spillwayaverage ?? ""}
                 onChange={(e) => {
                   const raw = parseFloat(e.target.value);
-                  updateFormData({
-                    spillwayaverage: isNaN(raw) ? 0 : raw, // อัปเดตระหว่างพิมพ์
-                  });
-                  setEditingSW("average");
+
+                  if (e.target.value === "") {
+                    // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
+                    updateFormData({
+                      spillwayamount: "",
+                      spillwayaverage: "",
+                    });
+                    setEditingSW(null);
+                  } else {
+                    updateFormData({
+                      spillwayaverage: isNaN(raw) ? "" : raw,
+                    });
+                    setEditingSW("average");
+                  }
                 }}
                 readOnly={editingSW === "amount"}
                 required
@@ -739,13 +798,23 @@ export const Step2 = () => {
                 type="number"
                 name="owramount"
                 placeholder="0.00"
-                value={formData.owramount || ""}
+                value={formData.owramount ?? ""}
                 onChange={(e) => {
                   const raw = parseFloat(e.target.value);
-                  updateFormData({
-                    owramount: isNaN(raw) ? 0 : raw, // อัปเดตระหว่างพิมพ์
-                  });
-                  setEditingOWR("amount");
+
+                  if (e.target.value === "") {
+                    // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
+                    updateFormData({
+                      owramount: "",
+                      owraverage: "",
+                    });
+                    setEditingOWR(null);
+                  } else {
+                    updateFormData({
+                      owramount: isNaN(raw) ? "" : raw,
+                    });
+                    setEditingOWR("amount");
+                  }
                 }}
                 readOnly={editingOWR === "average"}
                 required
@@ -758,13 +827,23 @@ export const Step2 = () => {
                 type="number"
                 name="owraverage"
                 placeholder="0.00"
-                value={formData.owraverage || ""}
+                value={formData.owraverage ?? ""}
                 onChange={(e) => {
                   const raw = parseFloat(e.target.value);
-                  updateFormData({
-                    owraverage: isNaN(raw) ? 0 : raw, // อัปเดตระหว่างพิมพ์
-                  });
-                  setEditingOWR("average");
+
+                  if (e.target.value === "") {
+                    // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
+                    updateFormData({
+                      owramount: "",
+                      owraverage: "",
+                    });
+                    setEditingOWR(null);
+                  } else {
+                    updateFormData({
+                      owraverage: isNaN(raw) ? "" : raw,
+                    });
+                    setEditingOWR("average");
+                  }
                 }}
                 readOnly={editingOWR === "amount"}
                 required
@@ -782,39 +861,41 @@ export const Step2 = () => {
             type="number"
             name="rainFall"
             placeholder="0.00"
-            value={formData.rainFall || ""}
+            value={formData.rainFall ?? ""}
             onChange={(e) => {
               const raw = parseFloat(e.target.value);
               updateFormData({
-                rainFall: isNaN(raw) ? 0 : raw, // อัปเดตระหว่างพิมพ์
+                rainFall: isNaN(raw) ? "" : raw, // อัปเดตระหว่างพิมพ์
               });
             }}
             onBlur={(e) => {
               const raw = parseFloat(e.target.value);
-              const fixed = isNaN(raw) ? 0 : parseFloat(raw.toFixed(2)); // ตัดทศนิยมจริง
-              updateFormData({ rainFall: fixed });
+              updateFormData({
+                rainFall: isNaN(raw) ? "" : raw,
+              });
             }}
             required
           />
         </div>
 
         <div>
-          <Label>Net Energy Output (NEO)</Label>
+          <Label>Net Energy Output (NEO) (kWh)</Label>
           <Input
             type="number"
             name="netEnergyOutput"
             placeholder="0.00"
-            value={formData.netEnergyOutput || ""}
+            value={formData.netEnergyOutput ?? ""}
             onChange={(e) => {
               const raw = parseFloat(e.target.value);
               updateFormData({
-                netEnergyOutput: isNaN(raw) ? 0 : raw, // อัปเดตระหว่างพิมพ์
+                netEnergyOutput: isNaN(raw) ? "" : raw, // อัปเดตระหว่างพิมพ์
               });
             }}
             onBlur={(e) => {
               const raw = parseFloat(e.target.value);
-              const fixed = isNaN(raw) ? 0 : parseFloat(raw.toFixed(2)); // ตัดทศนิยมจริง
-              updateFormData({ netEnergyOutput: fixed });
+              updateFormData({
+                netEnergyOutput: isNaN(raw) ? "" : raw,
+              });
             }}
             required
           />
@@ -827,7 +908,7 @@ export const Step2 = () => {
             disabled
             name="waterRate"
             className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-            value={formatValue(formData.waterRate ?? 0)}
+            value={formData.waterRate ?? 0}
           />
         </div>
         <div>
@@ -837,7 +918,7 @@ export const Step2 = () => {
             disabled
             name="totalOutflow"
             className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-            value={formatValue(formData.totalOutflow ?? 0)}
+            value={formData.totalOutflow ?? 0}
           />
         </div>
         <div>
@@ -847,7 +928,7 @@ export const Step2 = () => {
             disabled
             name="averageOutflow"
             className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-            value={formatValue(formData.averageOutflow ?? 0)}
+            value={formData.averageOutflow ?? 0}
           />
         </div>
       </div>

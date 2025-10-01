@@ -7,6 +7,7 @@ import { useParams, useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { decryptId, encryptId } from "@/lib/cryptoId";
 import { getLocalStorage } from "@/utils/storage";
+import { getMonthDaysWithWeekday } from "@/utils/dateHelpers";
 
 const hours = [
   "00:00-01:00",
@@ -35,23 +36,38 @@ const hours = [
   "23:00-00:00",
 ];
 
-type Turbine = {
+type TurbineData = {
   turbine: number;
   hourly: number[];
   remarks: string[];
 };
 
-type CurrentPower = {
+type PowerOriginal = {
+  id: number;
+  dayPowerId: number;
+  totalPower: number;
+  totalDate: number;
   remark: string;
   remarks: string[];
-  currentTurbines: Turbine[];
+  originalTurbines: TurbineData[];
+};
+
+type PowerCurrent = {
+  id: number;
+  dayPowerId: number;
+  totalPower: number;
+  totalDate: number;
+  remark: string;
+  remarks: string[];
+  currentTurbines: TurbineData[];
 };
 
 type MonthPowerData = {
   id: number;
   sYear?: string;
   sMonth?: string;
-  powerCurrent?: CurrentPower;
+  powerOriginal: PowerOriginal | null;
+  powerCurrent: PowerCurrent | null;
   decAcknow?: boolean;
   disAcknow?: boolean;
 };
@@ -66,6 +82,10 @@ export default function MonthAction() {
   const [loading, setLoading] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
+
+  const year = Number(data?.sYear);
+  const month = Number(data?.sMonth) - 1; // Date ใช้ 0-based month
+  const dayLabels = getMonthDaysWithWeekday(year, month);
 
   useEffect(() => {
     const storedUser = getLocalStorage("user");
@@ -184,110 +204,230 @@ export default function MonthAction() {
         </div>
       ) : data ? (
         <>
-          <div className="overflow-x-auto rounded-lg border">
-            <table className="min-w-full rounded-lg border text-left dark:border-gray-700">
-              <thead>
-                <tr className="bg-gray-100 dark:bg-gray-800">
-                  <th className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700">
-                    Time Of Day (Hrs)
-                  </th>
-                  {data.powerCurrent?.currentTurbines.map((turbine) => (
-                    <th
-                      key={`header-${turbine.turbine}`}
-                      className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700"
-                    >
-                      Day-{turbine.turbine} (MW)
-                    </th>
-                  ))}
-                  <th className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700">
-                    Total (MWh)
-                  </th>
-                  <th className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700">
-                    Remarks
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {Array.from({ length: 24 }, (_, hourIdx) => {
-                  const rowTotal =
-                    data.powerCurrent?.currentTurbines.reduce(
-                      (sum, turbine) => {
-                        return sum + (turbine.hourly[hourIdx] ?? 0);
-                      },
-                      0,
-                    ) ?? 0;
-
-                  const remark = data.powerCurrent?.remarks?.[hourIdx] || "";
-
-                  return (
-                    <tr key={hourIdx}>
-                      <td className="border px-2 py-1 text-center whitespace-nowrap">
-                        {hours[hourIdx]}
-                      </td>
-
-                      {/* Hourly values per turbine */}
-                      {data.powerCurrent?.currentTurbines.map((turbine) => (
-                        <td
-                          key={`unit-${turbine.turbine}-hour-${hourIdx}`}
-                          className="border px-2 py-1 text-center whitespace-nowrap"
+          <div className="flex flex-col gap-6 lg:flex-row">
+            <div className="w-full overflow-x-auto rounded-lg lg:w-1/2">
+              <div className="overflow-x-auto rounded-lg border">
+                <div className="my-3 text-center text-xl font-bold">
+                  Declaration
+                </div>
+                <table className="min-w-full rounded-lg border text-left dark:border-gray-700">
+                  <thead>
+                    <tr className="bg-gray-100 dark:bg-gray-800">
+                      <th className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700">
+                        Time Of Day (Hrs)
+                      </th>
+                      {data.powerOriginal?.originalTurbines.map((turbine) => (
+                        <th
+                          key={`header-${turbine.turbine}`}
+                          className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700"
                         >
-                          {turbine.hourly[hourIdx]?.toFixed(2) ?? "0.00"}
-                        </td>
+                          {dayLabels[turbine.turbine - 1]} (MW)
+                        </th>
                       ))}
+                      <th className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700">
+                        Total (MWh)
+                      </th>
+                      <th className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700">
+                        Remarks
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Array.from({ length: 24 }, (_, hourIdx) => {
+                      const rowTotal =
+                        data.powerOriginal?.originalTurbines.reduce(
+                          (sum, turbine) => {
+                            return sum + (turbine.hourly[hourIdx] ?? 0);
+                          },
+                          0,
+                        ) ?? 0;
 
-                      {/* Row total */}
-                      <td className="border bg-gray-50 px-2 py-1 text-center font-semibold whitespace-nowrap dark:bg-gray-800">
-                        {new Intl.NumberFormat("lo-LA").format(rowTotal)}
-                      </td>
+                      const remark =
+                        data.powerOriginal?.remarks?.[hourIdx] || "";
 
-                      {/* Remark */}
-                      <td className="border px-2 py-1 text-left whitespace-nowrap">
-                        {remark}
+                      return (
+                        <tr key={hourIdx}>
+                          <td className="border px-2 py-1 text-center whitespace-nowrap">
+                            {hours[hourIdx]}
+                          </td>
+
+                          {/* Hourly values per turbine */}
+                          {data.powerOriginal?.originalTurbines.map(
+                            (turbine) => (
+                              <td
+                                key={`unit-${turbine.turbine}-hour-${hourIdx}`}
+                                className="border px-2 py-1 text-center whitespace-nowrap"
+                              >
+                                {turbine.hourly[hourIdx]?.toFixed(2) ?? "0.00"}
+                              </td>
+                            ),
+                          )}
+
+                          {/* Row total */}
+                          <td className="border bg-gray-50 px-2 py-1 text-center font-semibold whitespace-nowrap dark:bg-gray-800">
+                            {new Intl.NumberFormat("lo-LA").format(rowTotal)}
+                          </td>
+
+                          {/* Remark */}
+                          <td className="border px-2 py-1 text-left whitespace-nowrap">
+                            {remark}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {/* Total row */}
+                    <tr className="bg-gray-50 py-2 font-bold whitespace-nowrap dark:bg-gray-800">
+                      <td className="border p-2 text-center">Total (MWh)</td>
+                      {data.powerOriginal?.originalTurbines.map((turbine) => {
+                        const total = turbine.hourly.reduce(
+                          (sum: number, v: number) => sum + v,
+                          0,
+                        );
+                        return (
+                          <td
+                            key={`total-${turbine.turbine}`}
+                            className="border p-2 text-center"
+                          >
+                            {new Intl.NumberFormat("lo-LA").format(total)} MWh
+                          </td>
+                        );
+                      })}
+                      <td className="border p-2 text-center">
+                        {new Intl.NumberFormat("lo-LA").format(
+                          data.powerOriginal?.originalTurbines.reduce(
+                            (grand: number, t: TurbineData) =>
+                              grand + t.hourly.reduce((s, v) => s + v, 0),
+                            0,
+                          ) || 0,
+                        )}{" "}
+                        MWh
                       </td>
                     </tr>
-                  );
-                })}
-                {/* Total row */}
-                <tr className="bg-gray-50 font-bold dark:bg-gray-800">
-                  <td className="border p-2 text-center">Total (MWh)</td>
-                  {data.powerCurrent?.currentTurbines.map((turbine) => {
-                    const total = turbine.hourly.reduce(
-                      (sum: number, v: number) => sum + v,
-                      0,
-                    );
-                    return (
-                      <td
-                        key={`total-${turbine.turbine}`}
-                        className="border p-2 text-center"
-                      >
-                        {new Intl.NumberFormat("lo-LA").format(total)} MWh
+                  </tbody>
+                </table>
+              </div>
+              <div className="mt-4">
+                <textarea
+                  name="remark"
+                  id="remark"
+                  rows={3}
+                  value={data.powerOriginal?.remark || ""}
+                  className="w-full cursor-not-allowed rounded border bg-gray-100 p-2 text-gray-700 dark:border-gray-700 dark:bg-white/[0.05] dark:text-white/70"
+                  disabled
+                ></textarea>
+              </div>
+            </div>
+
+            <div className="w-full overflow-x-auto rounded-lg lg:w-1/2">
+              <div className="overflow-x-auto rounded-lg border">
+                <div className="my-3 text-center text-xl font-bold">
+                  Dispatch
+                </div>
+                <table className="min-w-full rounded-lg border text-left dark:border-gray-700">
+                  <thead>
+                    <tr className="bg-gray-100 dark:bg-gray-800">
+                      <th className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700">
+                        Time Of Day (Hrs)
+                      </th>
+                      {data.powerCurrent?.currentTurbines.map((turbine) => (
+                        <th
+                          key={`header-${turbine.turbine}`}
+                          className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700"
+                        >
+                          {dayLabels[turbine.turbine - 1]} (MW)
+                        </th>
+                      ))}
+                      <th className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700">
+                        Total (MWh)
+                      </th>
+                      <th className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700">
+                        Remarks
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Array.from({ length: 24 }, (_, hourIdx) => {
+                      const rowTotal =
+                        data.powerCurrent?.currentTurbines.reduce(
+                          (sum, turbine) => {
+                            return sum + (turbine.hourly[hourIdx] ?? 0);
+                          },
+                          0,
+                        ) ?? 0;
+
+                      const remark =
+                        data.powerCurrent?.remarks?.[hourIdx] || "";
+
+                      return (
+                        <tr key={hourIdx}>
+                          <td className="border px-2 py-1 text-center whitespace-nowrap">
+                            {hours[hourIdx]}
+                          </td>
+
+                          {/* Hourly values per turbine */}
+                          {data.powerCurrent?.currentTurbines.map((turbine) => (
+                            <td
+                              key={`unit-${turbine.turbine}-hour-${hourIdx}`}
+                              className="border px-2 py-1 text-center whitespace-nowrap"
+                            >
+                              {turbine.hourly[hourIdx]?.toFixed(2) ?? "0.00"}
+                            </td>
+                          ))}
+
+                          {/* Row total */}
+                          <td className="border bg-gray-50 px-2 py-1 text-center font-semibold whitespace-nowrap dark:bg-gray-800">
+                            {new Intl.NumberFormat("lo-LA").format(rowTotal)}
+                          </td>
+
+                          {/* Remark */}
+                          <td className="border px-2 py-1 text-left whitespace-nowrap">
+                            {remark}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {/* Total row */}
+                    <tr className="bg-gray-50 py-2 font-bold whitespace-nowrap dark:bg-gray-800">
+                      <td className="border p-2 text-center">Total (MWh)</td>
+                      {data.powerCurrent?.currentTurbines.map((turbine) => {
+                        const total = turbine.hourly.reduce(
+                          (sum: number, v: number) => sum + v,
+                          0,
+                        );
+                        return (
+                          <td
+                            key={`total-${turbine.turbine}`}
+                            className="border p-2 text-center"
+                          >
+                            {new Intl.NumberFormat("lo-LA").format(total)} MWh
+                          </td>
+                        );
+                      })}
+                      <td className="border p-2 text-center">
+                        {new Intl.NumberFormat("lo-LA").format(
+                          data.powerCurrent?.currentTurbines.reduce(
+                            (grand: number, t: TurbineData) =>
+                              grand + t.hourly.reduce((s, v) => s + v, 0),
+                            0,
+                          ) || 0,
+                        )}{" "}
+                        MWh
                       </td>
-                    );
-                  })}
-                  <td className="border p-2 text-center">
-                    {new Intl.NumberFormat("lo-LA").format(
-                      data.powerCurrent?.currentTurbines.reduce(
-                        (grand: number, t: Turbine) =>
-                          grand + t.hourly.reduce((s, v) => s + v, 0),
-                        0,
-                      ) || 0,
-                    )}{" "}
-                    MWh
-                  </td>
-                  <td className="border p-2 text-center"></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div className="mt-4">
-            <textarea
-              name="remark"
-              id="remark"
-              rows={3}
-              value={data.powerCurrent?.remark || ""}
-              className="w-full cursor-not-allowed rounded border bg-gray-100 p-2 text-gray-700 dark:border-gray-700 dark:bg-white/[0.05] dark:text-white/70"
-              disabled
-            ></textarea>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div className="mt-4">
+                <textarea
+                  name="remark"
+                  id="remark"
+                  rows={3}
+                  value={data.powerCurrent?.remark || ""}
+                  className="w-full cursor-not-allowed rounded border bg-gray-100 p-2 text-gray-700 dark:border-gray-700 dark:bg-white/[0.05] dark:text-white/70"
+                  disabled
+                ></textarea>
+              </div>
+            </div>
           </div>
         </>
       ) : (

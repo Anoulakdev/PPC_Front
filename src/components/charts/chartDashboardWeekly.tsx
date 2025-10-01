@@ -14,12 +14,11 @@ import {
   Legend,
 } from "chart.js";
 import { ChevronDownIcon } from "../../icons";
-import moment from "moment";
 import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
-import DatePickerAll from "@/components/form/date-pickerall";
 import { getLocalStorage } from "@/utils/storage";
 import axiosInstance from "@/utils/axiosInstance";
+import SelectDate from "../form/SelectDate";
 
 ChartJS.register(
   LineElement,
@@ -43,18 +42,15 @@ type Power = {
   };
 };
 
-type TotalChartRawData = {
-  originalHourlySum: number[];
-  currentHourlySum: number[];
-};
-
 export default function TotalChart() {
+  const now = new Date();
   const [chartData, setChartData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [powerList, setPowerList] = useState<Power[]>([]);
   const [selectedPowerId, setSelectedPowerId] = useState<string | null>(null);
-  const [startDate, setStartDate] = useState<Date>(new Date());
-  const [endDate, setEndDate] = useState<Date>(new Date());
+  const [selectedYear, setSelectedYear] = useState<string>(
+    now.getFullYear().toString(),
+  );
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -64,7 +60,7 @@ export default function TotalChart() {
 
   useEffect(() => {
     fetchData();
-  }, [selectedPowerId, startDate, endDate]);
+  }, [selectedPowerId, selectedYear]);
 
   useEffect(() => {
     const fetchPowerList = async () => {
@@ -98,22 +94,21 @@ export default function TotalChart() {
     try {
       setLoading(true);
 
-      const formatDate = (date: Date) => moment(date).format("YYYY-MM-DD");
-      const start = formatDate(startDate);
-      const end = formatDate(endDate);
-
       const url = selectedPowerId
-        ? `/daypowers/totalchart/?powerId=${selectedPowerId}&startDate=${start}&endDate=${end}`
-        : `/daypowers/totalchart/?startDate=${start}&endDate=${end}`;
+        ? `/weekpowers/totalcharts/?powerId=${selectedPowerId}&sYear=${selectedYear}`
+        : `/weekpowers/totalcharts/?sYear=${selectedYear}`;
 
       const response = await axiosInstance.get(url);
-      const rawData: TotalChartRawData = response.data;
+      // สมมุติ response.data เป็น array ของ {date, original, current}
+      const rawData: { week: string; original: string; current: string }[] =
+        response.data;
 
-      // สร้าง labels: 01:00 ถึง 00:00
-      const labels = Array.from(
-        { length: 24 },
-        (_, i) => `${((i + 1) % 24).toString().padStart(2, "0")}:00`,
-      );
+      // ดึง labels = วันที่
+      const labels = rawData.map((item) => item.week);
+
+      // ดึงค่า original / current เป็น number
+      const originalData = rawData.map((item) => Number(item.original));
+      const currentData = rawData.map((item) => Number(item.current));
 
       // สร้าง chartData สำหรับ chart.js
       const formattedData = {
@@ -121,14 +116,20 @@ export default function TotalChart() {
         datasets: [
           {
             label: "Declaration",
-            data: rawData.originalHourlySum,
+            data: originalData,
             borderColor: "rgb(255, 99, 132)",
+            borderWidth: 2,
+            pointBackgroundColor: "#fff",
+            pointBorderWidth: 2,
             tension: 0.4,
           },
           {
             label: "Dispatch",
-            data: rawData.currentHourlySum,
+            data: currentData,
             borderColor: "rgb(75, 192, 192)",
+            borderWidth: 2,
+            pointBackgroundColor: "#fff",
+            pointBorderWidth: 2,
             tension: 0.4,
           },
         ],
@@ -151,6 +152,12 @@ export default function TotalChart() {
     label: name,
   }));
 
+  const currentYear = new Date().getFullYear();
+  const yearOptions = Array.from({ length: 7 }, (_, i) => {
+    const year = currentYear - 5 + i;
+    return { value: year.toString(), label: year.toString() };
+  });
+
   return (
     <>
       <div className="rounded-xl bg-white p-6 shadow-lg dark:bg-gray-900 dark:text-gray-100">
@@ -172,27 +179,17 @@ export default function TotalChart() {
           </div>
 
           <div className="w-full md:w-1/5">
-            <DatePickerAll
-              id="start-date"
-              label="Start Date"
-              defaultDate={startDate ?? undefined}
-              onChange={(dates) => {
-                const selected = dates?.[0] ?? null;
-                setStartDate(selected);
-              }}
-            />
-          </div>
-
-          <div className="w-full md:w-1/5">
-            <DatePickerAll
-              id="end-date"
-              label="End Date"
-              defaultDate={endDate ?? undefined}
-              onChange={(dates) => {
-                const selected = dates?.[0] ?? null;
-                setEndDate(selected);
-              }}
-            />
+            <Label>Choose Year</Label>
+            <div className="relative">
+              <SelectDate
+                options={yearOptions}
+                value={selectedYear}
+                onChange={(value) => setSelectedYear(value)}
+              />
+              <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                <ChevronDownIcon />
+              </span>
+            </div>
           </div>
         </div>
         <hr />
@@ -207,7 +204,18 @@ export default function TotalChart() {
               data={chartData}
               options={{
                 responsive: true,
-                maintainAspectRatio: false, // ให้ chart ยืดตาม container
+                maintainAspectRatio: false,
+                // scales: {
+                //   x: {
+                //     ticks: {
+                //       maxRotation: 45, // หมุน label ได้สูงสุด 45 องศา
+                //       minRotation: 65, // หมุน label อย่างน้อย 30 องศา
+                //     },
+                //   },
+                //   y: {
+                //     beginAtZero: true,
+                //   },
+                // },
               }}
             />
           </div>

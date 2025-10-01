@@ -191,14 +191,14 @@ export default function DayTable() {
     const powerDate = new Date(data.powerDate);
     powerDate.setHours(0, 0, 0, 0); // ตัดเวลา
 
-    // เพิ่มอีก 3 วันจาก powerDate
+    // เพิ่มอีก 5 วันจาก powerDate
     const maxDate = new Date(powerDate);
-    maxDate.setDate(maxDate.getDate() + 3); // powerDate + 3
+    maxDate.setDate(maxDate.getDate() + 5); // powerDate + 5
 
     const today = new Date();
     today.setHours(0, 0, 0, 0); // เปรียบเทียบแค่วันที่
 
-    return today > maxDate; // ถ้าวันนี้มากกว่า powerDate + 3 → disable
+    return today > maxDate; // ถ้าวันนี้มากกว่า powerDate + 5 → disable
   }, [data?.powerDate]);
 
   return (
@@ -665,7 +665,7 @@ export default function DayTable() {
                     type="text"
                     disabled
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={` ${totalDischarge.amount.toFixed(2)} MCM `}
+                    value={` ${totalDischarge.amount} MCM `}
                   />
                 </div>
 
@@ -675,7 +675,7 @@ export default function DayTable() {
                     type="text"
                     disabled
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={`${totalDischarge.average.toFixed(2)} m³/s`}
+                    value={`${totalDischarge.average} m³/s`}
                   />
                 </div>
               </div>

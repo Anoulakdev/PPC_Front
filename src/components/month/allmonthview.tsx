@@ -7,6 +7,7 @@ import moment from "moment";
 import { decryptId, encryptId } from "@/lib/cryptoId";
 import { ArrowLeftIcon, PencilIcon } from "@heroicons/react/24/solid";
 import { getLocalStorage } from "@/utils/storage";
+import { getMonthDaysWithWeekday } from "@/utils/dateHelpers";
 
 const hours = [
   "00:00-01:00",
@@ -107,6 +108,10 @@ export default function MonthView() {
   const [loading, setLoading] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
+
+  const year = Number(data?.sYear);
+  const month = Number(data?.sMonth) - 1; // Date ใช้ 0-based month
+  const dayLabels = getMonthDaysWithWeekday(year, month);
 
   useEffect(() => {
     const storedUser = getLocalStorage("user");
@@ -216,7 +221,7 @@ export default function MonthView() {
                           key={`header-${turbine.turbine}`}
                           className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700"
                         >
-                          Day-{turbine.turbine} (MW)
+                          {dayLabels[turbine.turbine - 1]} (MW)
                         </th>
                       ))}
                       <th className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700">
@@ -329,7 +334,7 @@ export default function MonthView() {
                           key={`header-${turbine.turbine}`}
                           className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700"
                         >
-                          Day-{turbine.turbine} (MW)
+                          {dayLabels[turbine.turbine - 1]} (MW)
                         </th>
                       ))}
                       <th className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700">

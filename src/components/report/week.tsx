@@ -210,7 +210,7 @@ export default function WeekTable() {
     },
     {
       accessorKey: "powerOriginal.totalPower",
-      header: "WAD",
+      header: "WEEKLY DECLARATION",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";
@@ -219,7 +219,7 @@ export default function WeekTable() {
     },
     {
       accessorKey: "powerCurrent.totalPower",
-      header: "WD",
+      header: "WEEKLY DISPATCH",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";
@@ -365,8 +365,12 @@ export default function WeekTable() {
           Company: item.power?.company?.name ?? "",
           Declaration: item.power?.name ?? "",
           WAD_WD: `${item.powerNo} - EDL`,
-          WAD: parseFloat(item.powerOriginal?.totalPower?.toString() ?? "0"),
-          WD: parseFloat(item.powerCurrent?.totalPower?.toString() ?? "0"),
+          WEEKLY_DECLARATION: parseFloat(
+            item.powerOriginal?.totalPower?.toString() ?? "0",
+          ),
+          WEEKLY_DISPATCH: parseFloat(
+            item.powerCurrent?.totalPower?.toString() ?? "0",
+          ),
           Document: item.revise === false ? "Original" : "Revise",
           StatusWAD: item.decAcknowUser?.firstname
             ? `${item.decAcknowUser.firstname} ${item.decAcknowUser.lastname ?? ""}`.trim()

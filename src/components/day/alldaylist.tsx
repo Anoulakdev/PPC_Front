@@ -169,7 +169,7 @@ export default function DayTable() {
     },
     {
       accessorKey: "powerOriginal.totalPower",
-      header: "DAD",
+      header: "DAILY DECLARATION",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";
@@ -178,7 +178,7 @@ export default function DayTable() {
     },
     {
       accessorKey: "powerCurrent.totalPower",
-      header: "DD",
+      header: "DAILY DISPATCH",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";

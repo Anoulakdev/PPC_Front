@@ -202,7 +202,7 @@ export default function WeekTable() {
     },
     {
       accessorKey: "powerOriginal.totalPower",
-      header: "MAD",
+      header: "WEEKLY DECLARATION",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";
@@ -211,7 +211,7 @@ export default function WeekTable() {
     },
     {
       accessorKey: "powerCurrent.totalPower",
-      header: "MD",
+      header: "WEEKLY DISPATCH",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";

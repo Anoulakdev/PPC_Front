@@ -179,8 +179,12 @@ export default function MonthTable() {
           Company: item.power?.company?.name ?? "",
           Declaration: item.power?.name ?? "",
           MAD_MD: `${item.powerNo} - EDL`,
-          MAD: parseFloat(item.powerOriginal?.totalPower?.toString() ?? "0"),
-          MD: parseFloat(item.powerCurrent?.totalPower?.toString() ?? "0"),
+          MONTHLY_DECLARATION: parseFloat(
+            item.powerOriginal?.totalPower?.toString() ?? "0",
+          ),
+          MONTHLY_DISPATCH: parseFloat(
+            item.powerCurrent?.totalPower?.toString() ?? "0",
+          ),
           Document: item.revise === false ? "Original" : "Revise",
           StatusMAD: item.decAcknowUser?.firstname
             ? `${item.decAcknowUser.firstname} ${item.decAcknowUser.lastname ?? ""}`.trim()
@@ -233,7 +237,7 @@ export default function MonthTable() {
     },
     {
       accessorKey: "powerOriginal.totalPower",
-      header: "MAD",
+      header: "MONTHLY DECLARATION",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";
@@ -242,7 +246,7 @@ export default function MonthTable() {
     },
     {
       accessorKey: "powerCurrent.totalPower",
-      header: "MD",
+      header: "MONTHLY DISPATCH",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";

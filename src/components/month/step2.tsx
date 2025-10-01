@@ -1,9 +1,11 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import { useMonthPowerStore } from "@/store/monthPowerStore";
 import { useState, useEffect } from "react";
 import axiosInstance from "@/utils/axiosInstance";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { getMonthDaysWithWeekday } from "@/utils/dateHelpers";
 
 const hours = [
   "00:00-01:00",
@@ -38,6 +40,19 @@ export const Step2 = () => {
   const unit = formData.totalDate || 1;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
+
+  const year = Number(formData.sYear);
+  const month = Number(formData.sMonth) - 1; // Date ใช้ 0-based month
+  const dayLabels = getMonthDaysWithWeekday(year, month);
+
+  useEffect(() => {
+    const turbineData = dayLabels.map((_, idx) => ({
+      turbine: idx + 1,
+      hourly: Array(24).fill(0),
+    }));
+    const remarks = Array(24).fill("");
+    updateFormData({ turbineData, remarks });
+  }, [year, month, updateFormData]);
 
   useEffect(() => {
     const turbineData = Array.from({ length: unit }, (_, tIdx) => ({
@@ -162,7 +177,7 @@ export const Step2 = () => {
                   className="w-[130px] border p-2 text-center whitespace-nowrap"
                 >
                   <div className="flex flex-col items-center">
-                    <span className="text-sm">Day-{t.turbine} (MW)</span>
+                    <span className="text-sm">{dayLabels[tIdx]} (MW)</span>
                     <textarea
                       onPaste={(e) => handlePaste(e, tIdx)}
                       placeholder="Paste 24 values"

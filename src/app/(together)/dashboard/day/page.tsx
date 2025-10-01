@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { CardDayDashboard } from "@/components/reportCard/cardDayDashboard";
-import ChartDashboard from "@/components/charts/chartDashboard";
+import ChartDashboard from "@/components/charts/chartDashboardDaily";
 import React from "react";
 
 export const metadata: Metadata = {
-  title: "Dashboard",
-  description: "Dashboard",
+  title: "Dashboard Daily",
+  description: "Dashboard Daily",
 };
 
 export default function Dashboard() {

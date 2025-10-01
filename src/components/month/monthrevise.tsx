@@ -7,6 +7,7 @@ import { useParams, useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { decryptId } from "@/lib/cryptoId";
 import { getLocalStorage } from "@/utils/storage";
+import { getMonthDaysWithWeekday } from "@/utils/dateHelpers";
 
 const hours = [
   "00:00-01:00",
@@ -45,6 +46,10 @@ export default function MonthRevise() {
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
+
+  const year = Number(data?.sYear);
+  const month = Number(data?.sMonth) - 1; // Date ใช้ 0-based month
+  const dayLabels = getMonthDaysWithWeekday(year, month);
 
   useEffect(() => {
     const storedUser = getLocalStorage("user");
@@ -227,7 +232,7 @@ export default function MonthRevise() {
                       className="w-[130px] border p-2 text-center whitespace-nowrap"
                     >
                       <div className="flex flex-col items-center">
-                        <span className="text-sm">Day-{t.turbine} (MW)</span>
+                        <span className="text-sm">{dayLabels[tIdx]} (MW)</span>
                         <textarea
                           onPaste={(e) => handlePaste(e, tIdx)}
                           placeholder="Paste 24 values"

@@ -28,7 +28,7 @@ export default function LoginPage() {
         user.roleId === 5 ||
         user.roleId === 6
       ) {
-        router.push("/dashboard");
+        router.push("/dashboard/day");
       } else {
         toast.error("Invalid User Role");
       }

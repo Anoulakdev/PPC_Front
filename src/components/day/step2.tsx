@@ -46,8 +46,8 @@ export const Step2 = () => {
     setMins(updated);
   };
 
-  const formatValue = (v: number | undefined) =>
-    typeof v === "number" ? v.toFixed(2) : "0.00";
+  // const formatValue = (v: number | undefined) =>
+  //   typeof v === "number" ? v.toFixed(2) : "0.00";
 
   const totalDischarge = useMemo(() => {
     const tdAmount =
@@ -98,14 +98,12 @@ export const Step2 = () => {
               {maxs.map((val, index) => (
                 <td key={index} className="px-4 py-2">
                   <input
-                    type="text"
-                    value={formatValue(val)}
-                    step="0.10"
+                    type="number"
+                    value={val}
                     onChange={(e) => handleMax(index, e.target.value)}
                     onBlur={(e) => {
                       const raw = parseFloat(e.target.value) || 0;
-                      const fixed = parseFloat(raw.toFixed(2));
-                      handleMax(index, fixed.toString());
+                      handleMax(index, raw.toString());
                     }}
                     className="w-[130px] rounded border px-2 py-2 text-left"
                     required
@@ -119,13 +117,11 @@ export const Step2 = () => {
                 <td key={index} className="px-4 py-2">
                   <input
                     type="number"
-                    value={formatValue(val)}
-                    step="0.10"
+                    value={val}
                     onChange={(e) => handleMin(index, e.target.value)}
                     onBlur={(e) => {
                       const raw = parseFloat(e.target.value) || 0;
-                      const fixed = parseFloat(raw.toFixed(2));
-                      handleMin(index, fixed.toString());
+                      handleMin(index, raw.toString());
                     }}
                     className="w-[130px] rounded border px-2 py-2 text-left"
                     required
@@ -147,7 +143,7 @@ export const Step2 = () => {
             type="number"
             name="upstreamLevel"
             placeholder="0.00"
-            value={formData.upstreamLevel || ""}
+            value={formData.upstreamLevel ?? ""}
             onChange={(e) => {
               updateFormData({
                 upstreamLevel: e.target.value,
@@ -169,7 +165,7 @@ export const Step2 = () => {
             type="number"
             name="downstreamLevel"
             placeholder="0.00"
-            value={formData.downstreamLevel || ""}
+            value={formData.downstreamLevel ?? ""}
             onChange={(e) =>
               updateFormData({ downstreamLevel: e.target.value })
             }
@@ -192,7 +188,7 @@ export const Step2 = () => {
                 type="number"
                 name="totalStorageamount"
                 placeholder="0.00"
-                value={formData.totalStorageamount || ""}
+                value={formData.totalStorageamount ?? ""}
                 onChange={(e) =>
                   updateFormData({ totalStorageamount: e.target.value })
                 }
@@ -210,7 +206,7 @@ export const Step2 = () => {
                 type="number"
                 name="totalStorageaverage"
                 placeholder="0.00"
-                value={formData.totalStorageaverage || ""}
+                value={formData.totalStorageaverage ?? ""}
                 onChange={(e) =>
                   updateFormData({ totalStorageaverage: e.target.value })
                 }
@@ -235,7 +231,7 @@ export const Step2 = () => {
                 type="number"
                 name="activeStorageamount"
                 placeholder="0.00"
-                value={formData.activeStorageamount || ""}
+                value={formData.activeStorageamount ?? ""}
                 onChange={(e) =>
                   updateFormData({ activeStorageamount: e.target.value })
                 }
@@ -255,7 +251,7 @@ export const Step2 = () => {
                 type="number"
                 name="activeStorageaverage"
                 placeholder="0.00"
-                value={formData.activeStorageaverage || ""}
+                value={formData.activeStorageaverage ?? ""}
                 onChange={(e) =>
                   updateFormData({ activeStorageaverage: e.target.value })
                 }
@@ -285,7 +281,7 @@ export const Step2 = () => {
                 type="number"
                 name="turbineDischargeamount"
                 placeholder="0.00"
-                value={formData.turbineDischargeamount || ""}
+                value={formData.turbineDischargeamount ?? ""}
                 onChange={(e) =>
                   updateFormData({ turbineDischargeamount: e.target.value })
                 }
@@ -305,7 +301,7 @@ export const Step2 = () => {
                 type="number"
                 name="turbineDischargeaverage"
                 placeholder="0.00"
-                value={formData.turbineDischargeaverage || ""}
+                value={formData.turbineDischargeaverage ?? ""}
                 onChange={(e) =>
                   updateFormData({ turbineDischargeaverage: e.target.value })
                 }
@@ -330,7 +326,7 @@ export const Step2 = () => {
                 type="number"
                 name="spillwayDischargeamount"
                 placeholder="0.00"
-                value={formData.spillwayDischargeamount || ""}
+                value={formData.spillwayDischargeamount ?? ""}
                 onChange={(e) =>
                   updateFormData({ spillwayDischargeamount: e.target.value })
                 }
@@ -350,7 +346,7 @@ export const Step2 = () => {
                 type="number"
                 name="spillwayDischargeaverage"
                 placeholder="0.00"
-                value={formData.spillwayDischargeaverage || ""}
+                value={formData.spillwayDischargeaverage ?? ""}
                 onChange={(e) =>
                   updateFormData({ spillwayDischargeaverage: e.target.value })
                 }
@@ -377,7 +373,7 @@ export const Step2 = () => {
                 type="number"
                 name="ecologicalDischargeamount"
                 placeholder="0.00"
-                value={formData.ecologicalDischargeamount || ""}
+                value={formData.ecologicalDischargeamount ?? ""}
                 onChange={(e) =>
                   updateFormData({ ecologicalDischargeamount: e.target.value })
                 }
@@ -397,7 +393,7 @@ export const Step2 = () => {
                 type="number"
                 name="ecologicalDischargeaverage"
                 placeholder="0.00"
-                value={formData.ecologicalDischargeaverage || ""}
+                value={formData.ecologicalDischargeaverage ?? ""}
                 onChange={(e) =>
                   updateFormData({ ecologicalDischargeaverage: e.target.value })
                 }
@@ -422,7 +418,7 @@ export const Step2 = () => {
                 type="text"
                 disabled
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={` ${totalDischarge.amount.toFixed(2)} MCM `}
+                value={` ${totalDischarge.amount} MCM `}
               />
             </div>
 
@@ -432,7 +428,7 @@ export const Step2 = () => {
                 type="text"
                 disabled
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={`${totalDischarge.average.toFixed(2)} m³/s`}
+                value={`${totalDischarge.average} m³/s`}
               />
             </div>
           </div>

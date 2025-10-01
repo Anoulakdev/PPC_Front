@@ -38,6 +38,7 @@ export const Step1 = () => {
       const fetched = response.data;
 
       updateFormData({
+        machinesAvailability: fetched.machinesAvailability || [],
         upstreamLevel: Number(fetched.upstreamLevel),
         downstreamLevel: Number(fetched.downstreamLevel),
         totalStorageamount: Number(fetched.totalStorageamount),

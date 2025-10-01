@@ -43,11 +43,6 @@ type Power = {
   };
 };
 
-type TotalChartRawData = {
-  originalHourlySum: number[];
-  currentHourlySum: number[];
-};
-
 export default function TotalChart() {
   const [chartData, setChartData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -103,17 +98,20 @@ export default function TotalChart() {
       const end = formatDate(endDate);
 
       const url = selectedPowerId
-        ? `/daypowers/totalchart/?powerId=${selectedPowerId}&startDate=${start}&endDate=${end}`
-        : `/daypowers/totalchart/?startDate=${start}&endDate=${end}`;
+        ? `/daypowers/totalcharts/?powerId=${selectedPowerId}&startDate=${start}&endDate=${end}`
+        : `/daypowers/totalcharts/?startDate=${start}&endDate=${end}`;
 
       const response = await axiosInstance.get(url);
-      const rawData: TotalChartRawData = response.data;
+      // สมมุติ response.data เป็น array ของ {date, original, current}
+      const rawData: { date: string; original: string; current: string }[] =
+        response.data;
 
-      // สร้าง labels: 01:00 ถึง 00:00
-      const labels = Array.from(
-        { length: 24 },
-        (_, i) => `${((i + 1) % 24).toString().padStart(2, "0")}:00`,
-      );
+      // ดึง labels = วันที่
+      const labels = rawData.map((item) => item.date);
+
+      // ดึงค่า original / current เป็น number
+      const originalData = rawData.map((item) => Number(item.original));
+      const currentData = rawData.map((item) => Number(item.current));
 
       // สร้าง chartData สำหรับ chart.js
       const formattedData = {
@@ -121,14 +119,20 @@ export default function TotalChart() {
         datasets: [
           {
             label: "Declaration",
-            data: rawData.originalHourlySum,
+            data: originalData,
             borderColor: "rgb(255, 99, 132)",
+            borderWidth: 2,
+            pointBackgroundColor: "#fff",
+            pointBorderWidth: 2,
             tension: 0.4,
           },
           {
             label: "Dispatch",
-            data: rawData.currentHourlySum,
+            data: currentData,
             borderColor: "rgb(75, 192, 192)",
+            borderWidth: 2,
+            pointBackgroundColor: "#fff",
+            pointBorderWidth: 2,
             tension: 0.4,
           },
         ],
@@ -207,7 +211,18 @@ export default function TotalChart() {
               data={chartData}
               options={{
                 responsive: true,
-                maintainAspectRatio: false, // ให้ chart ยืดตาม container
+                maintainAspectRatio: false,
+                scales: {
+                  x: {
+                    ticks: {
+                      maxRotation: 45, // หมุน label ได้สูงสุด 45 องศา
+                      minRotation: 65, // หมุน label อย่างน้อย 30 องศา
+                    },
+                  },
+                  y: {
+                    beginAtZero: true,
+                  },
+                },
               }}
             />
           </div>

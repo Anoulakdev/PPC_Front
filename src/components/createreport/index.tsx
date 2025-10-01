@@ -212,63 +212,163 @@ export default function DayTable() {
     },
     {
       accessorKey: "waterLevel",
+      cell: ({ getValue }) => {
+        const value = getValue() as number | null;
+        if (value === null || value === undefined) return "-";
+        return String(value);
+      },
     },
     {
       accessorKey: "dwy",
+      cell: ({ getValue }) => {
+        const value = getValue() as number | null;
+        if (value === null || value === undefined) return "-";
+        return String(value);
+      },
     },
     {
       accessorKey: "dwf",
+      cell: ({ getValue }) => {
+        const value = getValue() as number | null;
+        if (value === null || value === undefined) return "-";
+        return String(value);
+      },
     },
     {
       accessorKey: "dwm",
+      cell: ({ getValue }) => {
+        const value = getValue() as number | null;
+        if (value === null || value === undefined) return "-";
+        return String(value);
+      },
     },
     {
       accessorKey: "pws",
+      cell: ({ getValue }) => {
+        const value = getValue() as number | null;
+        if (value === null || value === undefined) return "-";
+        return String(value);
+      },
     },
     {
       accessorKey: "activeStorageamount",
+      cell: ({ getValue }) => {
+        const value = getValue() as number | null;
+        if (value === null || value === undefined) return "-";
+        return String(value);
+      },
     },
     {
       accessorKey: "activeStorageaverage",
+      cell: ({ getValue }) => {
+        const value = getValue() as number | null;
+        if (value === null || value === undefined) return "-";
+        return String(value);
+      },
     },
     {
       accessorKey: "inflowamount",
+      cell: ({ getValue }) => {
+        const value = getValue() as number | null;
+        if (value === null || value === undefined) return "-";
+        return String(value);
+      },
     },
     {
       accessorKey: "inflowaverage",
+      cell: ({ getValue }) => {
+        const value = getValue() as number | null;
+        if (value === null || value === undefined) return "-";
+        return String(value);
+      },
     },
     {
       accessorKey: "tdAmount",
+      cell: ({ getValue }) => {
+        const value = getValue() as number | null;
+        if (value === null || value === undefined) return "-";
+        return String(value);
+      },
     },
     {
       accessorKey: "tdAverage",
+      cell: ({ getValue }) => {
+        const value = getValue() as number | null;
+        if (value === null || value === undefined) return "-";
+        return String(value);
+      },
     },
     {
       accessorKey: "spillwayamount",
+      cell: ({ getValue }) => {
+        const value = getValue() as number | null;
+        if (value === null || value === undefined) return "-";
+        return String(value);
+      },
     },
     {
       accessorKey: "spillwayaverage",
+      cell: ({ getValue }) => {
+        const value = getValue() as number | null;
+        if (value === null || value === undefined) return "-";
+        return String(value);
+      },
     },
     {
       accessorKey: "owramount",
+      cell: ({ getValue }) => {
+        const value = getValue() as number | null;
+        if (value === null || value === undefined) return "-";
+        return String(value);
+      },
     },
     {
       accessorKey: "owraverage",
+      cell: ({ getValue }) => {
+        const value = getValue() as number | null;
+        if (value === null || value === undefined) return "-";
+        return String(value);
+      },
     },
     {
       accessorKey: "rainFall",
+      cell: ({ getValue }) => {
+        const value = getValue() as number | null;
+        if (value === null || value === undefined) return "-";
+        return String(value);
+      },
     },
     {
       accessorKey: "netEnergyOutput",
+      cell: ({ getValue }) => {
+        const value = getValue() as number | null;
+        if (value === null || value === undefined) return "-";
+        return String(value);
+      },
     },
     {
       accessorKey: "waterRate",
+      cell: ({ getValue }) => {
+        const value = getValue() as number | null;
+        if (value === null || value === undefined) return "-";
+        return String(value);
+      },
     },
     {
       accessorKey: "totalOutflow",
+      cell: ({ getValue }) => {
+        const value = getValue() as number | null;
+        if (value === null || value === undefined) return "-";
+        return String(value);
+      },
     },
     {
       accessorKey: "averageOutflow",
+      cell: ({ getValue }) => {
+        const value = getValue() as number | null;
+        if (value === null || value === undefined) return "-";
+        return String(value);
+      },
     },
     {
       accessorKey: "createdByUser",

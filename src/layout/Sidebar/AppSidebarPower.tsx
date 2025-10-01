@@ -33,7 +33,11 @@ const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
     name: "Dashboard",
-    path: "/dashboard",
+    subItems: [
+      { name: "Daily", path: "/dashboard/day", pro: false },
+      { name: "Weekly", path: "/dashboard/week", pro: false },
+      { name: "Monthly", path: "/dashboard/month", pro: false },
+    ],
   },
   {
     name: "All Document",

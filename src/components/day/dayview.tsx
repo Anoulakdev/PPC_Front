@@ -637,7 +637,7 @@ export default function DayView({ onPowerIdChange }: DayViewProps) {
                     type="text"
                     disabled
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={` ${totalDischarge.amount.toFixed(2)} MCM `}
+                    value={` ${totalDischarge.amount} MCM `}
                   />
                 </div>
 
@@ -647,7 +647,7 @@ export default function DayView({ onPowerIdChange }: DayViewProps) {
                     type="text"
                     disabled
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={`${totalDischarge.average.toFixed(2)} m³/s`}
+                    value={`${totalDischarge.average} m³/s`}
                   />
                 </div>
               </div>

@@ -3,7 +3,11 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { setLocalStorage, getLocalStorage } from "@/utils/storage";
+import {
+  setLocalStorage,
+  getLocalStorage,
+  removeLocalStorage,
+} from "@/utils/storage";
 import { toast } from "react-toastify";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
@@ -57,6 +61,11 @@ export default function LoginPage() {
       setLocalStorage("user", user);
 
       document.cookie = `token=${token}; path=/; max-age=3600; secure; samesite=strict`;
+
+      removeLocalStorage("day-power-storage");
+      removeLocalStorage("week-power-storage");
+      removeLocalStorage("month-power-storage");
+      removeLocalStorage("create-report-storage");
 
       // Redirect to the dashboard
       toast.success("Login Success");

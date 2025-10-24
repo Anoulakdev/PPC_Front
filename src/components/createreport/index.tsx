@@ -71,14 +71,20 @@ type Power = {
   };
 };
 
-type PowerOriginal = {
+type PowerCurrent = {
   totalPower: number | null;
+  remarks: string;
   originalTurbines: TurbineData[];
 };
 
 type Day = {
   id: number;
   powerDate: string;
+  power?: Power;
+  dayReportCurrent: DayReportCurrent;
+};
+
+type DayReportCurrent = {
   activeStorageamount: string;
   activeStorageaverage: string;
   waterLevel: string;
@@ -99,10 +105,8 @@ type Day = {
   waterRate: string;
   totalOutflow: string;
   averageOutflow: string;
-  remarks: string;
-  power?: Power;
-  powerOriginal?: PowerOriginal;
   createdByUser?: UserAcKnow | null;
+  powerCurrent?: PowerCurrent;
 };
 
 type User = {
@@ -203,7 +207,7 @@ export default function DayTable() {
       accessorKey: "power.name",
     },
     {
-      accessorKey: "powerOriginal.totalPower",
+      accessorKey: "dayReportCurrent.powerCurrent.totalPower",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";
@@ -211,170 +215,232 @@ export default function DayTable() {
       },
     },
     {
-      accessorKey: "waterLevel",
+      accessorKey: "dayReportCurrent.waterLevel",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";
-        return String(value);
+        return new Intl.NumberFormat("lo-LA", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 20,
+        }).format(value);
       },
     },
     {
-      accessorKey: "dwy",
+      accessorKey: "dayReportCurrent.dwy",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";
-        return String(value);
+        return new Intl.NumberFormat("lo-LA", {
+          minimumFractionDigits: 0, // แสดงทศนิยมอย่างน้อย 0
+          maximumFractionDigits: 20, // แสดงทศนิยมสูงสุด 20 หลัก
+        }).format(value);
       },
     },
     {
-      accessorKey: "dwf",
+      accessorKey: "dayReportCurrent.dwf",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";
-        return String(value);
+        return new Intl.NumberFormat("lo-LA", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 20,
+        }).format(value);
       },
     },
     {
-      accessorKey: "dwm",
+      accessorKey: "dayReportCurrent.dwm",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";
-        return String(value);
+        return new Intl.NumberFormat("lo-LA", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 20,
+        }).format(value);
       },
     },
     {
-      accessorKey: "pws",
+      accessorKey: "dayReportCurrent.pws",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";
-        return String(value);
+        return new Intl.NumberFormat("lo-LA", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 20,
+        }).format(value);
       },
     },
     {
-      accessorKey: "activeStorageamount",
+      accessorKey: "dayReportCurrent.activeStorageamount",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";
-        return String(value);
+        return new Intl.NumberFormat("lo-LA", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 20,
+        }).format(value);
       },
     },
     {
-      accessorKey: "activeStorageaverage",
+      accessorKey: "dayReportCurrent.activeStorageaverage",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";
-        return String(value);
+        return new Intl.NumberFormat("lo-LA", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 20,
+        }).format(value);
       },
     },
     {
-      accessorKey: "inflowamount",
+      accessorKey: "dayReportCurrent.inflowamount",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";
-        return String(value);
+        return new Intl.NumberFormat("lo-LA", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 20,
+        }).format(value);
       },
     },
     {
-      accessorKey: "inflowaverage",
+      accessorKey: "dayReportCurrent.inflowaverage",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";
-        return String(value);
+        return new Intl.NumberFormat("lo-LA", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 20,
+        }).format(value);
       },
     },
     {
-      accessorKey: "tdAmount",
+      accessorKey: "dayReportCurrent.tdAmount",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";
-        return String(value);
+        return new Intl.NumberFormat("lo-LA", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 20,
+        }).format(value);
       },
     },
     {
-      accessorKey: "tdAverage",
+      accessorKey: "dayReportCurrent.tdAverage",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";
-        return String(value);
+        return new Intl.NumberFormat("lo-LA", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 20,
+        }).format(value);
       },
     },
     {
-      accessorKey: "spillwayamount",
+      accessorKey: "dayReportCurrent.spillwayamount",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";
-        return String(value);
+        return new Intl.NumberFormat("lo-LA", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 20,
+        }).format(value);
       },
     },
     {
-      accessorKey: "spillwayaverage",
+      accessorKey: "dayReportCurrent.spillwayaverage",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";
-        return String(value);
+        return new Intl.NumberFormat("lo-LA", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 20,
+        }).format(value);
       },
     },
     {
-      accessorKey: "owramount",
+      accessorKey: "dayReportCurrent.owramount",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";
-        return String(value);
+        return new Intl.NumberFormat("lo-LA", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 20,
+        }).format(value);
       },
     },
     {
-      accessorKey: "owraverage",
+      accessorKey: "dayReportCurrent.owraverage",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";
-        return String(value);
+        return new Intl.NumberFormat("lo-LA", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 20,
+        }).format(value);
       },
     },
     {
-      accessorKey: "rainFall",
+      accessorKey: "dayReportCurrent.rainFall",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";
-        return String(value);
+        return new Intl.NumberFormat("lo-LA", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 20,
+        }).format(value);
       },
     },
     {
-      accessorKey: "netEnergyOutput",
+      accessorKey: "dayReportCurrent.netEnergyOutput",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";
-        return String(value);
+        return new Intl.NumberFormat("lo-LA", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 20,
+        }).format(value);
       },
     },
     {
-      accessorKey: "waterRate",
+      accessorKey: "dayReportCurrent.waterRate",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";
-        return String(value);
+        return new Intl.NumberFormat("lo-LA", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 20,
+        }).format(value);
       },
     },
     {
-      accessorKey: "totalOutflow",
+      accessorKey: "dayReportCurrent.totalOutflow",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";
-        return String(value);
+        return new Intl.NumberFormat("lo-LA", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 20,
+        }).format(value);
       },
     },
     {
-      accessorKey: "averageOutflow",
+      accessorKey: "dayReportCurrent.averageOutflow",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";
-        return String(value);
+        return new Intl.NumberFormat("lo-LA", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 20,
+        }).format(value);
       },
     },
     {
       accessorKey: "createdByUser",
       cell: ({ row }) => {
-        const firstname = row.original.createdByUser?.firstname ?? "";
-        const lastname = row.original.createdByUser?.lastname ?? "";
+        const firstname =
+          row.original.dayReportCurrent?.createdByUser?.firstname ?? "";
+        const lastname =
+          row.original.dayReportCurrent?.createdByUser?.lastname ?? "";
         return `${firstname} ${lastname}`;
       },
     },
@@ -434,45 +500,50 @@ export default function DayTable() {
           Date: moment(item.powerDate).format("DD/MM/YYYY"),
           Declaration: item.power?.name ?? "",
           Total_Power: parseFloat(
-            item.powerOriginal?.totalPower?.toString() ?? "0",
+            item.dayReportCurrent?.powerCurrent?.totalPower?.toString() ?? "0",
           ),
-          WaterLevel: item.waterLevel ?? "",
-          Diff_with_Yesterday: item.dwy ?? "",
-          Diff_with_full: item.dwf ?? "",
-          Diff_with_Min: item.dwm ?? "",
-          Potential_Water_Storage: item.pws ?? "",
-          Active_Storage_Amount: item.activeStorageamount ?? "",
-          Active_Storage_Average: item.activeStorageaverage ?? "",
-          Inflow_Amount: item.inflowamount ?? "",
-          Inflow_Average: item.inflowaverage ?? "",
-          Outflow_Amount: item.tdAmount ?? "",
-          Outflow_Average: item.tdAverage ?? "",
-          Spillway_Amount: item.spillwayamount ?? "",
-          Spillway_Average: item.spillwayaverage ?? "",
-          Other_Water_Released_Amount: item.owramount ?? "",
-          Other_Water_Released_Average: item.owraverage ?? "",
-          Rain_Fall: item.rainFall ?? "",
-          Net_Energy_Output: item.netEnergyOutput ?? "",
-          Water_Rate: item.waterRate ?? "",
-          Total_Outflow: item.totalOutflow ?? "",
-          Average_Outflow: item.averageOutflow ?? "",
-          CreatedBy: `${item.createdByUser?.firstname ?? ""} ${
-            item.createdByUser?.lastname ?? ""
-          }`.trim(),
+          WaterLevel: item.dayReportCurrent?.waterLevel ?? "",
+          Diff_with_Yesterday: item.dayReportCurrent?.dwy ?? "",
+          Diff_with_full: item.dayReportCurrent?.dwf ?? "",
+          Diff_with_Min: item.dayReportCurrent?.dwm ?? "",
+          Potential_Water_Storage: item.dayReportCurrent?.pws ?? "",
+          Active_Storage_Amount:
+            item.dayReportCurrent?.activeStorageamount ?? "",
+          Active_Storage_Average:
+            item.dayReportCurrent?.activeStorageaverage ?? "",
+          Inflow_Amount: item.dayReportCurrent?.inflowamount ?? "",
+          Inflow_Average: item.dayReportCurrent?.inflowaverage ?? "",
+          Outflow_Amount: item.dayReportCurrent?.tdAmount ?? "",
+          Outflow_Average: item.dayReportCurrent?.tdAverage ?? "",
+          Spillway_Amount: item.dayReportCurrent?.spillwayamount ?? "",
+          Spillway_Average: item.dayReportCurrent?.spillwayaverage ?? "",
+          Other_Water_Released_Amount: item.dayReportCurrent?.owramount ?? "",
+          Other_Water_Released_Average: item.dayReportCurrent?.owraverage ?? "",
+          Rain_Fall: item.dayReportCurrent?.rainFall ?? "",
+          Net_Energy_Output: item.dayReportCurrent?.netEnergyOutput ?? "",
+          Water_Rate: item.dayReportCurrent?.waterRate ?? "",
+          Total_Outflow: item.dayReportCurrent?.totalOutflow ?? "",
+          Average_Outflow: item.dayReportCurrent?.averageOutflow ?? "",
+          CreatedBy:
+            `${item.dayReportCurrent?.createdByUser?.firstname ?? ""} ${
+              item.dayReportCurrent?.createdByUser?.lastname ?? ""
+            }`.trim(),
         })),
       );
 
       const worksheet2 = XLSX.utils.json_to_sheet(
         data.map((item, index) => {
           const hourlyData =
-            item.powerOriginal?.originalTurbines?.[0]?.hourly ?? [];
+            item.dayReportCurrent?.powerCurrent?.originalTurbines?.[0]
+              ?.hourly ?? [];
 
           const row: Record<string, any> = {
             No: index + 1,
             Date: moment(item.powerDate).format("DD/MM/YYYY"),
             Declaration: item.power?.name ?? "",
             Total_Power: parseFloat(
-              item.powerOriginal?.totalPower?.toString() ?? "0",
+              item.dayReportCurrent?.powerCurrent?.totalPower?.toString() ??
+                "0",
             ),
             // CreatedBy ยังไม่ใส่ตรงนี้
           };
@@ -484,7 +555,7 @@ export default function DayTable() {
 
           // ใส่ CreatedBy ทีหลัง
           row.CreatedBy =
-            `${item.createdByUser?.firstname ?? ""} ${item.createdByUser?.lastname ?? ""}`.trim();
+            `${item.dayReportCurrent?.createdByUser?.firstname ?? ""} ${item.dayReportCurrent?.createdByUser?.lastname ?? ""}`.trim();
 
           return row;
         }),

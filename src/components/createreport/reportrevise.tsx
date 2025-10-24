@@ -1,12 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import axiosInstance from "@/utils/axiosInstance";
 import { useRouter, useParams } from "next/navigation";
-import { decryptId, encryptId } from "@/lib/cryptoId";
-import { ArrowLeftIcon, PencilIcon } from "@heroicons/react/24/solid";
-import { getLocalStorage } from "@/utils/storage";
-import moment from "moment";
+import { decryptId } from "@/lib/cryptoId";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 
@@ -42,26 +39,13 @@ type TurbineData = {
   hourly: number[];
 };
 
-type UserAcKnow = {
-  firstname: string;
-  lastname: string;
-};
-
-type Power = {
-  id: number;
-  name: string;
-  company: {
-    name: string;
-  };
-};
-
-type PowerCurrent = {
+type PowerHistory = {
   totalPower: number | null;
   remarks: string;
   originalTurbines: TurbineData[];
 };
 
-type DayReportCurrent = {
+type DayReportHistory = {
   activeStorageamount: string;
   activeStorageaverage: string;
   waterLevel: string;
@@ -82,40 +66,14 @@ type DayReportCurrent = {
   waterRate: string;
   totalOutflow: string;
   averageOutflow: string;
-  createdByUser?: UserAcKnow | null;
-  powerCurrent?: PowerCurrent;
+  powerHistory?: PowerHistory;
 };
 
-type DayReportHistory = {
-  id: number;
-  createdByUser?: UserAcKnow | null;
-  totalPower: number | null;
-  createdAt: string;
-};
-
-type CreateReportData = {
-  id: number;
-  powerDate: string;
-  power?: Power;
-  dayReportCurrent: DayReportCurrent;
-  dayReportHistorys: DayReportHistory;
-};
-
-type User = {
-  roleId: number;
-};
-
-export default function ReportView() {
+export default function ReportRevise() {
   const { id } = useParams();
-  const [data, setData] = useState<CreateReportData | null>(null);
+  const [data, setData] = useState<DayReportHistory | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
-
-  useEffect(() => {
-    const storedUser = getLocalStorage("user");
-    setUser(storedUser as User);
-  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -128,7 +86,9 @@ export default function ReportView() {
           router.replace("/unauthorized");
           return;
         }
-        const response = await axiosInstance.get(`/dayreports/${decryptedId}`);
+        const response = await axiosInstance.get(
+          `/dayreports/historyrevise/${decryptedId}`,
+        );
         setData(response.data);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -141,67 +101,12 @@ export default function ReportView() {
   }, [id, router]);
 
   // แปลง powerDate เป็น Date
-  const isReviseDisabled = useMemo(() => {
-    if (!data?.powerDate) return true;
-
-    const powerDate = new Date(data.powerDate);
-    powerDate.setHours(0, 0, 0, 0); // ตัดเวลา
-
-    // เพิ่มอีก 5 วันจาก powerDate
-    const maxDate = new Date(powerDate);
-    maxDate.setDate(maxDate.getDate() + 5); // powerDate + 5
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // เปรียบเทียบแค่วันที่
-
-    return today > maxDate; // ถ้าวันนี้มากกว่า powerDate + 5 → disable
-  }, [data?.powerDate]);
 
   return (
     <div className="rounded-xl bg-white p-6 shadow-lg dark:bg-gray-900 dark:text-gray-100">
-      <div className="mb-7 flex items-center justify-between gap-4">
-        {(user?.roleId === 3 ||
-          user?.roleId === 4 ||
-          user?.roleId === 5 ||
-          user?.roleId === 6) && (
-          <button
-            onClick={() =>
-              router.push(
-                `/${user?.roleId === 3 || user?.roleId === 4 ? "dispatch" : "declaration"}/createreport`,
-              )
-            }
-            className="flex items-center gap-1 rounded-md bg-blue-500 px-4 py-2 text-sm text-white hover:bg-blue-600"
-          >
-            <ArrowLeftIcon className="h-4 w-4" />
-            Back
-          </button>
-        )}
-        <h1 className="text-center text-xl font-bold">
-          Daily Operation{" "}
-          {data?.powerDate ? moment(data.powerDate).format("DD/MM/YYYY") : ""}
-        </h1>
-        {user?.roleId === 6 ? (
-          <button
-            onClick={() => {
-              if (data?.id != null) {
-                router.push(
-                  `/declaration/createreport/revise/${encryptId(data.id)}`,
-                );
-              }
-            }}
-            disabled={isReviseDisabled}
-            className={`flex items-center gap-1 rounded-md px-4 py-2 text-sm text-white ${
-              isReviseDisabled
-                ? "cursor-not-allowed bg-gray-400"
-                : "bg-blue-500 hover:bg-blue-600"
-            }`}
-          >
-            <PencilIcon className="h-4 w-4" /> revise
-          </button>
-        ) : (
-          <div></div>
-        )}
-      </div>
+      <h1 className="text-center text-xl font-bold">
+        Daily Operation (User Revise){" "}
+      </h1>
 
       {loading ? (
         <div className="flex h-48 items-center justify-center">
@@ -209,28 +114,23 @@ export default function ReportView() {
         </div>
       ) : data ? (
         <>
-          <div className="flex flex-col gap-6 lg:flex-row">
+          <div className="mt-4 flex flex-col gap-6 lg:flex-row">
             <div className="w-full overflow-x-auto rounded-lg">
               <div className="overflow-x-auto rounded-lg border">
-                <div className="my-3 text-center text-xl font-bold">
-                  {data.power?.name}
-                </div>
                 <table className="min-w-full rounded-lg border text-left dark:border-gray-700">
                   <thead>
                     <tr className="bg-gray-100 dark:bg-gray-800">
                       <th className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700">
                         Time Of Day (Hrs)
                       </th>
-                      {data.dayReportCurrent?.powerCurrent?.originalTurbines.map(
-                        (turbine) => (
-                          <th
-                            key={`header-${turbine.turbine}`}
-                            className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700"
-                          >
-                            Total (MW)
-                          </th>
-                        ),
-                      )}
+                      {data.powerHistory?.originalTurbines.map((turbine) => (
+                        <th
+                          key={`header-${turbine.turbine}`}
+                          className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700"
+                        >
+                          Total (MW)
+                        </th>
+                      ))}
 
                       <th className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700">
                         Remarks
@@ -240,9 +140,7 @@ export default function ReportView() {
                   <tbody>
                     {Array.from({ length: 24 }, (_, hourIdx) => {
                       const remark =
-                        data.dayReportCurrent?.powerCurrent?.remarks?.[
-                          hourIdx
-                        ] || "";
+                        data.powerHistory?.remarks?.[hourIdx] || "";
 
                       return (
                         <tr key={hourIdx}>
@@ -251,7 +149,7 @@ export default function ReportView() {
                           </td>
 
                           {/* Hourly values per turbine */}
-                          {data.dayReportCurrent?.powerCurrent?.originalTurbines.map(
+                          {data.powerHistory?.originalTurbines.map(
                             (turbine) => (
                               <td
                                 key={`unit-${turbine.turbine}-hour-${hourIdx}`}
@@ -272,22 +170,20 @@ export default function ReportView() {
                     {/* Total row */}
                     <tr className="bg-gray-50 py-2 font-bold whitespace-nowrap dark:bg-gray-800">
                       <td className="border p-2 text-center">Total (MWh)</td>
-                      {data.dayReportCurrent?.powerCurrent?.originalTurbines.map(
-                        (turbine) => {
-                          const total = turbine.hourly.reduce(
-                            (sum: number, v: number) => sum + v,
-                            0,
-                          );
-                          return (
-                            <td
-                              key={`total-${turbine.turbine}`}
-                              className="border p-2 text-center"
-                            >
-                              {new Intl.NumberFormat("lo-LA").format(total)} MWh
-                            </td>
-                          );
-                        },
-                      )}
+                      {data.powerHistory?.originalTurbines.map((turbine) => {
+                        const total = turbine.hourly.reduce(
+                          (sum: number, v: number) => sum + v,
+                          0,
+                        );
+                        return (
+                          <td
+                            key={`total-${turbine.turbine}`}
+                            className="border p-2 text-center"
+                          >
+                            {new Intl.NumberFormat("lo-LA").format(total)} MWh
+                          </td>
+                        );
+                      })}
                       <td className="border p-2 text-center"></td>
                     </tr>
                   </tbody>
@@ -305,7 +201,7 @@ export default function ReportView() {
                     type="number"
                     name="activeStorageamount"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.dayReportCurrent?.activeStorageamount ?? ""}
+                    value={data.activeStorageamount ?? ""}
                     disabled
                   />
                 </div>
@@ -317,7 +213,7 @@ export default function ReportView() {
                     disabled
                     name="activeStorageaverage"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.dayReportCurrent?.activeStorageaverage ?? 0}
+                    value={data.activeStorageaverage ?? 0}
                   />
                 </div>
               </div>
@@ -331,7 +227,7 @@ export default function ReportView() {
                 type="number"
                 name="waterLevel"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.dayReportCurrent?.waterLevel ?? ""}
+                value={data.waterLevel ?? ""}
                 disabled
               />
             </div>
@@ -343,7 +239,7 @@ export default function ReportView() {
                 disabled
                 name="dwy"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.dayReportCurrent?.dwy ?? 0}
+                value={data.dwy ?? 0}
               />
             </div>
 
@@ -354,7 +250,7 @@ export default function ReportView() {
                 disabled
                 name="dwf"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.dayReportCurrent?.dwf ?? 0}
+                value={data.dwf ?? 0}
               />
             </div>
 
@@ -365,7 +261,7 @@ export default function ReportView() {
                 disabled
                 name="dwm"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.dayReportCurrent?.dwm ?? 0}
+                value={data.dwm ?? 0}
               />
             </div>
 
@@ -377,7 +273,7 @@ export default function ReportView() {
                 name="pws"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
                 // value={formatValue(formData.pws ?? 0)}
-                value={data.dayReportCurrent?.pws ?? 0}
+                value={data.pws ?? 0}
               />
             </div>
           </div>
@@ -392,7 +288,7 @@ export default function ReportView() {
                     type="number"
                     name="inflowamount"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.dayReportCurrent?.inflowamount ?? ""}
+                    value={data.inflowamount ?? ""}
                     disabled
                   />
                 </div>
@@ -403,7 +299,7 @@ export default function ReportView() {
                     type="number"
                     name="inflowaverage"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.dayReportCurrent?.inflowaverage ?? ""}
+                    value={data.inflowaverage ?? ""}
                     disabled
                   />
                 </div>
@@ -419,7 +315,7 @@ export default function ReportView() {
                     type="number"
                     name="tdAmount"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.dayReportCurrent?.tdAmount ?? ""}
+                    value={data.tdAmount ?? ""}
                     disabled
                   />
                 </div>
@@ -430,7 +326,7 @@ export default function ReportView() {
                     type="number"
                     name="tdAverage"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.dayReportCurrent?.tdAverage ?? ""}
+                    value={data.tdAverage ?? ""}
                     disabled
                   />
                 </div>
@@ -448,7 +344,7 @@ export default function ReportView() {
                     type="number"
                     name="spillwayamount"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.dayReportCurrent?.spillwayamount ?? ""}
+                    value={data.spillwayamount ?? ""}
                     disabled
                   />
                 </div>
@@ -459,7 +355,7 @@ export default function ReportView() {
                     type="number"
                     name="spillwayaverage"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.dayReportCurrent?.spillwayaverage ?? ""}
+                    value={data.spillwayaverage ?? ""}
                     disabled
                   />
                 </div>
@@ -475,7 +371,7 @@ export default function ReportView() {
                     type="number"
                     name="owramount"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.dayReportCurrent?.owramount ?? ""}
+                    value={data.owramount ?? ""}
                     disabled
                   />
                 </div>
@@ -486,7 +382,7 @@ export default function ReportView() {
                     type="number"
                     name="owraverage"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.dayReportCurrent?.owraverage ?? ""}
+                    value={data.owraverage ?? ""}
                     disabled
                   />
                 </div>
@@ -501,7 +397,7 @@ export default function ReportView() {
                 type="number"
                 name="rainFall"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.dayReportCurrent?.rainFall ?? ""}
+                value={data.rainFall ?? ""}
                 disabled
               />
             </div>
@@ -512,7 +408,7 @@ export default function ReportView() {
                 type="number"
                 name="netEnergyOutput"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.dayReportCurrent?.netEnergyOutput ?? ""}
+                value={data.netEnergyOutput ?? ""}
                 disabled
               />
             </div>
@@ -524,7 +420,7 @@ export default function ReportView() {
                 disabled
                 name="waterRate"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.dayReportCurrent?.waterRate ?? 0}
+                value={data.waterRate ?? 0}
               />
             </div>
             <div>
@@ -534,7 +430,7 @@ export default function ReportView() {
                 disabled
                 name="totalOutflow"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.dayReportCurrent?.totalOutflow ?? 0}
+                value={data.totalOutflow ?? 0}
               />
             </div>
             <div>
@@ -544,99 +440,9 @@ export default function ReportView() {
                 disabled
                 name="averageOutflow"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.dayReportCurrent?.averageOutflow ?? 0}
+                value={data.averageOutflow ?? 0}
               />
             </div>
-          </div>
-
-          <h1 className="pt-7 pb-6 text-center text-xl font-bold">
-            User Revise
-          </h1>
-
-          <div className="overflow-x-auto rounded-lg border">
-            <table className="min-w-full rounded-lg border text-left dark:border-gray-700">
-              <thead>
-                <tr className="bg-gray-100 dark:bg-gray-800">
-                  <th className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700">
-                    No
-                  </th>
-                  <th className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700">
-                    Firstname
-                  </th>
-                  <th className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700">
-                    Lastname
-                  </th>
-                  {/* <th className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700">
-                    Company
-                  </th> */}
-                  <th className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700">
-                    Total (MWh)
-                  </th>
-                  <th className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700">
-                    Date
-                  </th>
-                  <th className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700">
-                    View
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {Array.isArray(data.dayReportHistorys) &&
-                data.dayReportHistorys.length > 0 ? (
-                  data.dayReportHistorys.map((revise, index) => (
-                    <tr key={revise.id}>
-                      <td className="border px-2 py-1 text-center">
-                        {index + 1}
-                      </td>
-                      <td className="border px-2 py-1 text-center">
-                        {revise.createdByUser?.firstname ?? "-"}
-                      </td>
-                      <td className="border px-2 py-1 text-center">
-                        {revise.createdByUser?.lastname ?? "-"}
-                      </td>
-                      <td className="border px-2 py-1 text-center">
-                        {revise.totalPower != null
-                          ? new Intl.NumberFormat("lo-LA", {
-                              maximumFractionDigits: 2,
-                            }).format(revise.totalPower)
-                          : ""}
-                      </td>
-                      <td className="border px-2 py-1 text-center">
-                        {moment(revise.createdAt).format("DD/MM/YYYY HH:mm:ss")}
-                      </td>
-                      <td className="border px-2 py-1 text-center">
-                        {(user?.roleId === 3 ||
-                          user?.roleId === 4 ||
-                          user?.roleId === 5 ||
-                          user?.roleId === 6) && (
-                          <button
-                            onClick={() =>
-                              window.open(
-                                `/${user?.roleId === 3 || user?.roleId === 4 ? "dispatch" : "declaration"}/createreport/reportrevise/${encryptId(revise.id)}`,
-                                "_blank",
-                                "noopener,noreferrer",
-                              )
-                            }
-                            className="rounded bg-blue-500 px-2 py-1 text-sm text-white hover:bg-blue-600"
-                          >
-                            View
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan={6}
-                      className="py-3 text-center text-gray-500 italic"
-                    >
-                      No revise history found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
           </div>
         </>
       ) : (

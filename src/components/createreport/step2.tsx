@@ -482,7 +482,7 @@ export const Step2 = () => {
                 </td>
               ))}
               <td className="border p-2 text-center">
-                {grandTotal.toFixed(2)} MWh
+                {/* {grandTotal.toFixed(2)} MWh */}
               </td>
             </tr>
           </tbody>

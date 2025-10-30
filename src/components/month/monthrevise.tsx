@@ -182,7 +182,7 @@ export default function MonthRevise() {
       setLoading(true);
       const payload = {
         turbinedata: data.currentTurbines,
-        totalPower: getGrandTotal(),
+        totalPower: getGrandTotal().toFixed(2),
         totalDate: data.powerCurrent?.totalDate,
         remark: data.powerCurrent?.remark ?? "",
         remarks: data.powerCurrent?.remarks ?? [],

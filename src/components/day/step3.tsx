@@ -169,7 +169,7 @@ export const Step3 = () => {
         remark: formData.remark || "",
         remarks: formData.remarks || Array(24).fill(""),
         turbinedata: formData.turbineData || [],
-        totalPower: formData.totalPower,
+        totalPower: Number(formData.totalPower).toFixed(2),
         totalUnit: formData.unit ?? 0,
       };
 

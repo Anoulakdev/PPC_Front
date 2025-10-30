@@ -33,6 +33,8 @@ export default function LoginPage() {
         user.roleId === 6
       ) {
         router.push("/dashboard/day");
+      } else if (user.roleId === 8) {
+        router.push("/energy");
       } else {
         toast.error("Invalid User Role");
       }

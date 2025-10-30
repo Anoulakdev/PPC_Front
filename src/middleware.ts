@@ -44,6 +44,7 @@ export async function middleware(request: NextRequest) {
     ];
     const edlPaths = ["/alldocument/edl", "/dispatch"];
     const powerPaths = ["/alldocument/power", "/declaration"];
+    const nccPaths = ["/energy"];
     const togetherPaths = ["/dashboard", "/report"];
 
     const isDenied =
@@ -51,6 +52,7 @@ export async function middleware(request: NextRequest) {
       (matchPath(pathname, adminPaths) && roleId !== 2) ||
       (matchPath(pathname, edlPaths) && ![3, 4].includes(roleId)) ||
       (matchPath(pathname, powerPaths) && ![5, 6].includes(roleId)) ||
+      (matchPath(pathname, nccPaths) && ![8].includes(roleId)) ||
       (matchPath(pathname, togetherPaths) && ![3, 4, 5, 6].includes(roleId));
 
     if (isDenied) {
@@ -92,5 +94,6 @@ export const config = {
     "/declaration/:path*",
     "/dashboard/:path*",
     "/report/:path*",
+    "/energy/:path*",
   ],
 };

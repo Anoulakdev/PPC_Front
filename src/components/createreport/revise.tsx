@@ -375,7 +375,7 @@ export default function DayRevise() {
       setLoading(true);
       const payload = {
         turbinedata: data.currentTurbines,
-        totalPower: getGrandTotal(),
+        totalPower: getGrandTotal().toFixed(2),
         totalUnit: data.totalUnit,
         remarks: data.remarks ?? [],
         // optional: include water-related fields if your API accepts

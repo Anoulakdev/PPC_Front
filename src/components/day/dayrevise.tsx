@@ -211,7 +211,7 @@ export default function DayRevise() {
       setLoading(true);
       const payload = {
         turbinedata: data.currentTurbines,
-        totalPower: getGrandTotal(),
+        totalPower: getGrandTotal().toFixed(2),
         totalUnit: data.powerCurrent?.totalUnit,
         remark: data.powerCurrent?.remark ?? "",
         remarks: data.powerCurrent?.remarks ?? [],

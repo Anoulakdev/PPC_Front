@@ -224,9 +224,9 @@ export default function WeekRevise() {
         </div>
       ) : (
         <>
-          <div className="overflow-x-auto">
+          <div className="max-h-[550px] overflow-x-auto overflow-y-auto">
             <table className="table-auto border text-left">
-              <thead>
+              <thead className="sticky top-0 z-20 bg-gray-100 dark:bg-gray-800">
                 <tr className="bg-gray-100 dark:bg-gray-800">
                   <th className="border p-2 text-center whitespace-nowrap">
                     Time Of Day (Hrs)
@@ -234,7 +234,7 @@ export default function WeekRevise() {
                   {data?.currentTurbines.map((t: any, tIdx: number) => (
                     <th
                       key={t.turbine}
-                      className="w-[130px] border p-2 text-center whitespace-nowrap"
+                      className="w-[110px] border p-2 text-center whitespace-nowrap"
                     >
                       <div className="flex flex-col items-center">
                         <span className="text-lg">
@@ -266,7 +266,7 @@ export default function WeekRevise() {
 
                   return (
                     <tr key={hIdx}>
-                      <td className="border p-2 text-center whitespace-nowrap">
+                      <td className="border p-2 text-center text-sm whitespace-nowrap">
                         {time}
                       </td>
 
@@ -275,7 +275,7 @@ export default function WeekRevise() {
                         return (
                           <td
                             key={`cell-${t.turbine}-${hIdx}`}
-                            className="border p-1 whitespace-nowrap"
+                            className="border p-1 text-sm whitespace-nowrap"
                           >
                             <input
                               type="text"
@@ -301,7 +301,7 @@ export default function WeekRevise() {
                       })}
 
                       {/* Total ของแถวนั้น (MW รวมของชั่วโมงนั้น) */}
-                      <td className="border bg-gray-50 px-2 py-1 text-center font-semibold dark:bg-gray-700">
+                      <td className="border bg-gray-50 px-2 py-1 text-center text-sm font-semibold dark:bg-gray-700">
                         {rowTotal.toFixed(2)}
                       </td>
 

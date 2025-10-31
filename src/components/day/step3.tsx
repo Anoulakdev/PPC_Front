@@ -187,9 +187,9 @@ export const Step3 = () => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="overflow-x-auto">
-        <table className="table-auto border text-left">
-          <thead>
+      <div className="max-h-[550px] overflow-x-auto overflow-y-auto">
+        <table className="table-auto border-collapse">
+          <thead className="sticky top-0 z-20 bg-gray-100 dark:bg-gray-800">
             <tr className="bg-gray-100 dark:bg-gray-800">
               <th className="border p-2 text-center whitespace-nowrap">
                 Time Of Day (Hrs)
@@ -197,7 +197,7 @@ export const Step3 = () => {
               {(formData.turbineData || []).map((t, tIdx) => (
                 <th
                   key={t.turbine}
-                  className="w-[130px] border p-2 text-center whitespace-nowrap"
+                  className="w-[110px] border p-2 text-center whitespace-nowrap"
                 >
                   <div className="flex flex-col items-center">
                     <span>Unit-{t.turbine} (MW)</span>
@@ -226,7 +226,7 @@ export const Step3 = () => {
 
               return (
                 <tr key={time}>
-                  <td className="border p-2 text-center whitespace-nowrap">
+                  <td className="border p-2 text-center text-sm whitespace-nowrap">
                     {time}
                   </td>
                   {(formData.turbineData || []).map((t, tIdx) => {
@@ -236,7 +236,7 @@ export const Step3 = () => {
                     return (
                       <td
                         key={`hourly-${t.turbine}-${hIdx}`}
-                        className="border p-1 whitespace-nowrap"
+                        className="border p-1 text-sm whitespace-nowrap"
                       >
                         <input
                           type="text"
@@ -259,10 +259,10 @@ export const Step3 = () => {
                       </td>
                     );
                   })}
-                  <td className="border bg-gray-50 p-2 text-center font-bold whitespace-nowrap dark:bg-gray-700">
+                  <td className="border bg-gray-50 p-2 text-sm text-center font-bold whitespace-nowrap dark:bg-gray-700">
                     {hourlyTotal.toFixed(2)} MWh
                   </td>
-                  <td className="border p-1 whitespace-nowrap">
+                  <td className="border p-1 whitespace-nowrap text-sm">
                     <input
                       type="text"
                       value={formData.remarks?.[hIdx] || ""}

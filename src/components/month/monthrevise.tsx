@@ -219,9 +219,9 @@ export default function MonthRevise() {
         </div>
       ) : (
         <>
-          <div className="overflow-x-auto">
+          <div className="max-h-[550px] overflow-x-auto overflow-y-auto">
             <table className="table-auto border text-left">
-              <thead>
+              <thead className="sticky top-0 z-20 bg-gray-100 dark:bg-gray-800">
                 <tr className="bg-gray-100 dark:bg-gray-800">
                   <th className="border p-2 text-center whitespace-nowrap">
                     Time Of Day (Hrs)
@@ -232,7 +232,7 @@ export default function MonthRevise() {
                       className="w-[130px] border p-2 text-center whitespace-nowrap"
                     >
                       <div className="flex flex-col items-center">
-                        <span className="text-sm">{dayLabels[tIdx]} (MW)</span>
+                        <span className="text-sm">{dayLabels[tIdx]}</span>
                         <textarea
                           onPaste={(e) => handlePaste(e, tIdx)}
                           placeholder="Paste 24 values"
@@ -259,7 +259,7 @@ export default function MonthRevise() {
 
                   return (
                     <tr key={hIdx}>
-                      <td className="border p-2 text-center whitespace-nowrap">
+                      <td className="sticky left-0 z-10 border bg-gray-100 p-2 text-center text-sm whitespace-nowrap dark:bg-gray-800">
                         {time}
                       </td>
 
@@ -268,7 +268,7 @@ export default function MonthRevise() {
                         return (
                           <td
                             key={`cell-${t.turbine}-${hIdx}`}
-                            className="border p-1 whitespace-nowrap"
+                            className="border p-1 text-sm whitespace-nowrap"
                           >
                             <input
                               type="text"
@@ -294,12 +294,12 @@ export default function MonthRevise() {
                       })}
 
                       {/* Total ของแถวนั้น (MW รวมของชั่วโมงนั้น) */}
-                      <td className="border bg-gray-50 px-2 py-1 text-center font-semibold dark:bg-gray-700">
+                      <td className="border bg-gray-50 px-2 py-1 text-center text-sm font-semibold dark:bg-gray-700">
                         {rowTotal.toFixed(2)}
                       </td>
 
                       {/* Remark ต่อชั่วโมง */}
-                      <td className="border px-2 py-1">
+                      <td className="border px-2 py-1 text-sm">
                         <input
                           type="text"
                           value={data?.powerCurrent?.remarks?.[hIdx] ?? ""}
@@ -317,12 +317,12 @@ export default function MonthRevise() {
                   {data?.currentTurbines.map((t: any) => (
                     <td
                       key={`total-${t.turbine}`}
-                      className="border p-2 text-center"
+                      className="border p-2 text-center text-sm"
                     >
                       {getTurbineTotal(t).toFixed(2)} MWh
                     </td>
                   ))}
-                  <td className="border p-2 text-center">
+                  <td className="border p-2 text-center text-sm">
                     {(getGrandTotal() || 0).toFixed(2)} MWh
                   </td>
                   <td className="border p-2 text-center"></td>

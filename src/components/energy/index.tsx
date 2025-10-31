@@ -8,6 +8,7 @@ import axiosInstance from "@/utils/axiosInstance";
 import { removeLocalStorage } from "@/utils/storage";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { CheckCircleIcon, XCircleIcon } from "@heroicons/react/24/solid";
 
 interface ApiResponse {
   companyId: number;
@@ -20,6 +21,10 @@ interface PowerItem {
   powerId: number;
   powerNo: string;
   powerDate: string;
+  decAcknow: boolean;
+  disAcknow: boolean;
+  decAcknowUser?: UserAcKnow | null;
+  disAcknowUser?: UserAcKnow | null;
   power: {
     id: number;
     name: string;
@@ -34,6 +39,11 @@ interface PowerItem {
   };
 }
 
+type UserAcKnow = {
+  firstname: string;
+  lastname: string;
+};
+
 export default function EnergyTablePage() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [data, setData] = useState<ApiResponse[]>([]);
@@ -47,20 +57,14 @@ export default function EnergyTablePage() {
   });
 
   const fetchData = async () => {
+    if (loading) return; // ป้องกัน fetch ซ้ำตอนยังโหลดไม่เสร็จ
     try {
       setLoading(true);
-
       const formattedDate = moment(selectedDate).format("YYYY-MM-DD");
-
       const response = await axiosInstance.get(
         `/daypowers/nccget?powerDate=${formattedDate}`,
       );
-
-      if (Array.isArray(response.data)) {
-        setData(response.data);
-      } else {
-        setData([]);
-      }
+      setData(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error("Error fetching data:", error);
       setData([]);
@@ -69,8 +73,18 @@ export default function EnergyTablePage() {
     }
   };
 
+  // เรียกตอนเลือกวันที่ใหม่
   useEffect(() => {
     fetchData();
+  }, [selectedDate]);
+
+  // 🔁 Auto refresh ทุก 10 วิ
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchData();
+    }, 10000);
+
+    return () => clearInterval(interval); // cleanup ตอนออกจากหน้า
   }, [selectedDate]);
 
   const handleLogout = () => {
@@ -188,6 +202,10 @@ export default function EnergyTablePage() {
                   {h}
                 </th>
               ))}
+              <th className="border px-3 py-3 whitespace-nowrap">
+                STATUS(DAD)
+              </th>
+              <th className="border px-3 py-3 whitespace-nowrap">STATUS(DD)</th>
             </tr>
           </thead>
 
@@ -225,7 +243,9 @@ export default function EnergyTablePage() {
                       </td>
 
                       <td className="border px-3 py-2 text-center font-bold text-green-700">
-                        {Number(item.powerCurrent.totalPower)}
+                        {new Intl.NumberFormat("lo-LA").format(
+                          Number(item.powerCurrent.totalPower),
+                        )}
                       </td>
 
                       {item.powerCurrent.combinedHourly.map((h, i) => (
@@ -233,6 +253,40 @@ export default function EnergyTablePage() {
                           {h}
                         </td>
                       ))}
+
+                      <td className="border px-3 py-2 text-center">
+                        <div className="group relative inline-block">
+                          {item.decAcknow ? (
+                            <CheckCircleIcon className="mx-auto h-5 w-5 text-green-700" />
+                          ) : (
+                            <XCircleIcon className="mx-auto h-5 w-5 text-red-700" />
+                          )}
+
+                          {/* Tooltip */}
+                          <div className="absolute bottom-full left-1/2 z-10 mb-2 w-max -translate-x-1/2 rounded bg-gray-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                            {item.decAcknowUser
+                              ? `${item.decAcknowUser.firstname ?? ""} ${item.decAcknowUser.lastname ?? ""}`.trim()
+                              : "Not Acknowledge Yet"}
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="border px-3 py-2 text-center">
+                        <div className="group relative inline-block">
+                          {item.disAcknow ? (
+                            <CheckCircleIcon className="mx-auto h-5 w-5 text-green-700" />
+                          ) : (
+                            <XCircleIcon className="mx-auto h-5 w-5 text-red-700" />
+                          )}
+
+                          {/* Tooltip */}
+                          <div className="absolute bottom-full left-1/2 z-10 mb-2 w-max -translate-x-1/2 rounded bg-gray-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                            {item.disAcknowUser
+                              ? `${item.disAcknowUser.firstname ?? ""} ${item.disAcknowUser.lastname ?? ""}`.trim()
+                              : "Not Acknowledge Yet"}
+                          </div>
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </Fragment>

@@ -278,11 +278,14 @@ export default function WeekRevise() {
                             className="border p-1 text-sm whitespace-nowrap"
                           >
                             <input
-                              type="text"
-                              value={t.hourly[hIdx].toFixed(2)}
-                              onChange={(e) =>
-                                handleHourlyChange(tIdx, hIdx, e.target.value)
-                              }
+                              type="number"
+                              value={t.hourly[hIdx]}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                if (/^\d*\.?\d{0,2}$/.test(val)) {
+                                  handleHourlyChange(tIdx, hIdx, val);
+                                }
+                              }}
                               onBlur={(e) => {
                                 // ปรับเลขให้มี 2 ตำแหน่งตอนออกจาก input
                                 let val = parseFloat(e.target.value) || 0;

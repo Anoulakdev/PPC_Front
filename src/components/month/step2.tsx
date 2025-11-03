@@ -163,7 +163,7 @@ export const Step2 = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4" noValidate>
       <div className="max-h-[550px] overflow-x-auto overflow-y-auto">
         <table className="table-auto border text-left">
           <thead className="sticky top-0 z-20 bg-gray-100 dark:bg-gray-800">
@@ -177,7 +177,7 @@ export const Step2 = () => {
                   className="w-[130px] border p-2 text-center whitespace-nowrap"
                 >
                   <div className="flex flex-col items-center">
-                    <span className="text-sm">{dayLabels[tIdx]}</span>
+                    <span className="text-md">{dayLabels[tIdx]}</span>
                     <textarea
                       onPaste={(e) => handlePaste(e, tIdx)}
                       placeholder="Paste 24 values"
@@ -213,11 +213,14 @@ export const Step2 = () => {
                         className="border p-1 text-sm whitespace-nowrap"
                       >
                         <input
-                          type="text"
-                          value={t.hourly[hIdx].toFixed(2)} // แสดง 2 ตำแหน่งทศนิยม
-                          onChange={(e) =>
-                            handleHourlyChange(tIdx, hIdx, e.target.value)
-                          }
+                          type="number"
+                          value={t.hourly[hIdx]} // แสดง 2 ตำแหน่งทศนิยม
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (/^\d*\.?\d{0,2}$/.test(val)) {
+                              handleHourlyChange(tIdx, hIdx, val);
+                            }
+                          }}
                           onBlur={(e) => {
                             // ปรับเลขให้มี 2 ตำแหน่งตอนออกจาก input
                             let val = parseFloat(e.target.value) || 0;

@@ -99,15 +99,15 @@ export default function DayRevise() {
 
     if (isNaN(val)) val = 0;
 
-    const turbineNum = updated[tIdx].turbine;
-    const machine = data.machinesAvailability.find(
-      (m: any) => m.turbine === turbineNum,
-    );
+    // const turbineNum = updated[tIdx].turbine;
+    // const machine = data.machinesAvailability.find(
+    //   (m: any) => m.turbine === turbineNum,
+    // );
 
-    if (val !== 0 && machine) {
-      if (val < machine.mins) val = machine.mins;
-      if (val > machine.maxs) val = machine.maxs;
-    }
+    // if (val !== 0 && machine) {
+    //   if (val < machine.mins) val = machine.mins;
+    //   if (val > machine.maxs) val = machine.maxs;
+    // }
 
     // แทนค่าทุกชั่วโมงตั้งแต่ hourIdx ถึง 23 ด้วยค่า val
     for (let i = hourIdx; i < 24; i++) {
@@ -301,16 +301,19 @@ export default function DayRevise() {
                         return (
                           <td
                             key={`cell-${t.turbine}-${hIdx}`}
-                            className="border text-sm p-1 whitespace-nowrap"
+                            className="border p-1 text-sm whitespace-nowrap"
                           >
                             <input
-                              type="text"
-                              value={t.hourly[hIdx].toFixed(2)}
+                              type="number"
+                              value={t.hourly[hIdx]}
                               min={machine?.mins ?? 0}
                               max={machine?.maxs ?? 9999}
-                              onChange={(e) =>
-                                handleHourlyChange(tIdx, hIdx, e.target.value)
-                              }
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                if (/^\d*\.?\d{0,2}$/.test(val)) {
+                                  handleHourlyChange(tIdx, hIdx, val);
+                                }
+                              }}
                               onBlur={(e) => {
                                 // ปรับเลขให้มี 2 ตำแหน่งตอนออกจาก input
                                 let val = parseFloat(e.target.value) || 0;
@@ -329,7 +332,7 @@ export default function DayRevise() {
                       })}
 
                       {/* Total ของแถวนั้น (MW รวมของชั่วโมงนั้น) */}
-                      <td className="border text-sm bg-gray-50 px-2 py-1 text-center font-semibold dark:bg-gray-800">
+                      <td className="border bg-gray-50 px-2 py-1 text-center text-sm font-semibold dark:bg-gray-800">
                         {rowTotal.toFixed(2)}
                       </td>
 

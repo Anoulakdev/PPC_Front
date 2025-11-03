@@ -399,7 +399,7 @@ export const Step2 = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4" noValidate>
       <div className="overflow-x-auto">
         <table className="table-auto text-left">
           <thead>
@@ -441,11 +441,14 @@ export const Step2 = () => {
                         className="border p-1 whitespace-nowrap"
                       >
                         <input
-                          type="text"
-                          value={t.hourly[hIdx].toFixed(2)} // แสดง 2 ตำแหน่งทศนิยม
-                          onChange={(e) =>
-                            handleHourlyChange(tIdx, hIdx, e.target.value)
-                          }
+                          type="number"
+                          value={t.hourly[hIdx]} // แสดง 2 ตำแหน่งทศนิยม
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (/^\d*\.?\d{0,2}$/.test(val)) {
+                              handleHourlyChange(tIdx, hIdx, val);
+                            }
+                          }}
                           onBlur={(e) => {
                             // ปรับเลขให้มี 2 ตำแหน่งตอนออกจาก input
                             let val = parseFloat(e.target.value) || 0;

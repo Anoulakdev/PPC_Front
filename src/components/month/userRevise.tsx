@@ -97,9 +97,9 @@ export default function UserRevise() {
         </div>
       ) : data ? (
         <>
-          <div className="overflow-x-auto rounded-lg border">
+          <div className="max-h-[600px] overflow-x-auto overflow-y-auto">
             <table className="min-w-full rounded-lg border text-left dark:border-gray-700">
-              <thead>
+              <thead className="sticky top-0 z-20 bg-gray-100 dark:bg-gray-800">
                 <tr className="bg-gray-100 dark:bg-gray-800">
                   <th className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700">
                     Time Of Day (Hrs)
@@ -131,7 +131,7 @@ export default function UserRevise() {
 
                   return (
                     <tr key={hourIdx}>
-                      <td className="border px-2 py-1 text-center whitespace-nowrap">
+                      <td className="sticky left-0 z-10 border bg-gray-100 px-2 py-1 text-center whitespace-nowrap dark:bg-gray-800">
                         {hours[hourIdx]}
                       </td>
 

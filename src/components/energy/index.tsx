@@ -4,11 +4,13 @@
 import { useEffect, useState, Fragment } from "react";
 import DatePickerAll from "@/components/form/date-pickerall";
 import moment from "moment";
-import axiosInstance from "@/utils/axiosInstance";
+// import axiosInstance from "@/utils/axiosInstance";
 import { removeLocalStorage } from "@/utils/storage";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { CheckCircleIcon, XCircleIcon } from "@heroicons/react/24/solid";
+import { getLocalStorage } from "@/utils/storage";
+import { EventSourcePolyfill } from "event-source-polyfill";
 
 interface ApiResponse {
   companyId: number;
@@ -49,6 +51,7 @@ export default function EnergyTablePage() {
   const [data, setData] = useState<ApiResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const token = getLocalStorage("token");
 
   const hourLabels = Array.from({ length: 24 }, (_, i) => {
     const s = i.toString().padStart(2, "0");
@@ -56,35 +59,46 @@ export default function EnergyTablePage() {
     return `${s}:00-${e}:00`;
   });
 
-  const fetchData = async () => {
-    if (loading) return; // ป้องกัน fetch ซ้ำตอนยังโหลดไม่เสร็จ
-    try {
-      setLoading(true);
-      const formattedDate = moment(selectedDate).format("YYYY-MM-DD");
-      const response = await axiosInstance.get(
-        `/daypowers/nccget?powerDate=${formattedDate}`,
-      );
-      setData(Array.isArray(response.data) ? response.data : []);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      setData([]);
-    } finally {
+  useEffect(() => {
+    const formattedDate = moment(selectedDate).format("YYYY-MM-DD");
+
+    setLoading(true);
+
+    // ✅ เชื่อมต่อ SSE
+    const sse = new EventSourcePolyfill(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/daypowers/nccget?powerDate=${formattedDate}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+      },
+    );
+
+    sse.onmessage = (event) => {
+      try {
+        const parsed = JSON.parse(event.data);
+        if (Array.isArray(parsed)) {
+          setData(parsed);
+        } else if (parsed.data && Array.isArray(parsed.data)) {
+          setData(parsed.data);
+        }
+        setLoading(false); // ✅ ปิด loading เมื่อข้อมูลมา
+      } catch (err) {
+        console.error("SSE parse error:", err);
+      }
+    };
+
+    sse.onerror = (err) => {
+      console.error("SSE error:", err);
+      sse.close();
       setLoading(false);
-    }
-  };
+    };
 
-  // เรียกตอนเลือกวันที่ใหม่
-  useEffect(() => {
-    fetchData();
-  }, [selectedDate]);
-
-  // 🔁 Auto refresh ทุก 10 วิ
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetchData();
-    }, 10000);
-
-    return () => clearInterval(interval); // cleanup ตอนออกจากหน้า
+    // ✅ cleanup เมื่อเปลี่ยนวันที่หรือออกจากหน้า
+    return () => {
+      sse.close();
+    };
   }, [selectedDate]);
 
   const handleLogout = () => {
@@ -104,29 +118,6 @@ export default function EnergyTablePage() {
 
   return (
     <div className="space-y-3 p-3">
-      {/* <div className="rounded-xl bg-gradient-to-r from-blue-600 to-teal-500 p-6 shadow-lg">
-        <div className="mb-2 flex items-center gap-3">
-          <div className="rounded-lg bg-white/20 p-2 backdrop-blur-sm">
-            <svg
-              className="h-6 w-6 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 10V3L4 14h7v7l9-11h-7z"
-              />
-            </svg>
-          </div>
-          <h1 className="text-2xl font-bold text-white">
-            Hourly Power Dispatch
-          </h1>
-        </div>
-      </div> */}
-
       {/* Date Filter Section */}
       <div className="rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-6 shadow-lg">
         <div className="flex flex-col items-stretch justify-between gap-4 md:flex-row md:items-center">
@@ -189,7 +180,7 @@ export default function EnergyTablePage() {
 
       {/* ▼ Table */}
       <div className="overflow-x-auto rounded-xl border bg-white shadow-lg">
-        <table className="w-full min-w-[1800px] border-collapse">
+        <table className="min-w-full border-collapse">
           <thead>
             <tr className="bg-gradient-to-r from-blue-700 to-teal-600 text-xs text-white">
               <th className="border px-3 py-3 whitespace-nowrap">
@@ -222,7 +213,6 @@ export default function EnergyTablePage() {
             )}
 
             {!loading &&
-              data.length > 0 &&
               data.map((company) => (
                 <Fragment key={`company-${company.companyId}`}>
                   {/* ▼ Company Row */}

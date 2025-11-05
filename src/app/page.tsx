@@ -62,7 +62,8 @@ export default function LoginPage() {
       setLocalStorage("token", token);
       setLocalStorage("user", user);
 
-      document.cookie = `token=${token}; path=/; max-age=3600; secure; samesite=strict`;
+      const maxAge = user.roleId === 8 ? 108000 : 3600;
+      document.cookie = `token=${token}; path=/; max-age=${maxAge}; secure; samesite=strict`;
 
       removeLocalStorage("day-power-storage");
       removeLocalStorage("week-power-storage");

@@ -98,6 +98,10 @@ type WeekPowerData = {
   powerOriginal: PowerOriginal | null;
   powerCurrent: PowerCurrent | null;
   powerRevises: PowerRevise[];
+  power: {
+    id: number;
+    name: string;
+  };
 };
 
 type User = {
@@ -187,10 +191,12 @@ export default function WeekView() {
             Back
           </button>
         )}
-
-        <h1 className="text-center text-xl font-bold">
-          Weekly Availability and Declaration
-        </h1>
+        <div>
+          <h1 className="text-center text-xl font-bold">
+            Weekly Availability and Declaration
+          </h1>
+          <p className="text-center text-red-500">{data?.power?.name}</p>
+        </div>
 
         {user?.roleId === 4 || user?.roleId === 6 ? (
           <button

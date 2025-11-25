@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -7,6 +8,8 @@ import { useParams, useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { decryptId } from "@/lib/cryptoId";
 import { getLocalStorage } from "@/utils/storage";
+import Label from "../form/Label";
+import Input from "../form/input/InputField";
 
 const hours = [
   "00:00-01:00",
@@ -42,9 +45,14 @@ type User = {
 export default function DayRevise() {
   const { id } = useParams();
   const [data, setData] = useState<any>(null);
+  const [dataPower, setDataPower] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
+
+  const [editingTD, setEditingTD] = useState<"amount" | "average" | null>(null);
+  const [editingSW, setEditingSW] = useState<"amount" | "average" | null>(null);
+  const [editingED, setEditingED] = useState<"amount" | "average" | null>(null);
 
   useEffect(() => {
     const storedUser = getLocalStorage("user");
@@ -93,21 +101,35 @@ export default function DayRevise() {
     fetchData();
   }, [id, router]);
 
+  useEffect(() => {
+    if (data?.powerId != null) {
+      axiosInstance
+        .get(`/powers/${data?.powerId}`)
+        .then((res) => setDataPower(res.data))
+        .catch((err) => console.error("Fetch power error:", err));
+    }
+  }, [data?.powerId]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    setData((prev: any) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        powerCurrent: {
+          ...prev.powerCurrent,
+          [name]: value,
+        },
+      };
+    });
+  };
+
   const handleHourlyChange = (tIdx: number, hourIdx: number, value: string) => {
     const updated = [...data.currentTurbines];
     let val = parseFloat(value);
 
     if (isNaN(val)) val = 0;
-
-    // const turbineNum = updated[tIdx].turbine;
-    // const machine = data.machinesAvailability.find(
-    //   (m: any) => m.turbine === turbineNum,
-    // );
-
-    // if (val !== 0 && machine) {
-    //   if (val < machine.mins) val = machine.mins;
-    //   if (val > machine.maxs) val = machine.maxs;
-    // }
 
     // แทนค่าทุกชั่วโมงตั้งแต่ hourIdx ถึง 23 ด้วยค่า val
     for (let i = hourIdx; i < 24; i++) {
@@ -130,7 +152,7 @@ export default function DayRevise() {
 
     const updated = [...data.currentTurbines];
     const turbineNum = updated[tIdx].turbine;
-    const machine = data.machinesAvailability.find(
+    const machine = data?.powerCurrent?.machinesAvailability.find(
       (m: any) => m.turbine === turbineNum,
     );
 
@@ -177,7 +199,7 @@ export default function DayRevise() {
     if (isNaN(num)) num = 0;
 
     const turbine = data.currentTurbines[turbineIdx].turbine;
-    const machine = data?.machinesAvailability.find(
+    const machine = data?.powerCurrent?.machinesAvailability.find(
       (m: any) => m.turbine === turbine,
     );
 
@@ -206,10 +228,223 @@ export default function DayRevise() {
       0,
     );
 
+  useEffect(() => {
+    if (!data) return;
+
+    const totalStorageamount = Number(
+      data?.powerCurrent?.totalStorageamount ?? 0,
+    );
+    const activeStorageamount = Number(
+      data?.powerCurrent?.activeStorageamount ?? 0,
+    );
+
+    const totalStorageFull = Number(dataPower?.totalStorageFull) || 0;
+    const totalActiveFull = Number(dataPower?.totalActiveFull) || 0;
+
+    const totalStorageaverage =
+      totalStorageFull !== 0
+        ? Number(((totalStorageamount / totalStorageFull) * 100).toFixed(2))
+        : 0;
+    const activeStorageaverage =
+      totalActiveFull !== 0
+        ? Number(((activeStorageamount / totalActiveFull) * 100).toFixed(2))
+        : 0;
+
+    const turbineDischargeamount = Number(
+      data?.powerCurrent?.turbineDischargeamount ?? 0,
+    );
+    const turbineDischargeaverage = Number(
+      data?.powerCurrent?.turbineDischargeaverage ?? 0,
+    );
+    const spillwayDischargeamount = Number(
+      data?.powerCurrent?.spillwayDischargeamount ?? 0,
+    );
+    const spillwayDischargeaverage = Number(
+      data?.powerCurrent?.spillwayDischargeaverage ?? 0,
+    );
+    const ecologicalDischargeamount = Number(
+      data?.powerCurrent?.ecologicalDischargeamount ?? 0,
+    );
+    const ecologicalDischargeaverage = Number(
+      data?.powerCurrent?.ecologicalDischargeaverage ?? 0,
+    );
+
+    const totalDischargeamount = Number(
+      (
+        turbineDischargeamount +
+        spillwayDischargeamount +
+        ecologicalDischargeamount
+      ).toFixed(2),
+    );
+
+    const totalDischargeaverage = Number(
+      (
+        turbineDischargeaverage +
+        spillwayDischargeaverage +
+        ecologicalDischargeaverage
+      ).toFixed(2),
+    );
+
+    setData((prev: any) => ({
+      ...prev,
+      powerCurrent: {
+        ...prev.powerCurrent,
+        totalStorageaverage,
+        activeStorageaverage,
+        totalDischargeamount,
+        totalDischargeaverage,
+      },
+    }));
+  }, [
+    data?.powerCurrent?.totalStorageamount,
+    data?.powerCurrent?.activeStorageamount,
+    data?.powerCurrent?.turbineDischargeamount,
+    data?.powerCurrent?.turbineDischargeaverage,
+    data?.powerCurrent?.spillwayDischargeamount,
+    data?.powerCurrent?.spillwayDischargeaverage,
+    data?.powerCurrent?.ecologicalDischargeamount,
+    data?.powerCurrent?.ecologicalDischargeaverage,
+    dataPower?.totalStorageFull,
+    dataPower?.totalActiveFull,
+  ]);
+
+  // ------------------------------------------
+
+  useEffect(() => {
+    if (!editingTD) return;
+
+    const curr = data?.powerCurrent;
+    if (!curr) return;
+
+    if (editingTD === "amount" && curr.turbineDischargeamount != null) {
+      const turbineDischargeaverage =
+        Number(curr.turbineDischargeamount) / (24 * 3600);
+      setData((prev: any) => ({
+        ...prev,
+        powerCurrent: {
+          ...prev.powerCurrent,
+          turbineDischargeaverage: Number(turbineDischargeaverage.toFixed(2)),
+        },
+      }));
+    }
+
+    if (editingTD === "average" && curr.turbineDischargeaverage != null) {
+      const turbineDischargeamount =
+        Number(curr.turbineDischargeaverage) * 24 * 3600;
+      setData((prev: any) => ({
+        ...prev,
+        powerCurrent: {
+          ...prev.powerCurrent,
+          turbineDischargeamount: Number(turbineDischargeamount.toFixed(2)),
+        },
+      }));
+    }
+  }, [
+    editingTD,
+    data?.powerCurrent?.turbineDischargeamount,
+    data?.powerCurrent?.turbineDischargeaverage,
+  ]);
+
+  // ------------------------------------------------------------
+
+  useEffect(() => {
+    if (!editingSW) return;
+
+    const curr = data?.powerCurrent;
+    if (!curr) return;
+
+    if (editingSW === "amount" && curr.spillwayDischargeamount != null) {
+      const spillwayDischargeaverage =
+        Number(curr.spillwayDischargeamount) / (24 * 3600);
+      setData((prev: any) => ({
+        ...prev,
+        powerCurrent: {
+          ...prev.powerCurrent,
+          spillwayDischargeaverage: Number(spillwayDischargeaverage.toFixed(2)),
+        },
+      }));
+    }
+
+    if (editingSW === "average" && curr.spillwayDischargeaverage != null) {
+      const spillwayDischargeamount =
+        Number(curr.spillwayDischargeaverage) * 24 * 3600;
+      setData((prev: any) => ({
+        ...prev,
+        powerCurrent: {
+          ...prev.powerCurrent,
+          spillwayDischargeamount: Number(spillwayDischargeamount.toFixed(2)),
+        },
+      }));
+    }
+  }, [
+    editingSW,
+    data?.powerCurrent?.spillwayDischargeamount,
+    data?.powerCurrent?.spillwayDischargeaverage,
+  ]);
+
+  // ------------------------------------------------------------
+
+  useEffect(() => {
+    if (!editingED) return;
+
+    const curr = data?.powerCurrent;
+    if (!curr) return;
+
+    if (editingED === "amount" && curr.ecologicalDischargeamount != null) {
+      const ecologicalDischargeaverage =
+        Number(curr.ecologicalDischargeamount) / (24 * 3600);
+      setData((prev: any) => ({
+        ...prev,
+        powerCurrent: {
+          ...prev.powerCurrent,
+          ecologicalDischargeaverage: Number(
+            ecologicalDischargeaverage.toFixed(2),
+          ),
+        },
+      }));
+    }
+
+    if (editingED === "average" && curr.ecologicalDischargeaverage != null) {
+      const ecologicalDischargeamount =
+        Number(curr.ecologicalDischargeaverage) * 24 * 3600;
+      setData((prev: any) => ({
+        ...prev,
+        powerCurrent: {
+          ...prev.powerCurrent,
+          ecologicalDischargeamount: Number(
+            ecologicalDischargeamount.toFixed(2),
+          ),
+        },
+      }));
+    }
+  }, [
+    editingED,
+    data?.powerCurrent?.ecologicalDischargeamount,
+    data?.powerCurrent?.ecologicalDischargeaverage,
+  ]);
+
+  // ------------------------------------------------------------
+
   const handleRevise = async () => {
     try {
       setLoading(true);
       const payload = {
+        upstreamLevel: data.powerCurrent?.upstreamLevel,
+        downstreamLevel: data.powerCurrent?.downstreamLevel,
+        totalStorageamount: data.powerCurrent?.totalStorageamount,
+        totalStorageaverage: data.powerCurrent?.totalStorageaverage,
+        activeStorageamount: data.powerCurrent?.activeStorageamount,
+        activeStorageaverage: data.powerCurrent?.activeStorageaverage,
+        turbineDischargeamount: data.powerCurrent?.turbineDischargeamount,
+        turbineDischargeaverage: data.powerCurrent?.turbineDischargeaverage,
+        spillwayDischargeamount: data.powerCurrent?.spillwayDischargeamount,
+        spillwayDischargeaverage: data.powerCurrent?.spillwayDischargeaverage,
+        ecologicalDischargeamount: data.powerCurrent?.ecologicalDischargeamount,
+        ecologicalDischargeaverage:
+          data.powerCurrent?.ecologicalDischargeaverage,
+        totalDischargeamount: data.powerCurrent?.totalDischargeamount,
+        totalDischargeaverage: data.powerCurrent?.totalDischargeaverage,
+        machinedata: data.powerCurrent?.machinesAvailability || [],
         turbinedata: data.currentTurbines,
         totalPower: getGrandTotal().toFixed(2),
         totalUnit: data.powerCurrent?.totalUnit,
@@ -294,9 +529,10 @@ export default function DayRevise() {
 
                       {/* ค่า MW ต่อ Unit */}
                       {data?.currentTurbines.map((t: any, tIdx: number) => {
-                        const machine = data?.machinesAvailability.find(
-                          (m: any) => m.turbine === t.turbine,
-                        );
+                        const machine =
+                          data?.powerCurrent?.machinesAvailability.find(
+                            (m: any) => m.turbine === t.turbine,
+                          );
 
                         return (
                           <td
@@ -381,6 +617,432 @@ export default function DayRevise() {
               className="w-full rounded border p-2"
               placeholder="Remark"
             ></textarea>
+          </div>
+
+          <h2 className="mt-4 text-sm font-bold">
+            1. Reservoir Situation (00:00)
+          </h2>
+
+          <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+            <div>
+              <Label>Upstream Level (masl)</Label>
+              <Input
+                type="number"
+                name="upstreamLevel"
+                placeholder="0.00"
+                value={data?.powerCurrent?.upstreamLevel || ""}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div>
+              <Label>Downstream Level (masl)</Label>
+              <Input
+                type="number"
+                name="downstreamLevel"
+                placeholder="0.00"
+                value={data?.powerCurrent?.downstreamLevel || ""}
+                onChange={handleChange}
+                required
+              />
+            </div>
+          </div>
+
+          <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+            <div>
+              <h2 className="text-sm font-bold">* Total Storage</h2>
+              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                <div>
+                  <Label>Amount (m³)</Label>
+                  <Input
+                    type="number"
+                    name="totalStorageamount"
+                    placeholder="0.00"
+                    value={data?.powerCurrent?.totalStorageamount || ""}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label>Percent ( % )</Label>
+                  <Input
+                    type="number"
+                    disabled
+                    name="totalStorageaverage"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={`${data?.powerCurrent?.totalStorageaverage ?? 0}`}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-sm font-bold">* Active Storage</h2>
+              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                <div>
+                  <Label>Amount (m³)</Label>
+                  <Input
+                    type="number"
+                    name="activeStorageamount"
+                    placeholder="0.00"
+                    value={data?.powerCurrent?.activeStorageamount || ""}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label>Percent ( % )</Label>
+                  <Input
+                    type="number"
+                    disabled
+                    name="activeStorageaverage"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={`${data?.powerCurrent?.activeStorageaverage ?? 0}`}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <h2 className="mt-4 text-sm font-bold">
+            2. Daily Water Discharge Plan
+          </h2>
+
+          <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+            <div>
+              <h2 className="text-sm font-bold">* Turbine Discharge</h2>
+              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                <div>
+                  <Label>Amount (m³)</Label>
+                  <Input
+                    type="number"
+                    name="turbineDischargeamount"
+                    placeholder="0.00"
+                    value={data?.powerCurrent?.turbineDischargeamount ?? ""}
+                    onChange={(e) => {
+                      const raw = e.target.value;
+                      if (raw === "") {
+                        setData((prev: any) => ({
+                          ...prev,
+                          powerCurrent: {
+                            ...prev.powerCurrent,
+                            turbineDischargeamount: "",
+                            turbineDischargeaverage: "",
+                          },
+                        }));
+                        setEditingTD(null);
+                      } else {
+                        const num = parseFloat(raw);
+                        setData((prev: any) => ({
+                          ...prev,
+                          powerCurrent: {
+                            ...prev.powerCurrent,
+                            turbineDischargeamount: isNaN(num)
+                              ? ""
+                              : Number(num.toFixed(2)),
+                          },
+                        }));
+                        setEditingTD("amount");
+                      }
+                    }}
+                    readOnly={editingTD === "average"}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label>Average (m³/s)</Label>
+                  <Input
+                    type="number"
+                    name="turbineDischargeaverage"
+                    placeholder="0.00"
+                    value={data?.powerCurrent?.turbineDischargeaverage ?? ""}
+                    onChange={(e) => {
+                      const raw = e.target.value;
+                      if (raw === "") {
+                        setData((prev: any) => ({
+                          ...prev,
+                          powerCurrent: {
+                            ...prev.powerCurrent,
+                            turbineDischargeamount: "",
+                            turbineDischargeaverage: "",
+                          },
+                        }));
+                        setEditingTD(null);
+                      } else {
+                        const num = parseFloat(raw);
+                        setData((prev: any) => ({
+                          ...prev,
+                          powerCurrent: {
+                            ...prev.powerCurrent,
+                            turbineDischargeaverage: isNaN(num)
+                              ? ""
+                              : Number(num.toFixed(2)),
+                          },
+                        }));
+                        setEditingTD("average");
+                      }
+                    }}
+                    readOnly={editingTD === "amount"}
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-sm font-bold">* Spillway Discharge</h2>
+              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                <div>
+                  <Label>Amount (m³)</Label>
+                  <Input
+                    type="number"
+                    name="spillwayDischargeamount"
+                    placeholder="0.00"
+                    value={data?.powerCurrent?.spillwayDischargeamount ?? ""}
+                    onChange={(e) => {
+                      const raw = e.target.value;
+                      if (raw === "") {
+                        setData((prev: any) => ({
+                          ...prev,
+                          powerCurrent: {
+                            ...prev.powerCurrent,
+                            spillwayDischargeamount: "",
+                            spillwayDischargeaverage: "",
+                          },
+                        }));
+                        setEditingSW(null);
+                      } else {
+                        const num = parseFloat(raw);
+                        setData((prev: any) => ({
+                          ...prev,
+                          powerCurrent: {
+                            ...prev.powerCurrent,
+                            spillwayDischargeamount: isNaN(num)
+                              ? ""
+                              : Number(num.toFixed(2)),
+                          },
+                        }));
+                        setEditingSW("amount");
+                      }
+                    }}
+                    readOnly={editingSW === "average"}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label>Average (m³/s)</Label>
+                  <Input
+                    type="number"
+                    name="spillwayDischargeaverage"
+                    placeholder="0.00"
+                    value={data?.powerCurrent?.spillwayDischargeaverage ?? ""}
+                    onChange={(e) => {
+                      const raw = e.target.value;
+                      if (raw === "") {
+                        setData((prev: any) => ({
+                          ...prev,
+                          powerCurrent: {
+                            ...prev.powerCurrent,
+                            spillwayDischargeamount: "",
+                            spillwayDischargeaverage: "",
+                          },
+                        }));
+                        setEditingSW(null);
+                      } else {
+                        const num = parseFloat(raw);
+                        setData((prev: any) => ({
+                          ...prev,
+                          powerCurrent: {
+                            ...prev.powerCurrent,
+                            spillwayDischargeaverage: isNaN(num)
+                              ? ""
+                              : Number(num.toFixed(2)),
+                          },
+                        }));
+                        setEditingSW("average");
+                      }
+                    }}
+                    readOnly={editingSW === "amount"}
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+            <div>
+              <h2 className="text-sm font-bold">* Ecological Discharge</h2>
+              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                <div>
+                  <Label>Amount (m³)</Label>
+                  <Input
+                    type="number"
+                    name="ecologicalDischargeamount"
+                    placeholder="0.00"
+                    value={data?.powerCurrent?.ecologicalDischargeamount ?? ""}
+                    onChange={(e) => {
+                      const raw = e.target.value;
+                      if (raw === "") {
+                        setData((prev: any) => ({
+                          ...prev,
+                          powerCurrent: {
+                            ...prev.powerCurrent,
+                            ecologicalDischargeamount: "",
+                            ecologicalDischargeaverage: "",
+                          },
+                        }));
+                        setEditingED(null);
+                      } else {
+                        const num = parseFloat(raw);
+                        setData((prev: any) => ({
+                          ...prev,
+                          powerCurrent: {
+                            ...prev.powerCurrent,
+                            ecologicalDischargeamount: isNaN(num)
+                              ? ""
+                              : Number(num.toFixed(2)),
+                          },
+                        }));
+                        setEditingED("amount");
+                      }
+                    }}
+                    readOnly={editingED === "average"}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label>Average (m³/s)</Label>
+                  <Input
+                    type="number"
+                    name="ecologicalDischargeaverage"
+                    placeholder="0.00"
+                    value={data?.powerCurrent?.ecologicalDischargeaverage ?? ""}
+                    onChange={(e) => {
+                      const raw = e.target.value;
+                      if (raw === "") {
+                        setData((prev: any) => ({
+                          ...prev,
+                          powerCurrent: {
+                            ...prev.powerCurrent,
+                            ecologicalDischargeamount: "",
+                            ecologicalDischargeaverage: "",
+                          },
+                        }));
+                        setEditingED(null);
+                      } else {
+                        const num = parseFloat(raw);
+                        setData((prev: any) => ({
+                          ...prev,
+                          powerCurrent: {
+                            ...prev.powerCurrent,
+                            ecologicalDischargeaverage: isNaN(num)
+                              ? ""
+                              : Number(num.toFixed(2)),
+                          },
+                        }));
+                        setEditingED("average");
+                      }
+                    }}
+                    readOnly={editingED === "amount"}
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-sm font-bold">* Total Discharge</h2>
+              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                <div>
+                  <Label>Amount (m³)</Label>
+                  <Input
+                    type="number"
+                    disabled
+                    name="totalDischargeamount"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={`${data?.powerCurrent?.totalDischargeamount ?? 0}`}
+                  />
+                </div>
+
+                <div>
+                  <Label>Average (m³/s)</Label>
+                  <Input
+                    type="text"
+                    disabled
+                    name="totalDischargeaverage"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={`${data?.powerCurrent?.totalDischargeaverage ?? 0}`}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <h2 className="mt-4 mb-2 text-sm font-bold">
+            3. Machines Availability.
+          </h2>
+
+          <div className="overflow-x-auto rounded-lg">
+            <table className="table-auto border-collapse text-sm">
+              <thead>
+                <tr className="border-b bg-gray-100 dark:border-gray-700 dark:bg-gray-800">
+                  <th className="px-4 py-3 text-left font-bold"></th>
+                  {data?.powerCurrent?.machinesAvailability.map((m: any) => (
+                    <th
+                      key={m.turbine}
+                      className="w-[130px] px-4 py-3 text-center whitespace-nowrap"
+                    >
+                      Unit-{m.turbine} (MW)
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b">
+                  <td className="px-4 py-2 font-semibold text-gray-700 dark:text-gray-200">
+                    MAX
+                  </td>
+                  {data?.powerCurrent?.machinesAvailability.map((m: any) => (
+                    <td
+                      key={`max-${m.turbine}`}
+                      className="px-4 py-2 text-center"
+                    >
+                      <input
+                        type="text"
+                        value={m.maxs}
+                        disabled
+                        className="w-[100px] cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-2 py-2 text-center dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                      />
+                    </td>
+                  ))}
+                </tr>
+                <tr>
+                  <td className="px-4 py-2 font-semibold text-gray-700 dark:text-gray-200">
+                    MIN
+                  </td>
+                  {data?.powerCurrent?.machinesAvailability.map((m: any) => (
+                    <td
+                      key={`min-${m.turbine}`}
+                      className="px-4 py-2 text-center"
+                    >
+                      <input
+                        type="text"
+                        value={m.mins}
+                        disabled
+                        className="w-[100px] cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-2 py-2 text-center dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                      />
+                    </td>
+                  ))}
+                </tr>
+              </tbody>
+            </table>
           </div>
 
           <button

@@ -13,7 +13,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { ChevronDownIcon } from "../../icons";
+import { ChevronDownIcon } from "../../../icons";
 import moment from "moment";
 import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
@@ -51,7 +51,6 @@ export default function TotalChart() {
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date>(new Date());
   const [user, setUser] = useState<User | null>(null);
-  const [activeTab, setActiveTab] = useState<"daterange" | "date">("daterange");
 
   useEffect(() => {
     const storedUser = getLocalStorage("user");
@@ -158,115 +157,81 @@ export default function TotalChart() {
 
   return (
     <>
-      <div className="rounded-xl bg-white px-6 py-2 shadow-sm dark:bg-gray-900 dark:text-gray-100">
-        <div className="mb-2 flex gap-4">
-          <button
-            onClick={() => setActiveTab("daterange")}
-            className={`px-4 py-2 font-medium ${
-              activeTab === "daterange"
-                ? "border-b-2 border-blue-600 text-blue-600"
-                : "text-gray-500 dark:text-gray-300"
-            }`}
-          >
-            Daily
-          </button>
-
-          <button
-            onClick={() => setActiveTab("date")}
-            className={`px-4 py-2 font-medium ${
-              activeTab === "date"
-                ? "border-b-2 border-blue-600 text-blue-600"
-                : "text-gray-500 dark:text-gray-300"
-            }`}
-          >
-            Hourly
-          </button>
-        </div>
-      </div>
-
-      {activeTab === "daterange" && (
-        <div className="rounded-xl bg-white p-6 shadow-lg dark:bg-gray-900 dark:text-gray-100">
-          <div className="mb-3 flex flex-col items-center gap-3 md:flex-row">
-            <div className="w-full md:w-1/3">
-              <Label>Choose Power Source</Label>
-              <div className="relative">
-                <Select
-                  options={powerOptions}
-                  value={selectedPowerId ?? ""}
-                  placeholder="Select All Power"
-                  onChange={handleSelectChange}
-                  className="dark:bg-dark-900"
-                />
-                <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 dark:text-gray-400">
-                  <ChevronDownIcon />
-                </span>
-              </div>
-            </div>
-
-            <div className="w-full md:w-1/5">
-              <DatePickerAll
-                id="start-date"
-                label="Start Date"
-                defaultDate={startDate ?? undefined}
-                onChange={(dates) => {
-                  const selected = dates?.[0] ?? null;
-                  setStartDate(selected);
-                }}
+      <div className="rounded-xl bg-white p-6 shadow-lg dark:bg-gray-900 dark:text-gray-100">
+        <div className="mb-3 flex flex-col items-center gap-3 md:flex-row">
+          <div className="w-full md:w-1/3">
+            <Label>Choose Power Source</Label>
+            <div className="relative">
+              <Select
+                options={powerOptions}
+                value={selectedPowerId ?? ""}
+                placeholder="Select All Power"
+                onChange={handleSelectChange}
+                className="dark:bg-dark-900"
               />
-            </div>
-
-            <div className="w-full md:w-1/5">
-              <DatePickerAll
-                id="end-date"
-                label="End Date"
-                defaultDate={endDate ?? undefined}
-                onChange={(dates) => {
-                  const selected = dates?.[0] ?? null;
-                  setEndDate(selected);
-                }}
-              />
+              <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                <ChevronDownIcon />
+              </span>
             </div>
           </div>
-          <hr />
 
-          {loading ? (
-            <div className="flex h-48 items-center justify-center">
-              <div className="spinner-border inline-block h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
-            </div>
-          ) : chartData ? (
-            <div className="mx-auto mt-5 h-[300px] w-full sm:h-screen md:h-[400px]">
-              <Line
-                data={chartData}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  scales: {
-                    x: {
-                      ticks: {
-                        maxRotation: 45, // หมุน label ได้สูงสุด 45 องศา
-                        minRotation: 65, // หมุน label อย่างน้อย 30 องศา
-                      },
-                    },
-                    y: {
-                      beginAtZero: true,
+          <div className="w-full md:w-1/5">
+            <DatePickerAll
+              id="start-date"
+              label="Start Date"
+              defaultDate={startDate ?? undefined}
+              onChange={(dates) => {
+                const selected = dates?.[0] ?? null;
+                setStartDate(selected);
+              }}
+            />
+          </div>
+
+          <div className="w-full md:w-1/5">
+            <DatePickerAll
+              id="end-date"
+              label="End Date"
+              defaultDate={endDate ?? undefined}
+              onChange={(dates) => {
+                const selected = dates?.[0] ?? null;
+                setEndDate(selected);
+              }}
+            />
+          </div>
+        </div>
+        <hr />
+
+        {loading ? (
+          <div className="flex h-48 items-center justify-center">
+            <div className="spinner-border inline-block h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+          </div>
+        ) : chartData ? (
+          <div className="mx-auto mt-5 h-[300px] w-full sm:h-screen md:h-[400px]">
+            <Line
+              data={chartData}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                  x: {
+                    ticks: {
+                      maxRotation: 45, // หมุน label ได้สูงสุด 45 องศา
+                      minRotation: 65, // หมุน label อย่างน้อย 30 องศา
                     },
                   },
-                }}
-              />
-            </div>
-          ) : (
-            <div className="text-center text-gray-500 dark:text-gray-400">
-              No data available.
-            </div>
-          )}
-        </div>
-      )}
-
-      {activeTab === "date" && (
-        <div className="rounded-xl bg-white p-6 text-center shadow-lg dark:bg-gray-900 dark:text-gray-100">
-          <p className="text-gray-500 dark:text-gray-400">Coming soon...</p>
-        </div>
-      )}
+                  y: {
+                    beginAtZero: true,
+                  },
+                },
+              }}
+            />
+          </div>
+        ) : (
+          <div className="text-center text-gray-500 dark:text-gray-400">
+            No data available.
+          </div>
+        )}
+      </div>
     </>
   );
 }

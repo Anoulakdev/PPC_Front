@@ -65,10 +65,10 @@ export default function LoginPage() {
       const maxAge = user.roleId === 8 ? 108000 : 3600;
       document.cookie = `token=${token}; path=/; max-age=${maxAge}; secure; samesite=strict`;
 
-      removeLocalStorage("day-power-storage");
-      removeLocalStorage("week-power-storage");
-      removeLocalStorage("month-power-storage");
-      removeLocalStorage("create-report-storage");
+      removeLocalStorage("day-filter-page");
+      removeLocalStorage("week-filter-page");
+      removeLocalStorage("month-filter-page");
+      removeLocalStorage("dayreport-filter-page");
 
       // Redirect to the dashboard
       toast.success("Login Success");

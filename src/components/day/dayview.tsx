@@ -52,6 +52,19 @@ type TurbineData = {
 type PowerOriginal = {
   id: number;
   dayPowerId: number;
+  upstreamLevel: number;
+  downstreamLevel: number;
+  totalStorageamount: number;
+  totalStorageaverage: number;
+  activeStorageamount: number;
+  activeStorageaverage: number;
+  turbineDischargeamount: number;
+  turbineDischargeaverage: number;
+  spillwayDischargeamount: number;
+  spillwayDischargeaverage: number;
+  ecologicalDischargeamount: number;
+  ecologicalDischargeaverage: number;
+  machinesAvailability: MachineAvailability[];
   totalPower: number;
   totalUnit: number;
   remark: string | null;
@@ -62,6 +75,19 @@ type PowerOriginal = {
 type PowerCurrent = {
   id: number;
   dayPowerId: number;
+  upstreamLevel: number;
+  downstreamLevel: number;
+  totalStorageamount: number;
+  totalStorageaverage: number;
+  activeStorageamount: number;
+  activeStorageaverage: number;
+  turbineDischargeamount: number;
+  turbineDischargeaverage: number;
+  spillwayDischargeamount: number;
+  spillwayDischargeaverage: number;
+  ecologicalDischargeamount: number;
+  ecologicalDischargeaverage: number;
+  machinesAvailability: MachineAvailability[];
   totalPower: number;
   totalUnit: number;
   remark: string | null;
@@ -98,24 +124,15 @@ type DayPowerData = {
   powerDate: string;
   remarks: string | null;
   createdByUserId: number;
-  upstreamLevel: number;
-  downstreamLevel: number;
-  totalStorageamount: number;
-  totalStorageaverage: number;
-  activeStorageamount: number;
-  activeStorageaverage: number;
-  turbineDischargeamount: number;
-  turbineDischargeaverage: number;
-  spillwayDischargeamount: number;
-  spillwayDischargeaverage: number;
-  ecologicalDischargeamount: number;
-  ecologicalDischargeaverage: number;
-  machinesAvailability: MachineAvailability[];
   createdAt: string;
   updatedAt: string;
   powerOriginal: PowerOriginal | null;
   powerCurrent: PowerCurrent | null;
   powerRevises: PowerRevise[];
+  power: {
+    id: number;
+    name: string;
+  };
 };
 
 type User = {
@@ -168,29 +185,41 @@ export default function DayView({ onPowerIdChange }: DayViewProps) {
 
   const totalDischarge = useMemo(() => {
     const tdAmount =
-      parseFloat((data?.turbineDischargeamount ?? "").toString()) || 0;
+      parseFloat(
+        (data?.powerCurrent?.turbineDischargeamount ?? "").toString(),
+      ) || 0;
     const tdAverage =
-      parseFloat((data?.turbineDischargeaverage ?? "").toString()) || 0;
+      parseFloat(
+        (data?.powerCurrent?.turbineDischargeaverage ?? "").toString(),
+      ) || 0;
     const sdAmount =
-      parseFloat((data?.spillwayDischargeamount ?? "").toString()) || 0;
+      parseFloat(
+        (data?.powerCurrent?.spillwayDischargeamount ?? "").toString(),
+      ) || 0;
     const sdAverage =
-      parseFloat((data?.spillwayDischargeaverage ?? "").toString()) || 0;
+      parseFloat(
+        (data?.powerCurrent?.spillwayDischargeaverage ?? "").toString(),
+      ) || 0;
     const edAmount =
-      parseFloat((data?.ecologicalDischargeamount ?? "").toString()) || 0;
+      parseFloat(
+        (data?.powerCurrent?.ecologicalDischargeamount ?? "").toString(),
+      ) || 0;
     const edAverage =
-      parseFloat((data?.ecologicalDischargeaverage ?? "").toString()) || 0;
+      parseFloat(
+        (data?.powerCurrent?.ecologicalDischargeaverage ?? "").toString(),
+      ) || 0;
 
     return {
       amount: tdAmount + sdAmount + edAmount,
       average: tdAverage + sdAverage + edAverage,
     };
   }, [
-    data?.turbineDischargeamount,
-    data?.turbineDischargeaverage,
-    data?.spillwayDischargeamount,
-    data?.spillwayDischargeaverage,
-    data?.ecologicalDischargeamount,
-    data?.ecologicalDischargeaverage,
+    data?.powerCurrent?.turbineDischargeamount,
+    data?.powerCurrent?.turbineDischargeaverage,
+    data?.powerCurrent?.spillwayDischargeamount,
+    data?.powerCurrent?.spillwayDischargeaverage,
+    data?.powerCurrent?.ecologicalDischargeamount,
+    data?.powerCurrent?.ecologicalDischargeaverage,
   ]);
 
   return (
@@ -212,9 +241,12 @@ export default function DayView({ onPowerIdChange }: DayViewProps) {
             Back
           </button>
         )}
-        <h1 className="text-center text-xl font-bold">
-          Daily Availability and Declaration
-        </h1>
+        <div>
+          <h1 className="text-center text-xl font-bold">
+            Daily Availability and Declaration
+          </h1>
+          <p className="text-center text-red-500">{data?.power?.name}</p>
+        </div>
         <div className="text-md font-semibold text-red-600">
           {data?.powerDate ? moment(data.powerDate).format("DD/MM/YYYY") : ""}
         </div>
@@ -466,7 +498,9 @@ export default function DayView({ onPowerIdChange }: DayViewProps) {
             Daily Availability
           </h1>
 
-          <h2 className="mb-2 text-sm font-bold">1. Reservoir Situation.</h2>
+          <h2 className="mb-2 text-sm font-bold">
+            1. Reservoir Situation (00:00)
+          </h2>
 
           <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
             <div>
@@ -474,7 +508,7 @@ export default function DayView({ onPowerIdChange }: DayViewProps) {
               <Input
                 type="text"
                 name="upstreamLevel"
-                value={data.upstreamLevel || ""}
+                value={data.powerCurrent?.upstreamLevel || ""}
                 disabled
                 className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
               />
@@ -485,7 +519,7 @@ export default function DayView({ onPowerIdChange }: DayViewProps) {
               <Input
                 type="text"
                 name="downstreamLevel"
-                value={data.downstreamLevel || ""}
+                value={data.powerCurrent?.downstreamLevel || ""}
                 disabled
                 className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
               />
@@ -497,11 +531,11 @@ export default function DayView({ onPowerIdChange }: DayViewProps) {
               <h2 className="text-sm font-bold">* Total Storage</h2>
               <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 <div>
-                  <Label>Amount (MCM)</Label>
+                  <Label>Amount (m³)</Label>
                   <Input
                     type="text"
                     name="totalStorageamount"
-                    value={data.totalStorageamount || ""}
+                    value={data.powerCurrent?.totalStorageamount || ""}
                     disabled
                     className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                   />
@@ -512,7 +546,8 @@ export default function DayView({ onPowerIdChange }: DayViewProps) {
                   <Input
                     type="text"
                     name="totalStorageaverage"
-                    value={data.totalStorageaverage || ""}
+                    // value={data.powerCurrent?.totalStorageaverage || ""}
+                    value={`${Number(data.powerCurrent?.totalStorageaverage ?? 0).toFixed(2)}`}
                     disabled
                     className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                   />
@@ -524,11 +559,11 @@ export default function DayView({ onPowerIdChange }: DayViewProps) {
               <h2 className="text-sm font-bold">* Active Storage</h2>
               <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 <div>
-                  <Label>Amount (MCM)</Label>
+                  <Label>Amount (m³)</Label>
                   <Input
                     type="text"
                     name="activeStorageamount"
-                    value={data.activeStorageamount || ""}
+                    value={data.powerCurrent?.activeStorageamount || ""}
                     disabled
                     className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                   />
@@ -539,7 +574,8 @@ export default function DayView({ onPowerIdChange }: DayViewProps) {
                   <Input
                     type="text"
                     name="activeStorageaverage"
-                    value={data.activeStorageaverage || ""}
+                    // value={data.powerCurrent?.activeStorageaverage || ""}
+                    value={`${Number(data.powerCurrent?.activeStorageaverage ?? 0).toFixed(2)}`}
                     disabled
                     className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                   />
@@ -557,11 +593,11 @@ export default function DayView({ onPowerIdChange }: DayViewProps) {
               <h2 className="text-sm font-bold">* Turbine Discharge</h2>
               <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 <div>
-                  <Label>Amount (MCM)</Label>
+                  <Label>Amount (m³)</Label>
                   <Input
                     type="text"
                     name="turbineDischargeamount"
-                    value={data.turbineDischargeamount || ""}
+                    value={data.powerCurrent?.turbineDischargeamount || ""}
                     disabled
                     className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                   />
@@ -572,7 +608,7 @@ export default function DayView({ onPowerIdChange }: DayViewProps) {
                   <Input
                     type="text"
                     name="turbineDischargeaverage"
-                    value={data.turbineDischargeaverage || ""}
+                    value={data.powerCurrent?.turbineDischargeaverage || ""}
                     disabled
                     className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                   />
@@ -584,11 +620,11 @@ export default function DayView({ onPowerIdChange }: DayViewProps) {
               <h2 className="text-sm font-bold">* Spillway Discharge</h2>
               <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 <div>
-                  <Label>Amount (MCM)</Label>
+                  <Label>Amount (m³)</Label>
                   <Input
                     type="text"
                     name="spillwayDischargeamount"
-                    value={data.spillwayDischargeamount || ""}
+                    value={data.powerCurrent?.spillwayDischargeamount || ""}
                     disabled
                     className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                   />
@@ -599,7 +635,7 @@ export default function DayView({ onPowerIdChange }: DayViewProps) {
                   <Input
                     type="text"
                     name="spillwayDischargeaverage"
-                    value={data.spillwayDischargeaverage || ""}
+                    value={data.powerCurrent?.spillwayDischargeaverage || ""}
                     disabled
                     className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                   />
@@ -613,11 +649,11 @@ export default function DayView({ onPowerIdChange }: DayViewProps) {
               <h2 className="text-sm font-bold">* Ecological Discharge</h2>
               <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 <div>
-                  <Label>Amount (MCM)</Label>
+                  <Label>Amount (m³)</Label>
                   <Input
                     type="text"
                     name="ecologicalDischargeamount"
-                    value={data.ecologicalDischargeamount || ""}
+                    value={data.powerCurrent?.ecologicalDischargeamount || ""}
                     disabled
                     className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                   />
@@ -628,7 +664,7 @@ export default function DayView({ onPowerIdChange }: DayViewProps) {
                   <Input
                     type="text"
                     name="ecologicalDischargeaverage"
-                    value={data.ecologicalDischargeaverage || ""}
+                    value={data.powerCurrent?.ecologicalDischargeaverage || ""}
                     disabled
                     className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                   />
@@ -640,12 +676,12 @@ export default function DayView({ onPowerIdChange }: DayViewProps) {
               <h2 className="text-sm font-bold">* Total Discharge</h2>
               <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 <div>
-                  <Label>Amount (MCM)</Label>
+                  <Label>Amount (m³)</Label>
                   <Input
                     type="text"
                     disabled
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={` ${totalDischarge.amount} MCM `}
+                    value={`${totalDischarge.amount}`}
                   />
                 </div>
 
@@ -655,7 +691,7 @@ export default function DayView({ onPowerIdChange }: DayViewProps) {
                     type="text"
                     disabled
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={`${totalDischarge.average} m³/s`}
+                    value={`${totalDischarge.average}`}
                   />
                 </div>
               </div>
@@ -671,7 +707,7 @@ export default function DayView({ onPowerIdChange }: DayViewProps) {
               <thead>
                 <tr className="border-b bg-gray-100 dark:border-gray-700 dark:bg-gray-800">
                   <th className="px-4 py-3 text-left font-bold"></th>
-                  {data?.machinesAvailability.map((m) => (
+                  {data?.powerCurrent?.machinesAvailability.map((m) => (
                     <th
                       key={m.turbine}
                       className="w-[130px] px-4 py-3 text-center whitespace-nowrap"
@@ -686,7 +722,7 @@ export default function DayView({ onPowerIdChange }: DayViewProps) {
                   <td className="px-4 py-2 font-semibold text-gray-700 dark:text-gray-200">
                     MAX
                   </td>
-                  {data?.machinesAvailability.map((m) => (
+                  {data?.powerCurrent?.machinesAvailability.map((m) => (
                     <td
                       key={`max-${m.turbine}`}
                       className="px-4 py-2 text-center"
@@ -704,7 +740,7 @@ export default function DayView({ onPowerIdChange }: DayViewProps) {
                   <td className="px-4 py-2 font-semibold text-gray-700 dark:text-gray-200">
                     MIN
                   </td>
-                  {data?.machinesAvailability.map((m) => (
+                  {data?.powerCurrent?.machinesAvailability.map((m) => (
                     <td
                       key={`min-${m.turbine}`}
                       className="px-4 py-2 text-center"

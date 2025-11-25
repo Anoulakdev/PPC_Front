@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import axiosInstance from "@/utils/axiosInstance";
 import { useRouter, useParams } from "next/navigation";
 import { decryptId } from "@/lib/cryptoId";
+import Label from "../form/Label";
+import Input from "../form/input/InputField";
 
 const hours = [
   "00:00-01:00",
@@ -38,9 +40,30 @@ type ReviseTurbine = {
 };
 
 type DayReviseData = {
+  turbineDischargeamount?: number | string;
+  turbineDischargeaverage?: number | string;
+  spillwayDischargeamount?: number | string;
+  spillwayDischargeaverage?: number | string;
+  ecologicalDischargeamount?: number | string;
+  ecologicalDischargeaverage?: number | string;
+  totalDischargeamount?: number | string;
+  totalDischargeaverage?: number | string;
+  upstreamLevel?: number | string;
+  downstreamLevel?: number | string;
+  totalStorageamount?: number | string;
+  totalStorageaverage?: number | string;
+  activeStorageamount?: number | string;
+  activeStorageaverage?: number | string;
+  machinesAvailability: MachineAvailability[];
   remark: string;
   remarks: string[];
   reviseTurbines: ReviseTurbine[];
+};
+
+type MachineAvailability = {
+  maxs: number;
+  mins: number;
+  turbine: number;
 };
 
 export default function UserRevise() {
@@ -188,6 +211,272 @@ export default function UserRevise() {
               className="w-full cursor-not-allowed rounded border bg-gray-100 p-2 text-gray-700 dark:border-gray-700 dark:bg-white/[0.05] dark:text-white/70"
               disabled
             ></textarea>
+          </div>
+
+          <h1 className="py-6 text-center text-xl font-bold">
+            Daily Availability
+          </h1>
+
+          <h2 className="mb-2 text-sm font-bold">
+            1. Reservoir Situation (00:00)
+          </h2>
+
+          <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+            <div>
+              <Label>Upstream Level (masl)</Label>
+              <Input
+                type="text"
+                name="upstreamLevel"
+                value={data?.upstreamLevel || ""}
+                disabled
+                className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+              />
+            </div>
+
+            <div>
+              <Label>Downstream Level (masl)</Label>
+              <Input
+                type="text"
+                name="downstreamLevel"
+                value={data?.downstreamLevel || ""}
+                disabled
+                className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+              />
+            </div>
+          </div>
+
+          <div className="mt-3 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+            <div>
+              <h2 className="text-sm font-bold">* Total Storage</h2>
+              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                <div>
+                  <Label>Amount (m³)</Label>
+                  <Input
+                    type="text"
+                    name="totalStorageamount"
+                    value={data?.totalStorageamount || ""}
+                    disabled
+                    className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                  />
+                </div>
+
+                <div>
+                  <Label>Percent ( % )</Label>
+                  <Input
+                    type="text"
+                    name="totalStorageaverage"
+                    // value={data.powerCurrent?.totalStorageaverage || ""}
+                    value={`${Number(data?.totalStorageaverage ?? 0).toFixed(2)}`}
+                    disabled
+                    className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-sm font-bold">* Active Storage</h2>
+              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                <div>
+                  <Label>Amount (m³)</Label>
+                  <Input
+                    type="text"
+                    name="activeStorageamount"
+                    value={data?.activeStorageamount || ""}
+                    disabled
+                    className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                  />
+                </div>
+
+                <div>
+                  <Label>Percent ( % )</Label>
+                  <Input
+                    type="text"
+                    name="activeStorageaverage"
+                    // value={data.powerCurrent?.activeStorageaverage || ""}
+                    value={`${Number(data?.activeStorageaverage ?? 0).toFixed(2)}`}
+                    disabled
+                    className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <h2 className="mt-6 mb-2 text-sm font-bold">
+            2. Daily Water Discharge Plan.
+          </h2>
+
+          <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+            <div>
+              <h2 className="text-sm font-bold">* Turbine Discharge</h2>
+              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                <div>
+                  <Label>Amount (m³)</Label>
+                  <Input
+                    type="text"
+                    name="turbineDischargeamount"
+                    value={data?.turbineDischargeamount || ""}
+                    disabled
+                    className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                  />
+                </div>
+
+                <div>
+                  <Label>Average (m³/s)</Label>
+                  <Input
+                    type="text"
+                    name="turbineDischargeaverage"
+                    value={data?.turbineDischargeaverage || ""}
+                    disabled
+                    className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-sm font-bold">* Spillway Discharge</h2>
+              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                <div>
+                  <Label>Amount (m³)</Label>
+                  <Input
+                    type="text"
+                    name="spillwayDischargeamount"
+                    value={data?.spillwayDischargeamount || ""}
+                    disabled
+                    className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                  />
+                </div>
+
+                <div>
+                  <Label>Average (m³/s)</Label>
+                  <Input
+                    type="text"
+                    name="spillwayDischargeaverage"
+                    value={data?.spillwayDischargeaverage || ""}
+                    disabled
+                    className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-3 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+            <div>
+              <h2 className="text-sm font-bold">* Ecological Discharge</h2>
+              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                <div>
+                  <Label>Amount (m³)</Label>
+                  <Input
+                    type="text"
+                    name="ecologicalDischargeamount"
+                    value={data?.ecologicalDischargeamount || ""}
+                    disabled
+                    className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                  />
+                </div>
+
+                <div>
+                  <Label>Average (m³/s)</Label>
+                  <Input
+                    type="text"
+                    name="ecologicalDischargeaverage"
+                    value={data?.ecologicalDischargeaverage || ""}
+                    disabled
+                    className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-sm font-bold">* Total Discharge</h2>
+              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                <div>
+                  <Label>Amount (m³)</Label>
+                  <Input
+                    type="number"
+                    disabled
+                    name="totalDischargeamount"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={data?.totalDischargeamount || ""}
+                  />
+                </div>
+
+                <div>
+                  <Label>Average (m³/s)</Label>
+                  <Input
+                    type="number"
+                    disabled
+                    name="totalDischargeaverage"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={data?.totalDischargeaverage || ""}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <h2 className="mt-6 mb-2 text-sm font-bold">
+            3. Machines Availability.
+          </h2>
+
+          <div className="overflow-x-auto rounded-lg">
+            <table className="table-auto border-collapse text-sm">
+              <thead>
+                <tr className="border-b bg-gray-100 dark:border-gray-700 dark:bg-gray-800">
+                  <th className="px-4 py-3 text-left font-bold"></th>
+                  {data?.machinesAvailability.map((m) => (
+                    <th
+                      key={m.turbine}
+                      className="w-[130px] px-4 py-3 text-center whitespace-nowrap"
+                    >
+                      Unit-{m.turbine} (MW)
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b">
+                  <td className="px-4 py-2 font-semibold text-gray-700 dark:text-gray-200">
+                    MAX
+                  </td>
+                  {data?.machinesAvailability.map((m) => (
+                    <td
+                      key={`max-${m.turbine}`}
+                      className="px-4 py-2 text-center"
+                    >
+                      <input
+                        type="text"
+                        value={m.maxs}
+                        disabled
+                        className="w-[100px] cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-2 py-2 text-center dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                      />
+                    </td>
+                  ))}
+                </tr>
+                <tr>
+                  <td className="px-4 py-2 font-semibold text-gray-700 dark:text-gray-200">
+                    MIN
+                  </td>
+                  {data?.machinesAvailability.map((m) => (
+                    <td
+                      key={`min-${m.turbine}`}
+                      className="px-4 py-2 text-center"
+                    >
+                      <input
+                        type="text"
+                        value={m.mins}
+                        disabled
+                        className="w-[100px] cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-2 py-2 text-center dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                      />
+                    </td>
+                  ))}
+                </tr>
+              </tbody>
+            </table>
           </div>
         </>
       ) : (

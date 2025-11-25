@@ -96,6 +96,11 @@ export default function EditProfile() {
       removeLocalStorage("week-power-storage");
       removeLocalStorage("month-power-storage");
       removeLocalStorage("create-report-storage");
+      removeLocalStorage("day-filter-page");
+      removeLocalStorage("week-filter-page");
+      removeLocalStorage("month-filter-page");
+      removeLocalStorage("dayreport-filter-page");
+
       toast.success("Profile Updated Successfully");
 
       // ลบ token จาก cookie

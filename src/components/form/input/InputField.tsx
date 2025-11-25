@@ -75,7 +75,13 @@ const Input: FC<InputProps> = ({
         name={name}
         placeholder={placeholder}
         defaultValue={defaultValue}
-        value={value}
+        value={
+          typeof value === "number"
+            ? Number.isNaN(value)
+              ? ""
+              : value
+            : (value ?? "")
+        }
         onChange={onChange}
         onBlur={onBlur}
         min={min}

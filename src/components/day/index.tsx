@@ -28,6 +28,7 @@ import { getLocalStorage } from "@/utils/storage";
 import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
 import DatePickerAll from "@/components/form/date-pickerall";
+import { useFilterStore } from "@/store/useDailyFilter";
 
 type UserAcKnow = {
   firstname: string;
@@ -76,11 +77,22 @@ export default function DayTable() {
   const [data, setData] = useState<Day[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [powerList, setPowerList] = useState<Power[]>([]);
-  const [selectedPowerId, setSelectedPowerId] = useState<string | null>(null);
-  const [startDate, setStartDate] = useState<Date>(new Date());
-  const [endDate, setEndDate] = useState<Date>(new Date());
+  // const [selectedPowerId, setSelectedPowerId] = useState<string | null>(null);
+  // const [startDate, setStartDate] = useState<Date>(new Date());
+  // const [endDate, setEndDate] = useState<Date>(new Date());
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
+
+  const selectedPowerId = useFilterStore((state) => state.selectedPowerId);
+  const setSelectedPowerId = useFilterStore(
+    (state) => state.setSelectedPowerId,
+  );
+
+  const startDate = useFilterStore((state) => state.startDate);
+  const setStartDate = useFilterStore((state) => state.setStartDate);
+
+  const endDate = useFilterStore((state) => state.endDate);
+  const setEndDate = useFilterStore((state) => state.setEndDate);
 
   useEffect(() => {
     const storedUser = getLocalStorage("user");
@@ -123,9 +135,16 @@ export default function DayTable() {
     try {
       setLoading(true);
 
-      const formatDate = (date: Date) => moment(date).format("YYYY-MM-DD");
-      const start = formatDate(startDate);
-      const end = formatDate(endDate);
+      const formatDate = (date: Date): string =>
+        moment(date).format("YYYY-MM-DD");
+
+      if (!startDate || !endDate) {
+        console.warn("StartDate or EndDate is null");
+        return;
+      }
+
+      const start: string = formatDate(startDate);
+      const end: string = formatDate(endDate);
 
       let url = "";
 
@@ -143,9 +162,9 @@ export default function DayTable() {
     }
   };
 
-  const handleSelectChange = (value: string) => {
-    setSelectedPowerId(value);
-  };
+  // const handleSelectChange = (value: string) => {
+  //   setSelectedPowerId(value);
+  // };
 
   const powerOptions = powerList.map(({ id, name }) => ({
     value: id.toString(),
@@ -153,6 +172,14 @@ export default function DayTable() {
   }));
 
   const columns: ColumnDef<Day>[] = [
+    {
+      accessorKey: "powerDate",
+      header: "DATE",
+      cell: ({ getValue }) => {
+        const value = getValue() as string;
+        return moment(value).format("DD/MM/YYYY");
+      },
+    },
     {
       accessorKey: "power.company.name",
       header: "COMPANY",
@@ -274,14 +301,6 @@ export default function DayTable() {
       },
     },
     {
-      accessorKey: "powerDate",
-      header: "DATE",
-      cell: ({ getValue }) => {
-        const value = getValue() as string;
-        return moment(value).format("DD/MM/YYYY");
-      },
-    },
-    {
       header: "CREATED BY",
       cell: ({ row }) => {
         const firstname = row.original.createdByUser?.firstname ?? "";
@@ -366,7 +385,7 @@ export default function DayTable() {
                 options={powerOptions}
                 value={selectedPowerId ?? ""}
                 placeholder="Select All Power"
-                onChange={handleSelectChange}
+                onChange={(value) => setSelectedPowerId(value)}
                 className="dark:bg-dark-900"
               />
               <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 dark:text-gray-400">
@@ -405,7 +424,7 @@ export default function DayTable() {
           {user?.roleId === 6 ? (
             <button
               onClick={CreatePage}
-              className="rounded-md bg-blue-500 px-4 py-2 text-sm text-white hover:bg-blue-600"
+              className="rounded-md border-blue-700 bg-blue-500 px-4 py-2 text-sm text-white hover:bg-blue-600 dark:bg-blue-600 dark:text-white"
             >
               Create
             </button>

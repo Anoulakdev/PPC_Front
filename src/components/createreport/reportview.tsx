@@ -78,6 +78,8 @@ type DayReportCurrent = {
   owramount: string;
   owraverage: string;
   rainFall: string;
+  powerGeneration: string;
+  netEnergyImport: string;
   netEnergyOutput: string;
   waterRate: string;
   totalOutflow: string;
@@ -295,12 +297,202 @@ export default function ReportView() {
               </div>
             </div>
           </div>
-          <div className="mt-5 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+
+          <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+            <div>
+              <h2 className="text-sm font-bold">* InFlow</h2>
+              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                <div>
+                  <Label>Amount (m³)</Label>
+                  <Input
+                    type="number"
+                    name="inflowamount"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={data.dayReportCurrent?.inflowamount ?? ""}
+                    disabled
+                  />
+                </div>
+
+                <div>
+                  <Label>Average (m³/s)</Label>
+                  <Input
+                    type="number"
+                    name="inflowaverage"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={data.dayReportCurrent?.inflowaverage ?? ""}
+                    disabled
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-sm font-bold">* Turbine Dischard</h2>
+              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                <div>
+                  <Label>Amount (m³)</Label>
+                  <Input
+                    type="number"
+                    name="tdAmount"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={data.dayReportCurrent?.tdAmount ?? ""}
+                    disabled
+                  />
+                </div>
+
+                <div>
+                  <Label>Average (m³/s)</Label>
+                  <Input
+                    type="number"
+                    name="tdAverage"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={data.dayReportCurrent?.tdAverage ?? ""}
+                    disabled
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+            <div>
+              <h2 className="text-sm font-bold">* Spill Way</h2>
+              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                <div>
+                  <Label>Amount (m³)</Label>
+                  <Input
+                    type="number"
+                    name="spillwayamount"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={data.dayReportCurrent?.spillwayamount ?? ""}
+                    disabled
+                  />
+                </div>
+
+                <div>
+                  <Label>Average (m³/s)</Label>
+                  <Input
+                    type="number"
+                    name="spillwayaverage"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={data.dayReportCurrent?.spillwayaverage ?? ""}
+                    disabled
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-sm font-bold">* Other Water Released</h2>
+              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                <div>
+                  <Label>Amount (m³)</Label>
+                  <Input
+                    type="number"
+                    name="owramount"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={data.dayReportCurrent?.owramount ?? ""}
+                    disabled
+                  />
+                </div>
+
+                <div>
+                  <Label>Average (m³/s)</Label>
+                  <Input
+                    type="number"
+                    name="owraverage"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={data.dayReportCurrent?.owraverage ?? ""}
+                    disabled
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4 grid grid-cols-1 gap-x-3 gap-y-5 lg:grid-cols-7">
+            <div>
+              <Label>Rain fall (mm)</Label>
+              <Input
+                type="number"
+                name="rainFall"
+                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                value={data.dayReportCurrent?.rainFall ?? ""}
+                disabled
+              />
+            </div>
+
+            <div>
+              <Label>power Generation (kWh)</Label>
+              <Input
+                type="number"
+                name="powerGeneration"
+                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                value={data.dayReportCurrent?.powerGeneration ?? ""}
+                disabled
+              />
+            </div>
+
+            <div>
+              <Label>Net Energy Import (kWh)</Label>
+              <Input
+                type="number"
+                name="netEnergyImport"
+                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                value={data.dayReportCurrent?.netEnergyImport ?? ""}
+                disabled
+              />
+            </div>
+
+            <div>
+              <Label>Net Energy Output (kWh)</Label>
+              <Input
+                type="number"
+                name="netEnergyOutput"
+                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                value={data.dayReportCurrent?.netEnergyOutput ?? ""}
+                disabled
+              />
+            </div>
+
+            <div>
+              <Label>Water Rate (m³/kWh)</Label>
+              <Input
+                type="number"
+                disabled
+                name="waterRate"
+                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                value={data.dayReportCurrent?.waterRate ?? 0}
+              />
+            </div>
+            <div>
+              <Label>Total Outflow (m³)</Label>
+              <Input
+                type="number"
+                disabled
+                name="totalOutflow"
+                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                value={data.dayReportCurrent?.totalOutflow ?? 0}
+              />
+            </div>
+            <div>
+              <Label>Average Outflow (m³/s)</Label>
+              <Input
+                type="number"
+                disabled
+                name="averageOutflow"
+                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                value={data.dayReportCurrent?.averageOutflow ?? 0}
+              />
+            </div>
+          </div>
+
+          <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
             <div>
               <h2 className="text-sm font-bold">* Active Storage</h2>
               <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 <div>
-                  <Label>Amount (MCM)</Label>
+                  <Label>Amount (m³)</Label>
                   <Input
                     type="number"
                     name="activeStorageamount"
@@ -370,7 +562,7 @@ export default function ReportView() {
             </div>
 
             <div>
-              <Label>Potential Water Storage (MCM)</Label>
+              <Label>Potential Water Storage (m³)</Label>
               <Input
                 type="number"
                 disabled
@@ -378,173 +570,6 @@ export default function ReportView() {
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
                 // value={formatValue(formData.pws ?? 0)}
                 value={data.dayReportCurrent?.pws ?? 0}
-              />
-            </div>
-          </div>
-
-          <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-            <div>
-              <h2 className="text-sm font-bold">* InFlow</h2>
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                <div>
-                  <Label>Amount (MCM)</Label>
-                  <Input
-                    type="number"
-                    name="inflowamount"
-                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.dayReportCurrent?.inflowamount ?? ""}
-                    disabled
-                  />
-                </div>
-
-                <div>
-                  <Label>Average (m³/s)</Label>
-                  <Input
-                    type="number"
-                    name="inflowaverage"
-                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.dayReportCurrent?.inflowaverage ?? ""}
-                    disabled
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h2 className="text-sm font-bold">* Turbine Dischard</h2>
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                <div>
-                  <Label>Amount (MCM)</Label>
-                  <Input
-                    type="number"
-                    name="tdAmount"
-                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.dayReportCurrent?.tdAmount ?? ""}
-                    disabled
-                  />
-                </div>
-
-                <div>
-                  <Label>Average (m³/s)</Label>
-                  <Input
-                    type="number"
-                    name="tdAverage"
-                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.dayReportCurrent?.tdAverage ?? ""}
-                    disabled
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-            <div>
-              <h2 className="text-sm font-bold">* Spill Way</h2>
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                <div>
-                  <Label>Amount (MCM)</Label>
-                  <Input
-                    type="number"
-                    name="spillwayamount"
-                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.dayReportCurrent?.spillwayamount ?? ""}
-                    disabled
-                  />
-                </div>
-
-                <div>
-                  <Label>Average (m³/s)</Label>
-                  <Input
-                    type="number"
-                    name="spillwayaverage"
-                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.dayReportCurrent?.spillwayaverage ?? ""}
-                    disabled
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h2 className="text-sm font-bold">* Other Water Released</h2>
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                <div>
-                  <Label>Amount (MCM)</Label>
-                  <Input
-                    type="number"
-                    name="owramount"
-                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.dayReportCurrent?.owramount ?? ""}
-                    disabled
-                  />
-                </div>
-
-                <div>
-                  <Label>Average (m³/s)</Label>
-                  <Input
-                    type="number"
-                    name="owraverage"
-                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.dayReportCurrent?.owraverage ?? ""}
-                    disabled
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-4 grid grid-cols-1 gap-x-4 gap-y-5 lg:grid-cols-5">
-            <div>
-              <Label>Rain fall (mm)</Label>
-              <Input
-                type="number"
-                name="rainFall"
-                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.dayReportCurrent?.rainFall ?? ""}
-                disabled
-              />
-            </div>
-
-            <div>
-              <Label>Net Energy Output (NEO) (kWh)</Label>
-              <Input
-                type="number"
-                name="netEnergyOutput"
-                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.dayReportCurrent?.netEnergyOutput ?? ""}
-                disabled
-              />
-            </div>
-
-            <div>
-              <Label>Water Rate (m³/kWh)</Label>
-              <Input
-                type="number"
-                disabled
-                name="waterRate"
-                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.dayReportCurrent?.waterRate ?? 0}
-              />
-            </div>
-            <div>
-              <Label>Total Outflow (MCM)</Label>
-              <Input
-                type="number"
-                disabled
-                name="totalOutflow"
-                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.dayReportCurrent?.totalOutflow ?? 0}
-              />
-            </div>
-            <div>
-              <Label>Average Outflow (m³/S)</Label>
-              <Input
-                type="number"
-                disabled
-                name="averageOutflow"
-                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.dayReportCurrent?.averageOutflow ?? 0}
               />
             </div>
           </div>

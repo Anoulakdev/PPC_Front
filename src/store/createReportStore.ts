@@ -29,6 +29,8 @@ type FormData = {
   owramount: string | number | null;
   owraverage: string | number | null;
   rainFall: string | number | null;
+  powerGeneration: string | number | null;
+  netEnergyImport: string | number | null;
   netEnergyOutput: string | number | null;
   waterRate: number | null;
   totalOutflow: number | null;
@@ -70,6 +72,8 @@ export const useCreateReportStore = create<CreateReportState>()(
         owramount: null,
         owraverage: null,
         rainFall: null,
+        powerGeneration: null,
+        netEnergyImport: null,
         netEnergyOutput: null,
         waterRate: null,
         totalOutflow: null,
@@ -107,7 +111,9 @@ export const useCreateReportStore = create<CreateReportState>()(
             owramount: null,
             owraverage: null,
             rainFall: null,
+            powerGeneration: null,
             netEnergyOutput: null,
+            netEnergyImport: null,
             waterRate: null,
             totalOutflow: null,
             averageOutflow: null,

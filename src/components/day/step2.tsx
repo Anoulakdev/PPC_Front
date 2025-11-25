@@ -1,9 +1,39 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
 import { useDayPowerStore } from "@/store/dayPowerStore";
 import Label from "@/components/form/Label";
 import Input from "@/components/form/input/InputField";
+import axiosInstance from "@/utils/axiosInstance";
+
+type Power = {
+  id: number;
+  name: string;
+  unit: number;
+  abbreviation: string;
+  address: string;
+  phone: string;
+  companyId: number;
+  powerimg: string;
+  voltageId: number;
+  fuelId: number;
+  contractId: number;
+  branchId: number;
+  regionId: number;
+  ownerId: number;
+  latitude: number;
+  longitude: number;
+  installCapacity: string;
+  baseEnergy: string;
+  fullLevel: string;
+  deadLevel: string;
+  totalStorageFull: string;
+  totalStorageDead: string;
+  totalActiveFull: string;
+  totalActiveDead: string;
+  codDate: string;
+};
 
 export const Step2 = () => {
   const { formData, updateFormData, nextStep, prevStep } = useDayPowerStore();
@@ -11,6 +41,20 @@ export const Step2 = () => {
 
   const [maxs, setMaxs] = useState<number[]>(Array(unit).fill(0));
   const [mins, setMins] = useState<number[]>(Array(unit).fill(0));
+
+  const [data, setData] = useState<Power | null>(null);
+  const [editingTD, setEditingTD] = useState<"amount" | "average" | null>(null);
+  const [editingSW, setEditingSW] = useState<"amount" | "average" | null>(null);
+  const [editingED, setEditingED] = useState<"amount" | "average" | null>(null);
+
+  useEffect(() => {
+    if (formData.powerId != null) {
+      axiosInstance
+        .get(`/powers/${formData.powerId}`)
+        .then((res) => setData(res.data))
+        .catch((err) => console.error("Fetch power error:", err));
+    }
+  }, [formData.powerId]);
 
   useEffect(() => {
     // ถ้ามี machinesAvailability แล้วให้ load มาลง input
@@ -64,8 +108,8 @@ export const Step2 = () => {
       parseFloat((formData.ecologicalDischargeaverage ?? "").toString()) || 0;
 
     return {
-      amount: tdAmount + sdAmount + edAmount,
-      average: tdAverage + sdAverage + edAverage,
+      amount: Number((tdAmount + sdAmount + edAmount).toFixed(2)),
+      average: Number((tdAverage + sdAverage + edAverage).toFixed(2)),
     };
   }, [
     formData.turbineDischargeamount,
@@ -75,6 +119,150 @@ export const Step2 = () => {
     formData.ecologicalDischargeamount,
     formData.ecologicalDischargeaverage,
   ]);
+
+  useEffect(() => {
+    updateFormData({
+      totalDischargeamount: totalDischarge.amount,
+      totalDischargeaverage: totalDischarge.average,
+    });
+  }, [totalDischarge, updateFormData]);
+
+  useEffect(() => {
+    if (!data) return;
+
+    const totalStorageAmount =
+      parseFloat((formData.totalStorageamount ?? "").toString()) || 0;
+    const totalStorageFull =
+      parseFloat((data.totalStorageFull ?? "").toString()) || 0;
+
+    const activeStorageAmount =
+      parseFloat((formData.activeStorageamount ?? "").toString()) || 0;
+    const activeStorageFull =
+      parseFloat((data.totalActiveFull ?? "").toString()) || 0;
+
+    updateFormData({
+      totalStorageaverage:
+        totalStorageFull > 0
+          ? Number(((totalStorageAmount / totalStorageFull) * 100).toFixed(2))
+          : 0,
+
+      activeStorageaverage:
+        activeStorageFull > 0
+          ? Number(((activeStorageAmount / activeStorageFull) * 100).toFixed(2))
+          : 0,
+    });
+  }, [
+    formData.totalStorageamount,
+    formData.activeStorageamount,
+    data?.totalStorageFull,
+    data?.totalActiveFull,
+  ]);
+
+  // ------------------------------------------
+
+  useEffect(() => {
+    if (editingTD === "amount" && formData.turbineDischargeamount != null) {
+      const turbineDischargeaverage =
+        Number(formData.turbineDischargeamount) / (24 * 3600);
+      updateFormData({
+        turbineDischargeaverage: Number(turbineDischargeaverage.toFixed(2)),
+      });
+    } else if (
+      editingTD === "average" &&
+      formData.turbineDischargeaverage != null
+    ) {
+      const turbineDischargeamount =
+        Number(formData.turbineDischargeaverage) * 24 * 3600;
+      updateFormData({
+        turbineDischargeamount: Number(turbineDischargeamount.toFixed(2)),
+      });
+    }
+  }, [
+    formData.turbineDischargeamount,
+    formData.turbineDischargeaverage,
+    editingTD,
+  ]);
+
+  useEffect(() => {
+    if (
+      (formData.turbineDischargeamount ?? 0) === 0 &&
+      (formData.turbineDischargeaverage ?? 0) === 0
+    ) {
+      setEditingTD(null);
+    }
+  }, [formData.turbineDischargeamount, formData.turbineDischargeaverage]);
+
+  // ------------------------------------------------------------
+
+  useEffect(() => {
+    if (editingSW === "amount" && formData.spillwayDischargeamount != null) {
+      const spillwayDischargeaverage =
+        Number(formData.spillwayDischargeamount) / (24 * 3600);
+      updateFormData({
+        spillwayDischargeaverage: Number(spillwayDischargeaverage.toFixed(2)),
+      });
+    } else if (
+      editingSW === "average" &&
+      formData.spillwayDischargeaverage != null
+    ) {
+      const spillwayDischargeamount =
+        Number(formData.spillwayDischargeaverage) * 24 * 3600;
+      updateFormData({
+        spillwayDischargeamount: Number(spillwayDischargeamount.toFixed(2)),
+      });
+    }
+  }, [
+    formData.spillwayDischargeamount,
+    formData.spillwayDischargeaverage,
+    editingSW,
+  ]);
+
+  useEffect(() => {
+    if (
+      (formData.spillwayDischargeamount ?? 0) === 0 &&
+      (formData.spillwayDischargeaverage ?? 0) === 0
+    ) {
+      setEditingSW(null);
+    }
+  }, [formData.spillwayDischargeamount, formData.spillwayDischargeaverage]);
+
+  // ------------------------------------------------------------
+
+  useEffect(() => {
+    if (editingED === "amount" && formData.ecologicalDischargeamount != null) {
+      const ecologicalDischargeaverage =
+        Number(formData.ecologicalDischargeamount) / (24 * 3600);
+      updateFormData({
+        ecologicalDischargeaverage: Number(
+          ecologicalDischargeaverage.toFixed(2),
+        ),
+      });
+    } else if (
+      editingED === "average" &&
+      formData.ecologicalDischargeaverage != null
+    ) {
+      const ecologicalDischargeamount =
+        Number(formData.ecologicalDischargeaverage) * 24 * 3600;
+      updateFormData({
+        ecologicalDischargeamount: Number(ecologicalDischargeamount.toFixed(2)),
+      });
+    }
+  }, [
+    formData.ecologicalDischargeamount,
+    formData.ecologicalDischargeaverage,
+    editingED,
+  ]);
+
+  useEffect(() => {
+    if (
+      (formData.ecologicalDischargeamount ?? 0) === 0 &&
+      (formData.ecologicalDischargeaverage ?? 0) === 0
+    ) {
+      setEditingED(null);
+    }
+  }, [formData.ecologicalDischargeamount, formData.ecologicalDischargeaverage]);
+
+  // ------------------------------------------------------------
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -134,7 +322,7 @@ export const Step2 = () => {
       </div>
       <hr />
 
-      <h2 className="text-sm font-bold">2. Reservoir Situation</h2>
+      <h2 className="text-sm font-bold">2. Reservoir Situation (00:00)</h2>
 
       <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
         <div>
@@ -183,7 +371,7 @@ export const Step2 = () => {
           <h2 className="text-sm font-bold">* Total Storage</h2>
           <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
             <div>
-              <Label>Amount (MCM)</Label>
+              <Label>Amount (m³)</Label>
               <Input
                 type="number"
                 name="totalStorageamount"
@@ -204,19 +392,9 @@ export const Step2 = () => {
               <Label>Percent ( % )</Label>
               <Input
                 type="number"
-                name="totalStorageaverage"
-                placeholder="0.00"
-                value={formData.totalStorageaverage ?? ""}
-                onChange={(e) =>
-                  updateFormData({ totalStorageaverage: e.target.value })
-                }
-                onBlur={(e) => {
-                  const raw = parseFloat(e.target.value);
-                  updateFormData({
-                    totalStorageaverage: isNaN(raw) ? "" : raw,
-                  });
-                }}
-                required
+                disabled
+                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                value={`${Number(formData.totalStorageaverage ?? 0).toFixed(2)}`}
               />
             </div>
           </div>
@@ -226,7 +404,7 @@ export const Step2 = () => {
           <h2 className="text-sm font-bold">* Active Storage</h2>
           <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
             <div>
-              <Label>Amount (MCM)</Label>
+              <Label>Amount (m³)</Label>
               <Input
                 type="number"
                 name="activeStorageamount"
@@ -249,19 +427,9 @@ export const Step2 = () => {
               <Label>Percent ( % )</Label>
               <Input
                 type="number"
-                name="activeStorageaverage"
-                placeholder="0.00"
-                value={formData.activeStorageaverage ?? ""}
-                onChange={(e) =>
-                  updateFormData({ activeStorageaverage: e.target.value })
-                }
-                onBlur={(e) => {
-                  const raw = parseFloat(e.target.value);
-                  updateFormData({
-                    activeStorageaverage: isNaN(raw) ? "" : raw,
-                  });
-                }}
-                required
+                disabled
+                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                value={`${Number(formData.activeStorageaverage ?? 0).toFixed(2)}`}
               />
             </div>
           </div>
@@ -276,21 +444,32 @@ export const Step2 = () => {
           <h2 className="text-sm font-bold">* Turbine Discharge</h2>
           <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
             <div>
-              <Label>Amount (MCM)</Label>
+              <Label>Amount (m³)</Label>
               <Input
                 type="number"
                 name="turbineDischargeamount"
                 placeholder="0.00"
                 value={formData.turbineDischargeamount ?? ""}
-                onChange={(e) =>
-                  updateFormData({ turbineDischargeamount: e.target.value })
-                }
-                onBlur={(e) => {
+                onChange={(e) => {
                   const raw = parseFloat(e.target.value);
-                  updateFormData({
-                    turbineDischargeamount: isNaN(raw) ? "" : raw,
-                  });
+
+                  if (e.target.value === "") {
+                    // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
+                    updateFormData({
+                      turbineDischargeamount: "",
+                      turbineDischargeaverage: "",
+                    });
+                    setEditingTD(null);
+                  } else {
+                    updateFormData({
+                      turbineDischargeamount: isNaN(raw)
+                        ? ""
+                        : Number(raw.toFixed(2)),
+                    });
+                    setEditingTD("amount");
+                  }
                 }}
+                readOnly={editingTD === "average"}
                 required
               />
             </div>
@@ -302,15 +481,26 @@ export const Step2 = () => {
                 name="turbineDischargeaverage"
                 placeholder="0.00"
                 value={formData.turbineDischargeaverage ?? ""}
-                onChange={(e) =>
-                  updateFormData({ turbineDischargeaverage: e.target.value })
-                }
-                onBlur={(e) => {
+                onChange={(e) => {
                   const raw = parseFloat(e.target.value);
-                  updateFormData({
-                    turbineDischargeaverage: isNaN(raw) ? "" : raw,
-                  });
+
+                  if (e.target.value === "") {
+                    // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
+                    updateFormData({
+                      turbineDischargeamount: "",
+                      turbineDischargeaverage: "",
+                    });
+                    setEditingTD(null);
+                  } else {
+                    updateFormData({
+                      turbineDischargeaverage: isNaN(raw)
+                        ? ""
+                        : Number(raw.toFixed(2)),
+                    });
+                    setEditingTD("average");
+                  }
                 }}
+                readOnly={editingTD === "amount"}
                 required
               />
             </div>
@@ -321,21 +511,32 @@ export const Step2 = () => {
           <h2 className="text-sm font-bold">* Spillway Discharge</h2>
           <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
             <div>
-              <Label>Amount (MCM)</Label>
+              <Label>Amount (m³)</Label>
               <Input
                 type="number"
                 name="spillwayDischargeamount"
                 placeholder="0.00"
                 value={formData.spillwayDischargeamount ?? ""}
-                onChange={(e) =>
-                  updateFormData({ spillwayDischargeamount: e.target.value })
-                }
-                onBlur={(e) => {
+                onChange={(e) => {
                   const raw = parseFloat(e.target.value);
-                  updateFormData({
-                    spillwayDischargeamount: isNaN(raw) ? "" : raw,
-                  });
+
+                  if (e.target.value === "") {
+                    // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
+                    updateFormData({
+                      spillwayDischargeamount: "",
+                      spillwayDischargeaverage: "",
+                    });
+                    setEditingSW(null);
+                  } else {
+                    updateFormData({
+                      spillwayDischargeamount: isNaN(raw)
+                        ? ""
+                        : Number(raw.toFixed(2)),
+                    });
+                    setEditingSW("amount");
+                  }
                 }}
+                readOnly={editingSW === "average"}
                 required
               />
             </div>
@@ -347,15 +548,26 @@ export const Step2 = () => {
                 name="spillwayDischargeaverage"
                 placeholder="0.00"
                 value={formData.spillwayDischargeaverage ?? ""}
-                onChange={(e) =>
-                  updateFormData({ spillwayDischargeaverage: e.target.value })
-                }
-                onBlur={(e) => {
+                onChange={(e) => {
                   const raw = parseFloat(e.target.value);
-                  updateFormData({
-                    spillwayDischargeaverage: isNaN(raw) ? "" : raw,
-                  });
+
+                  if (e.target.value === "") {
+                    // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
+                    updateFormData({
+                      spillwayDischargeamount: "",
+                      spillwayDischargeaverage: "",
+                    });
+                    setEditingSW(null);
+                  } else {
+                    updateFormData({
+                      spillwayDischargeaverage: isNaN(raw)
+                        ? ""
+                        : Number(raw.toFixed(2)),
+                    });
+                    setEditingSW("average");
+                  }
                 }}
+                readOnly={editingSW === "amount"}
                 required
               />
             </div>
@@ -368,21 +580,32 @@ export const Step2 = () => {
           <h2 className="text-sm font-bold">* Ecological Discharge</h2>
           <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
             <div>
-              <Label>Amount (MCM)</Label>
+              <Label>Amount (m³)</Label>
               <Input
                 type="number"
                 name="ecologicalDischargeamount"
                 placeholder="0.00"
                 value={formData.ecologicalDischargeamount ?? ""}
-                onChange={(e) =>
-                  updateFormData({ ecologicalDischargeamount: e.target.value })
-                }
-                onBlur={(e) => {
+                onChange={(e) => {
                   const raw = parseFloat(e.target.value);
-                  updateFormData({
-                    ecologicalDischargeamount: isNaN(raw) ? "" : raw,
-                  });
+
+                  if (e.target.value === "") {
+                    // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
+                    updateFormData({
+                      ecologicalDischargeamount: "",
+                      ecologicalDischargeaverage: "",
+                    });
+                    setEditingED(null);
+                  } else {
+                    updateFormData({
+                      ecologicalDischargeamount: isNaN(raw)
+                        ? ""
+                        : Number(raw.toFixed(2)),
+                    });
+                    setEditingED("amount");
+                  }
                 }}
+                readOnly={editingED === "average"}
                 required
               />
             </div>
@@ -394,15 +617,26 @@ export const Step2 = () => {
                 name="ecologicalDischargeaverage"
                 placeholder="0.00"
                 value={formData.ecologicalDischargeaverage ?? ""}
-                onChange={(e) =>
-                  updateFormData({ ecologicalDischargeaverage: e.target.value })
-                }
-                onBlur={(e) => {
+                onChange={(e) => {
                   const raw = parseFloat(e.target.value);
-                  updateFormData({
-                    ecologicalDischargeaverage: isNaN(raw) ? "" : raw,
-                  });
+
+                  if (e.target.value === "") {
+                    // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
+                    updateFormData({
+                      ecologicalDischargeamount: "",
+                      ecologicalDischargeaverage: "",
+                    });
+                    setEditingED(null);
+                  } else {
+                    updateFormData({
+                      ecologicalDischargeaverage: isNaN(raw)
+                        ? ""
+                        : Number(raw.toFixed(2)),
+                    });
+                    setEditingED("average");
+                  }
                 }}
+                readOnly={editingED === "amount"}
                 required
               />
             </div>
@@ -413,22 +647,22 @@ export const Step2 = () => {
           <h2 className="text-sm font-bold">* Total Discharge</h2>
           <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
             <div>
-              <Label>Amount (MCM)</Label>
+              <Label>Amount (m³)</Label>
               <Input
-                type="text"
+                type="number"
                 disabled
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={` ${totalDischarge.amount} MCM `}
+                value={`${totalDischarge.amount}`}
               />
             </div>
 
             <div>
               <Label>Average (m³/s)</Label>
               <Input
-                type="text"
+                type="number"
                 disabled
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={`${totalDischarge.average} m³/s`}
+                value={`${totalDischarge.average}`}
               />
             </div>
           </div>

@@ -31,6 +31,8 @@ type FormData = {
   spillwayDischargeaverage: string | number | null;
   ecologicalDischargeamount: string | number | null;
   ecologicalDischargeaverage: string | number | null;
+  totalDischargeamount: string | number | null;
+  totalDischargeaverage: string | number | null;
   totalPower: number | null;
   remark?: string | null;
   remarks?: string[] | null;
@@ -67,6 +69,8 @@ export const useDayPowerStore = create<DayPowerState>()(
         spillwayDischargeaverage: null,
         ecologicalDischargeamount: null,
         ecologicalDischargeaverage: null,
+        totalDischargeamount: null,
+        totalDischargeaverage: null,
         totalPower: null,
         remark: null,
         remarks: [],
@@ -99,6 +103,8 @@ export const useDayPowerStore = create<DayPowerState>()(
             spillwayDischargeaverage: null,
             ecologicalDischargeamount: null,
             ecologicalDischargeaverage: null,
+            totalDischargeamount: null,
+            totalDischargeaverage: null,
             totalPower: null,
             remark: null,
             remarks: [],

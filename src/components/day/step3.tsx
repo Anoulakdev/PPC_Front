@@ -1,6 +1,6 @@
 "use client";
 import { useDayPowerStore } from "@/store/dayPowerStore";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axiosInstance from "@/utils/axiosInstance";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
@@ -40,14 +40,22 @@ export const Step3 = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
+  // ใช้ useCallback เพื่อป้องกัน infinite loop
+  const initializeTurbineData = useCallback(() => {
     const turbineData = Array.from({ length: unit }, (_, tIdx) => ({
       turbine: tIdx + 1,
-      hourly: Array(24).fill(0),
+      hourly: Array(24).fill(0), // ใช้ 0 แทน "" เพื่อความสอดคล้อง
     }));
     const remarks = Array(24).fill("");
     updateFormData({ turbineData, remarks });
   }, [unit, updateFormData]);
+
+  useEffect(() => {
+    // เช็คว่ามีข้อมูลอยู่แล้วหรือไม่
+    if (!formData.turbineData || formData.turbineData.length !== unit) {
+      initializeTurbineData();
+    }
+  }, [unit, formData.turbineData, initializeTurbineData]);
 
   const handleHourlyChange = (
     turbineIdx: number,
@@ -55,7 +63,8 @@ export const Step3 = () => {
     value: string,
   ) => {
     const updated = [...formData.turbineData];
-    const floatValue = parseFloat(value) || 0;
+    // เก็บค่าเป็น string ถ้ายังพิมพ์ไม่เสร็จ, เป็น number ถ้าพิมพ์เสร็จแล้ว
+    const floatValue = value === "" ? 0 : parseFloat(value);
 
     // แทนค่าทั้งหมดจาก hourIdx ถึง 23 ด้วยค่าที่กรอก
     for (let i = hourIdx; i < 24; i++) {
@@ -113,27 +122,37 @@ export const Step3 = () => {
 
     for (let i = 0; i < 24; i++) {
       let val = values[i] ?? 0;
-      if (machine) {
+      // ตรวจสอบ min/max เฉพาะเมื่อค่าไม่เป็น 0
+      if (val !== 0 && machine) {
         if (val < machine.mins) val = machine.mins;
         if (val > machine.maxs) val = machine.maxs;
       }
-      updated[turbineIdx].hourly[i] = val;
+      updated[turbineIdx].hourly[i] = parseFloat(val.toFixed(2));
     }
     updateFormData({ turbineData: updated });
   };
 
   const getTotal = (turbineIdx: number) =>
-    (formData.turbineData[turbineIdx]?.hourly || []).reduce((a, b) => a + b, 0);
+    (formData.turbineData[turbineIdx]?.hourly || []).reduce(
+      (a, b) => a + (typeof b === "number" ? b : 0),
+      0,
+    );
 
   const grandTotal = (formData.turbineData || []).reduce(
-    (grand, t) => grand + (t.hourly || []).reduce((a, b) => a + b, 0),
+    (grand, t) =>
+      grand +
+      (t.hourly || []).reduce((a, b) => a + (typeof b === "number" ? b : 0), 0),
     0,
   );
 
-  useEffect(() => {
-    const fixedTotal = parseFloat(grandTotal.toFixed(2));
-    updateFormData({ totalPower: fixedTotal });
+  // ใช้ useCallback เพื่อป้องกัน infinite loop
+  const updateTotalPower = useCallback(() => {
+    updateFormData({ totalPower: grandTotal });
   }, [grandTotal, updateFormData]);
+
+  useEffect(() => {
+    updateTotalPower();
+  }, [updateTotalPower]);
 
   // const toFixed2 = (val: string | number | undefined | null): string => {
   //   const num = typeof val === "string" ? parseFloat(val) : (val ?? 0);
@@ -165,6 +184,8 @@ export const Step3 = () => {
         spillwayDischargeaverage: formData.spillwayDischargeaverage,
         ecologicalDischargeamount: formData.ecologicalDischargeamount,
         ecologicalDischargeaverage: formData.ecologicalDischargeaverage,
+        totalDischargeamount: formData.totalDischargeamount,
+        totalDischargeaverage: formData.totalDischargeaverage,
         machinedata: formData.machinesAvailability || [],
         remark: formData.remark || "",
         remarks: formData.remarks || Array(24).fill(""),
@@ -220,7 +241,11 @@ export const Step3 = () => {
           <tbody>
             {hours.map((time, hIdx) => {
               const hourlyTotal = (formData.turbineData || []).reduce(
-                (sum, turbine) => sum + (turbine.hourly[hIdx] || 0),
+                (sum, turbine) =>
+                  sum +
+                  (typeof turbine.hourly[hIdx] === "number"
+                    ? turbine.hourly[hIdx]
+                    : 0),
                 0,
               );
 
@@ -240,24 +265,26 @@ export const Step3 = () => {
                       >
                         <input
                           type="number"
-                          value={t.hourly[hIdx]} // แสดง 2 ตำแหน่งทศนิยม
+                          value={t.hourly[hIdx] || 0} // แสดง 2 ตำแหน่งทศนิยม
                           min={machine?.mins ?? 0}
                           max={machine?.maxs ?? 9999}
                           step="any"
                           onChange={(e) => {
                             const val = e.target.value;
-                            if (/^\d*\.?\d{0,2}$/.test(val)) {
+                            // อนุญาตให้กรอกตัวเลขทศนิยม 2 ตำแหน่ง
+                            if (val === "" || /^\d*\.?\d{0,2}$/.test(val)) {
                               handleHourlyChange(tIdx, hIdx, val);
                             }
                           }}
                           onBlur={(e) => {
-                            // ปรับเลขให้มี 2 ตำแหน่งตอนออกจาก input
-                            let val = parseFloat(e.target.value) || 0;
-                            val = parseFloat(val.toFixed(2)); // ตัดทศนิยม 2 ตำแหน่งจริง ๆ
-                            handleHourlyValidate(tIdx, hIdx, val.toString());
+                            // ปรับเลขให้มี 2 ตำแหน่งทศนิยมตอนออกจาก input
+                            const val = e.target.value;
+                            if (val !== "") {
+                              handleHourlyValidate(tIdx, hIdx, val);
+                            }
                           }}
                           className="w-full rounded border px-1 py-1"
-                          placeholder="MW"
+                          placeholder="0.00"
                         />
                       </td>
                     );

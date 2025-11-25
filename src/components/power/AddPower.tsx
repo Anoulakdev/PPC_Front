@@ -533,7 +533,7 @@ export default function AddPower({ isOpen, onClose, onAdd }: AddPowerProps) {
               </div>
 
               <div>
-                <Label>Total Storage at Full Level (MCM)</Label>
+                <Label>Total Storage at Full Level (m³)</Label>
                 <Input
                   type="text"
                   name="totalStorageFull"
@@ -544,7 +544,7 @@ export default function AddPower({ isOpen, onClose, onAdd }: AddPowerProps) {
               </div>
 
               <div>
-                <Label>Total Active at Full Level (MCM)</Label>
+                <Label>Total Active at Full Level (m³)</Label>
                 <Input
                   type="text"
                   name="totalActiveFull"
@@ -568,7 +568,7 @@ export default function AddPower({ isOpen, onClose, onAdd }: AddPowerProps) {
               </div>
 
               <div>
-                <Label>Total Storage at Dead Level (MCM)</Label>
+                <Label>Total Storage at Dead Level (m³)</Label>
                 <Input
                   type="text"
                   name="totalStorageDead"
@@ -579,7 +579,7 @@ export default function AddPower({ isOpen, onClose, onAdd }: AddPowerProps) {
               </div>
 
               <div>
-                <Label>Total Active at Dead Level (MCM)</Label>
+                <Label>Total Active at Dead Level (m³)</Label>
                 <Input
                   type="text"
                   name="totalActiveDead"

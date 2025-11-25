@@ -28,7 +28,8 @@ import { getLocalStorage } from "@/utils/storage";
 import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
 import SelectDate from "@/components/form/SelectDate";
-import { getCurrentWeek, getWeeksInYear } from "@/utils/weeksInYear";
+import { getWeeksInYear } from "@/utils/weeksInYear";
+import { useFilterStore } from "@/store/useWeeklyFilter";
 
 type UserAcKnow = {
   firstname: string;
@@ -76,18 +77,27 @@ type User = {
 };
 
 export default function WeekTable() {
-  const now = new Date();
+  // const now = new Date();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [data, setData] = useState<Week[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [powerList, setPowerList] = useState<Power[]>([]);
-  const [selectedPowerId, setSelectedPowerId] = useState<string | null>(null);
-  const [selectedYear, setSelectedYear] = useState<string>(
-    now.getFullYear().toString(),
-  );
-  const [selectedWeek, setSelectedWeek] = useState<string>(getCurrentWeek());
+  // const [selectedPowerId, setSelectedPowerId] = useState<string | null>(null);
+  // const [selectedYear, setSelectedYear] = useState<string>(
+  //   now.getFullYear().toString(),
+  // );
+  // const [selectedWeek, setSelectedWeek] = useState<string>(getCurrentWeek());
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
+
+  const {
+    selectedPowerId,
+    selectedYear,
+    selectedWeek,
+    setSelectedPowerId,
+    setSelectedYear,
+    setSelectedWeek,
+  } = useFilterStore();
 
   useEffect(() => {
     const storedUser = getLocalStorage("user");
@@ -144,9 +154,9 @@ export default function WeekTable() {
     }
   };
 
-  const handleSelectChange = (value: string) => {
-    setSelectedPowerId(value);
-  };
+  // const handleSelectChange = (value: string) => {
+  //   setSelectedPowerId(value);
+  // };
 
   const powerOptions = powerList.map(({ id, name }) => ({
     value: id.toString(),
@@ -389,7 +399,7 @@ export default function WeekTable() {
                 options={powerOptions}
                 value={selectedPowerId ?? ""}
                 placeholder="Select All Power"
-                onChange={handleSelectChange}
+                onChange={(value) => setSelectedPowerId(value)}
                 className="dark:bg-dark-900"
               />
               <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 dark:text-gray-400">

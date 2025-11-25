@@ -70,6 +70,10 @@ type MonthPowerData = {
   powerCurrent: PowerCurrent | null;
   decAcknow?: boolean;
   disAcknow?: boolean;
+  power: {
+    id: number;
+    name: string;
+  };
 };
 
 type User = {
@@ -172,10 +176,13 @@ export default function MonthAction() {
             Back
           </button>
         )}
-
-        <h1 className="text-center text-xl font-bold">
-          Monthly Availability {user?.roleId === 4 ? "Dispatch" : "Declaration"}
-        </h1>
+        <div>
+          <h1 className="text-center text-xl font-bold">
+            Monthly Availability{" "}
+            {user?.roleId === 4 ? "Dispatch" : "Declaration"}
+          </h1>
+          <p className="text-center text-red-500">{data?.power?.name}</p>
+        </div>
 
         {(user?.roleId === 4 || user?.roleId === 6) && (
           <button

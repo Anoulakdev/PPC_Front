@@ -102,6 +102,8 @@ export default function DayRevise() {
           owramount: current?.owramount ?? 0,
           owraverage: current?.owraverage ?? 0,
           rainFall: current?.rainFall ?? 0,
+          powerGeneration: current?.powerGeneration ?? 0,
+          netEnergyImport: current?.netEnergyImport ?? 0,
           netEnergyOutput: current?.netEnergyOutput ?? 0,
           waterRate: current?.waterRate ?? 0,
           totalOutflow: current?.totalOutflow ?? 0,
@@ -218,7 +220,7 @@ export default function DayRevise() {
     const activeStorageamount = Number(data?.activeStorageamount ?? 0);
     const tdAmount = Number(data?.tdAmount ?? 0);
 
-    const netEnergyOutput = Number(data?.netEnergyOutput ?? 0);
+    const powerGeneration = Number(data?.powerGeneration ?? 0);
     const spillwayamount = Number(data?.spillwayamount ?? 0);
     const owramount = Number(data?.owramount ?? 0);
 
@@ -236,23 +238,23 @@ export default function DayRevise() {
     const pws =
       totalActiveFull !== 0 ? totalActiveFull - activeStorageamount : 0;
     const waterRate =
-      tdAmount !== 0 && netEnergyOutput !== 0
-        ? (tdAmount * 1000000) / netEnergyOutput
-        : 0;
+      tdAmount !== 0 && powerGeneration !== 0 ? tdAmount / powerGeneration : 0;
     const totalOutflow = tdAmount + spillwayamount + owramount;
-    const averageOutflow =
-      totalOutflow !== 0 ? (totalOutflow * 1000000) / (24 * 3600) : 0;
+    const averageOutflow = totalOutflow !== 0 ? totalOutflow / (24 * 3600) : 0;
 
     setData((prev: any) => ({
       ...prev,
-      activeStorageaverage,
-      dwy: waterLevel ? dwy : 0,
-      dwf: waterLevel ? dwf : 0,
-      dwm: waterLevel ? dwm : 0,
-      pws: activeStorageamount ? pws : 0,
-      waterRate: tdAmount && netEnergyOutput ? waterRate : 0,
-      totalOutflow: tdAmount || spillwayamount || owramount ? totalOutflow : 0,
-      averageOutflow: totalOutflow ? averageOutflow : 0,
+      activeStorageaverage: Number(activeStorageaverage.toFixed(2)),
+      dwy: waterLevel ? Number(dwy.toFixed(2)) : 0,
+      dwf: waterLevel ? Number(dwf.toFixed(2)) : 0,
+      dwm: waterLevel ? Number(dwm.toFixed(2)) : 0,
+      pws: activeStorageamount ? Number(pws.toFixed(2)) : 0,
+      waterRate: tdAmount && powerGeneration ? Number(waterRate.toFixed(2)) : 0,
+      totalOutflow:
+        tdAmount || spillwayamount || owramount
+          ? Number(totalOutflow.toFixed(2))
+          : 0,
+      averageOutflow: totalOutflow ? Number(averageOutflow.toFixed(2)) : 0,
     }));
   }, [
     data?.activeStorageamount,
@@ -260,26 +262,27 @@ export default function DayRevise() {
     data?.tdAmount,
     data?.spillwayamount,
     data?.owramount,
-    data?.netEnergyOutput,
+    data?.powerGeneration,
     dataPower?.totalActiveFull,
     dataPower?.fullLevel,
     dataPower?.deadLevel,
     dataReport?.waterLevel,
   ]);
 
+  // ------------------------------------------
+
   useEffect(() => {
     if (editingInflow === "amount" && data?.inflowamount != null) {
-      const inflowaverage =
-        (Number(data?.inflowamount) * 1000000) / (24 * 3600);
+      const inflowaverage = Number(data?.inflowamount) / (24 * 3600);
       setData((prev: any) => ({
         ...prev,
-        inflowaverage: Number(inflowaverage),
+        inflowaverage: Number(inflowaverage.toFixed(2)),
       }));
     } else if (editingInflow === "average" && data?.inflowaverage != null) {
-      const inflowamount = (Number(data?.inflowaverage) * 24 * 3600) / 1000000;
+      const inflowamount = Number(data?.inflowaverage) * 24 * 3600;
       setData((prev: any) => ({
         ...prev,
-        inflowamount: Number(inflowamount),
+        inflowamount: Number(inflowamount.toFixed(2)),
       }));
     }
   }, [data?.inflowamount, data?.inflowaverage, editingInflow]);
@@ -294,16 +297,16 @@ export default function DayRevise() {
 
   useEffect(() => {
     if (editingTD === "amount" && data?.tdAmount != null) {
-      const tdAverage = (Number(data?.tdAmount) * 1000000) / (24 * 3600);
+      const tdAverage = Number(data?.tdAmount) / (24 * 3600);
       setData((prev: any) => ({
         ...prev,
-        tdAverage: Number(tdAverage),
+        tdAverage: Number(tdAverage.toFixed(2)),
       }));
     } else if (editingTD === "average" && data?.tdAverage != null) {
-      const tdAmount = (Number(data?.tdAverage) * 24 * 3600) / 1000000;
+      const tdAmount = Number(data?.tdAverage) * 24 * 3600;
       setData((prev: any) => ({
         ...prev,
-        tdAmount: Number(tdAmount),
+        tdAmount: Number(tdAmount.toFixed(2)),
       }));
     }
   }, [data?.tdAmount, data?.tdAverage, editingTD]);
@@ -318,18 +321,16 @@ export default function DayRevise() {
 
   useEffect(() => {
     if (editingSW === "amount" && data?.spillwayamount != null) {
-      const spillwayaverage =
-        (Number(data?.spillwayamount) * 1000000) / (24 * 3600);
+      const spillwayaverage = Number(data?.spillwayamount) / (24 * 3600);
       setData((prev: any) => ({
         ...prev,
-        spillwayaverage: Number(spillwayaverage),
+        spillwayaverage: Number(spillwayaverage.toFixed(2)),
       }));
     } else if (editingSW === "average" && data?.spillwayaverage != null) {
-      const spillwayamount =
-        (Number(data?.spillwayaverage) * 24 * 3600) / 1000000;
+      const spillwayamount = Number(data?.spillwayaverage) * 24 * 3600;
       setData((prev: any) => ({
         ...prev,
-        spillwayamount: Number(spillwayamount),
+        spillwayamount: Number(spillwayamount.toFixed(2)),
       }));
     }
   }, [data?.spillwayamount, data?.spillwayaverage, editingSW]);
@@ -347,16 +348,16 @@ export default function DayRevise() {
 
   useEffect(() => {
     if (editingOWR === "amount" && data?.owramount != null) {
-      const owraverage = (Number(data?.owramount) * 1000000) / (24 * 3600);
+      const owraverage = Number(data?.owramount) / (24 * 3600);
       setData((prev: any) => ({
         ...prev,
-        owraverage: Number(owraverage),
+        owraverage: Number(owraverage.toFixed(2)),
       }));
     } else if (editingOWR === "average" && data?.owraverage != null) {
-      const owramount = (Number(data?.owraverage) * 24 * 3600) / 1000000;
+      const owramount = Number(data?.owraverage) * 24 * 3600;
       setData((prev: any) => ({
         ...prev,
-        owramount: Number(owramount),
+        owramount: Number(owramount.toFixed(2)),
       }));
     }
   }, [data?.owramount, data?.owraverage, editingOWR]);
@@ -397,6 +398,8 @@ export default function DayRevise() {
         owramount: data.owramount,
         owraverage: data.owraverage,
         rainFall: data.rainFall,
+        powerGeneration: data.powerGeneration,
+        netEnergyImport: data.netEnergyImport,
         netEnergyOutput: data.netEnergyOutput,
         waterRate: data.waterRate,
         totalOutflow: data.totalOutflow,
@@ -427,6 +430,9 @@ export default function DayRevise() {
         </div>
       ) : (
         <>
+          <div className="my-3 text-3xl font-bold">
+            # <span className="underline">Data Yesterday</span>
+          </div>
           <div className="overflow-x-auto">
             <table className="table-auto text-left">
               <thead>
@@ -515,13 +521,379 @@ export default function DayRevise() {
             </table>
           </div>
 
-          {/* Water-related inputs */}
+          <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+            <div>
+              <h2 className="text-sm font-bold">* InFlow</h2>
+              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                <div>
+                  <Label>Amount (m³)</Label>
+                  <Input
+                    type="number"
+                    name="inflowamount"
+                    placeholder="0.00"
+                    value={data?.inflowamount ?? ""}
+                    onChange={(e) => {
+                      const raw = parseFloat(e.target.value);
+
+                      if (e.target.value === "") {
+                        // ถ้าผู้ใช้ลบจนว่าง → เคลียร์ทั้งคู่และให้ป้อนได้ทั้งสองช่อง
+                        setData((prev: any) => ({
+                          ...prev,
+                          inflowamount: "",
+                          inflowaverage: "",
+                        }));
+                        setEditingInflow(null);
+                      } else {
+                        setData((prev: any) => ({
+                          ...prev,
+                          inflowamount: isNaN(raw)
+                            ? ""
+                            : Number(raw.toFixed(2)),
+                        }));
+                        setEditingInflow("amount");
+                      }
+                    }}
+                    readOnly={editingInflow === "average"}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label>Average (m³/s)</Label>
+                  <Input
+                    type="number"
+                    name="inflowaverage"
+                    placeholder="0.00"
+                    value={data?.inflowaverage ?? ""}
+                    onChange={(e) => {
+                      const raw = parseFloat(e.target.value);
+
+                      if (e.target.value === "") {
+                        // ถ้าผู้ใช้ลบจนว่าง → เคลียร์ทั้งคู่และให้ป้อนได้ทั้งสองช่อง
+                        setData((prev: any) => ({
+                          ...prev,
+                          inflowamount: "",
+                          inflowaverage: "",
+                        }));
+                        setEditingInflow(null);
+                      } else {
+                        setData((prev: any) => ({
+                          ...prev,
+                          inflowaverage: isNaN(raw)
+                            ? ""
+                            : Number(raw.toFixed(2)),
+                        }));
+                        setEditingInflow("average");
+                      }
+                    }}
+                    readOnly={editingInflow === "amount"}
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-sm font-bold">* Turbine Dischard</h2>
+              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                <div>
+                  <Label>Amount (m³)</Label>
+                  <Input
+                    type="number"
+                    name="tdAmount"
+                    placeholder="0.00"
+                    value={data?.tdAmount ?? ""}
+                    onChange={(e) => {
+                      const raw = parseFloat(e.target.value);
+
+                      if (e.target.value === "") {
+                        // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
+                        setData((prev: any) => ({
+                          ...prev,
+                          tdAmount: "",
+                          tdAverage: "",
+                        }));
+                        setEditingTD(null);
+                      } else {
+                        setData((prev: any) => ({
+                          ...prev,
+                          tdAmount: isNaN(raw) ? "" : Number(raw.toFixed(2)),
+                        }));
+                        setEditingTD("amount");
+                      }
+                    }}
+                    readOnly={editingTD === "average"}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label>Average (m³/s)</Label>
+                  <Input
+                    type="number"
+                    name="tdAverage"
+                    placeholder="0.00"
+                    value={data?.tdAverage ?? ""}
+                    onChange={(e) => {
+                      const raw = parseFloat(e.target.value);
+
+                      if (e.target.value === "") {
+                        // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
+                        setData((prev: any) => ({
+                          ...prev,
+                          tdAmount: "",
+                          tdAverage: "",
+                        }));
+                        setEditingTD(null);
+                      } else {
+                        setData((prev: any) => ({
+                          ...prev,
+                          tdAverage: isNaN(raw) ? "" : Number(raw.toFixed(2)),
+                        }));
+                        setEditingTD("average");
+                      }
+                    }}
+                    readOnly={editingTD === "amount"}
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+            <div>
+              <h2 className="text-sm font-bold">* Spill Way</h2>
+              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                <div>
+                  <Label>Amount (m³)</Label>
+                  <Input
+                    type="number"
+                    name="spillwayamount"
+                    placeholder="0.00"
+                    value={data?.spillwayamount ?? ""}
+                    onChange={(e) => {
+                      const raw = parseFloat(e.target.value);
+
+                      if (e.target.value === "") {
+                        // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
+                        setData((prev: any) => ({
+                          ...prev,
+                          spillwayamount: "",
+                          spillwayaverage: "",
+                        }));
+                        setEditingSW(null);
+                      } else {
+                        setData((prev: any) => ({
+                          ...prev,
+                          spillwayamount: isNaN(raw)
+                            ? ""
+                            : Number(raw.toFixed(2)),
+                        }));
+                        setEditingSW("amount");
+                      }
+                    }}
+                    readOnly={editingSW === "average"}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label>Average (m³/s)</Label>
+                  <Input
+                    type="number"
+                    name="spillwayaverage"
+                    placeholder="0.00"
+                    value={data?.spillwayaverage ?? ""}
+                    onChange={(e) => {
+                      const raw = parseFloat(e.target.value);
+
+                      if (e.target.value === "") {
+                        // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
+
+                        setData((prev: any) => ({
+                          ...prev,
+                          spillwayamount: "",
+                          spillwayaverage: "",
+                        }));
+                        setEditingSW(null);
+                      } else {
+                        setData((prev: any) => ({
+                          ...prev,
+                          spillwayaverage: isNaN(raw)
+                            ? ""
+                            : Number(raw.toFixed(2)),
+                        }));
+                        setEditingSW("average");
+                      }
+                    }}
+                    readOnly={editingSW === "amount"}
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-sm font-bold">* Other Water Released</h2>
+              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                <div>
+                  <Label>Amount (m³)</Label>
+                  <Input
+                    type="number"
+                    name="owramount"
+                    placeholder="0.00"
+                    value={data?.owramount ?? ""}
+                    onChange={(e) => {
+                      const raw = parseFloat(e.target.value);
+
+                      if (e.target.value === "") {
+                        // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
+
+                        setData((prev: any) => ({
+                          ...prev,
+                          owramount: "",
+                          owraverage: "",
+                        }));
+                        setEditingOWR(null);
+                      } else {
+                        setData((prev: any) => ({
+                          ...prev,
+                          owramount: isNaN(raw) ? "" : Number(raw.toFixed(2)),
+                        }));
+                        setEditingOWR("amount");
+                      }
+                    }}
+                    readOnly={editingOWR === "average"}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label>Average (m³/s)</Label>
+                  <Input
+                    type="number"
+                    name="owraverage"
+                    placeholder="0.00"
+                    value={data?.owraverage ?? ""}
+                    onChange={(e) => {
+                      const raw = parseFloat(e.target.value);
+
+                      if (e.target.value === "") {
+                        // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
+                        setData((prev: any) => ({
+                          ...prev,
+                          owramount: "",
+                          owraverage: "",
+                        }));
+                        setEditingOWR(null);
+                      } else {
+                        setData((prev: any) => ({
+                          ...prev,
+                          owraverage: isNaN(raw) ? "" : Number(raw.toFixed(2)),
+                        }));
+                        setEditingOWR("average");
+                      }
+                    }}
+                    readOnly={editingOWR === "amount"}
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4 grid grid-cols-1 gap-x-3 gap-y-5 lg:grid-cols-7">
+            <div>
+              <Label>Rain fall (mm)</Label>
+              <Input
+                type="number"
+                name="rainFall"
+                placeholder="0.00"
+                value={data?.rainFall ?? ""}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div>
+              <Label>power Generation (kWh)</Label>
+              <Input
+                type="number"
+                name="powerGeneration"
+                placeholder="0.00"
+                value={data?.powerGeneration ?? ""}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div>
+              <Label>Net Energy Import (kWh)</Label>
+              <Input
+                type="number"
+                name="netEnergyImport"
+                placeholder="0.00"
+                value={data?.netEnergyImport ?? ""}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div>
+              <Label>Net Energy Output (kWh)</Label>
+              <Input
+                type="number"
+                name="netEnergyOutput"
+                placeholder="0.00"
+                value={data?.netEnergyOutput ?? ""}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div>
+              <Label>Water Rate (m³/kWh)</Label>
+              <Input
+                type="number"
+                disabled
+                name="waterRate"
+                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                value={data?.waterRate ?? 0}
+              />
+            </div>
+            <div>
+              <Label>Total Outflow (m³)</Label>
+              <Input
+                type="number"
+                disabled
+                name="totalOutflow"
+                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                value={data?.totalOutflow ?? 0}
+              />
+            </div>
+            <div>
+              <Label>Average Outflow (m³/s)</Label>
+              <Input
+                type="number"
+                disabled
+                name="averageOutflow"
+                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                value={data?.averageOutflow ?? 0}
+              />
+            </div>
+          </div>
+
+          <div className="my-3 text-3xl font-bold">
+            # <span className="underline">Data Today</span>
+          </div>
+
           <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
             <div>
               <h2 className="text-sm font-bold">* Active Storage</h2>
               <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 <div>
-                  <Label>Amount (MCM)</Label>
+                  <Label>Amount (m³)</Label>
                   <Input
                     type="number"
                     name="activeStorageamount"
@@ -593,344 +965,13 @@ export default function DayRevise() {
             </div>
 
             <div>
-              <Label>Potential Water Storage (MCM)</Label>
+              <Label>Potential Water Storage (m³)</Label>
               <Input
                 type="number"
                 disabled
                 name="pws"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
                 value={data?.pws ?? 0}
-              />
-            </div>
-          </div>
-
-          <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-            <div>
-              <h2 className="text-sm font-bold">* InFlow</h2>
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                <div>
-                  <Label>Amount (MCM)</Label>
-                  <Input
-                    type="number"
-                    name="inflowamount"
-                    placeholder="0.00"
-                    value={data?.inflowamount ?? ""}
-                    onChange={(e) => {
-                      const raw = parseFloat(e.target.value);
-
-                      if (e.target.value === "") {
-                        // ถ้าผู้ใช้ลบจนว่าง → เคลียร์ทั้งคู่และให้ป้อนได้ทั้งสองช่อง
-                        setData((prev: any) => ({
-                          ...prev,
-                          inflowamount: "",
-                          inflowaverage: "",
-                        }));
-                        setEditingInflow(null);
-                      } else {
-                        setData((prev: any) => ({
-                          ...prev,
-                          inflowamount: isNaN(raw) ? "" : raw,
-                        }));
-                        setEditingInflow("amount");
-                      }
-                    }}
-                    readOnly={editingInflow === "average"}
-                    required
-                  />
-                </div>
-
-                <div>
-                  <Label>Average (m³/s)</Label>
-                  <Input
-                    type="number"
-                    name="inflowaverage"
-                    placeholder="0.00"
-                    value={data?.inflowaverage ?? ""}
-                    onChange={(e) => {
-                      const raw = parseFloat(e.target.value);
-
-                      if (e.target.value === "") {
-                        // ถ้าผู้ใช้ลบจนว่าง → เคลียร์ทั้งคู่และให้ป้อนได้ทั้งสองช่อง
-                        setData((prev: any) => ({
-                          ...prev,
-                          inflowamount: "",
-                          inflowaverage: "",
-                        }));
-                        setEditingInflow(null);
-                      } else {
-                        setData((prev: any) => ({
-                          ...prev,
-                          inflowaverage: isNaN(raw) ? "" : raw,
-                        }));
-                        setEditingInflow("average");
-                      }
-                    }}
-                    readOnly={editingInflow === "amount"}
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h2 className="text-sm font-bold">* Turbine Dischard</h2>
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                <div>
-                  <Label>Amount (MCM)</Label>
-                  <Input
-                    type="number"
-                    name="tdAmount"
-                    placeholder="0.00"
-                    value={data?.tdAmount ?? ""}
-                    onChange={(e) => {
-                      const raw = parseFloat(e.target.value);
-
-                      if (e.target.value === "") {
-                        // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
-                        setData((prev: any) => ({
-                          ...prev,
-                          tdAmount: "",
-                          tdAverage: "",
-                        }));
-                        setEditingTD(null);
-                      } else {
-                        setData((prev: any) => ({
-                          ...prev,
-                          tdAmount: isNaN(raw) ? "" : raw,
-                        }));
-                        setEditingTD("amount");
-                      }
-                    }}
-                    readOnly={editingTD === "average"}
-                    required
-                  />
-                </div>
-
-                <div>
-                  <Label>Average (m³/s)</Label>
-                  <Input
-                    type="number"
-                    name="tdAverage"
-                    placeholder="0.00"
-                    value={data?.tdAverage ?? ""}
-                    onChange={(e) => {
-                      const raw = parseFloat(e.target.value);
-
-                      if (e.target.value === "") {
-                        // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
-                        setData((prev: any) => ({
-                          ...prev,
-                          tdAmount: "",
-                          tdAverage: "",
-                        }));
-                        setEditingTD(null);
-                      } else {
-                        setData((prev: any) => ({
-                          ...prev,
-                          tdAverage: isNaN(raw) ? "" : raw,
-                        }));
-                        setEditingTD("average");
-                      }
-                    }}
-                    readOnly={editingTD === "amount"}
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-            <div>
-              <h2 className="text-sm font-bold">* Spill Way</h2>
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                <div>
-                  <Label>Amount (MCM)</Label>
-                  <Input
-                    type="number"
-                    name="spillwayamount"
-                    placeholder="0.00"
-                    value={data?.spillwayamount ?? ""}
-                    onChange={(e) => {
-                      const raw = parseFloat(e.target.value);
-
-                      if (e.target.value === "") {
-                        // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
-                        setData((prev: any) => ({
-                          ...prev,
-                          spillwayamount: "",
-                          spillwayaverage: "",
-                        }));
-                        setEditingSW(null);
-                      } else {
-                        setData((prev: any) => ({
-                          ...prev,
-                          spillwayamount: isNaN(raw) ? "" : raw,
-                        }));
-                        setEditingSW("amount");
-                      }
-                    }}
-                    readOnly={editingSW === "average"}
-                    required
-                  />
-                </div>
-
-                <div>
-                  <Label>Average (m³/s)</Label>
-                  <Input
-                    type="number"
-                    name="spillwayaverage"
-                    placeholder="0.00"
-                    value={data?.spillwayaverage ?? ""}
-                    onChange={(e) => {
-                      const raw = parseFloat(e.target.value);
-
-                      if (e.target.value === "") {
-                        // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
-
-                        setData((prev: any) => ({
-                          ...prev,
-                          spillwayamount: "",
-                          spillwayaverage: "",
-                        }));
-                        setEditingSW(null);
-                      } else {
-                        setData((prev: any) => ({
-                          ...prev,
-                          spillwayaverage: isNaN(raw) ? "" : raw,
-                        }));
-                        setEditingSW("average");
-                      }
-                    }}
-                    readOnly={editingSW === "amount"}
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h2 className="text-sm font-bold">* Other Water Released</h2>
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                <div>
-                  <Label>Amount (MCM)</Label>
-                  <Input
-                    type="number"
-                    name="owramount"
-                    placeholder="0.00"
-                    value={data?.owramount ?? ""}
-                    onChange={(e) => {
-                      const raw = parseFloat(e.target.value);
-
-                      if (e.target.value === "") {
-                        // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
-
-                        setData((prev: any) => ({
-                          ...prev,
-                          owramount: "",
-                          owraverage: "",
-                        }));
-                        setEditingOWR(null);
-                      } else {
-                        setData((prev: any) => ({
-                          ...prev,
-                          owramount: isNaN(raw) ? "" : raw,
-                        }));
-                        setEditingOWR("amount");
-                      }
-                    }}
-                    readOnly={editingOWR === "average"}
-                    required
-                  />
-                </div>
-
-                <div>
-                  <Label>Average (m³/s)</Label>
-                  <Input
-                    type="number"
-                    name="owraverage"
-                    placeholder="0.00"
-                    value={data?.owraverage ?? ""}
-                    onChange={(e) => {
-                      const raw = parseFloat(e.target.value);
-
-                      if (e.target.value === "") {
-                        // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
-                        setData((prev: any) => ({
-                          ...prev,
-                          owramount: "",
-                          owraverage: "",
-                        }));
-                        setEditingOWR(null);
-                      } else {
-                        setData((prev: any) => ({
-                          ...prev,
-                          owraverage: isNaN(raw) ? "" : raw,
-                        }));
-                        setEditingOWR("average");
-                      }
-                    }}
-                    readOnly={editingOWR === "amount"}
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-4 grid grid-cols-1 gap-x-4 gap-y-5 lg:grid-cols-5">
-            <div>
-              <Label>Rain fall (mm)</Label>
-              <Input
-                type="number"
-                name="rainFall"
-                placeholder="0.00"
-                value={data?.rainFall ?? ""}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div>
-              <Label>Net Energy Output (NEO) (kWh)</Label>
-              <Input
-                type="number"
-                name="netEnergyOutput"
-                placeholder="0.00"
-                value={data?.netEnergyOutput ?? ""}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div>
-              <Label>Water Rate (m³/kWh)</Label>
-              <Input
-                type="number"
-                disabled
-                name="waterRate"
-                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data?.waterRate ?? 0}
-              />
-            </div>
-            <div>
-              <Label>Total Outflow (MCM)</Label>
-              <Input
-                type="number"
-                disabled
-                name="totalOutflow"
-                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data?.totalOutflow ?? 0}
-              />
-            </div>
-            <div>
-              <Label>Average Outflow (m³/S)</Label>
-              <Input
-                type="number"
-                disabled
-                name="averageOutflow"
-                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data?.averageOutflow ?? 0}
               />
             </div>
           </div>

@@ -34,6 +34,10 @@ export default function UserDropdown() {
     removeLocalStorage("week-power-storage");
     removeLocalStorage("month-power-storage");
     removeLocalStorage("create-report-storage");
+    removeLocalStorage("day-filter-page");
+    removeLocalStorage("week-filter-page");
+    removeLocalStorage("month-filter-page");
+    removeLocalStorage("dayreport-filter-page");
 
     // ลบ token จาก cookie
     document.cookie = "token=; path=/; max-age=0";

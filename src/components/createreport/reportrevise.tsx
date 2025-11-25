@@ -62,6 +62,8 @@ type DayReportHistory = {
   owramount: string;
   owraverage: string;
   rainFall: string;
+  powerGeneration: string;
+  netEnergyImport: string;
   netEnergyOutput: string;
   waterRate: string;
   totalOutflow: string;
@@ -191,12 +193,202 @@ export default function ReportRevise() {
               </div>
             </div>
           </div>
-          <div className="mt-5 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+
+          <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+            <div>
+              <h2 className="text-sm font-bold">* InFlow</h2>
+              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                <div>
+                  <Label>Amount (m³)</Label>
+                  <Input
+                    type="number"
+                    name="inflowamount"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={data.inflowamount ?? ""}
+                    disabled
+                  />
+                </div>
+
+                <div>
+                  <Label>Average (m³/s)</Label>
+                  <Input
+                    type="number"
+                    name="inflowaverage"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={data.inflowaverage ?? ""}
+                    disabled
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-sm font-bold">* Turbine Dischard</h2>
+              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                <div>
+                  <Label>Amount (m³)</Label>
+                  <Input
+                    type="number"
+                    name="tdAmount"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={data.tdAmount ?? ""}
+                    disabled
+                  />
+                </div>
+
+                <div>
+                  <Label>Average (m³/s)</Label>
+                  <Input
+                    type="number"
+                    name="tdAverage"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={data.tdAverage ?? ""}
+                    disabled
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+            <div>
+              <h2 className="text-sm font-bold">* Spill Way</h2>
+              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                <div>
+                  <Label>Amount (m³)</Label>
+                  <Input
+                    type="number"
+                    name="spillwayamount"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={data.spillwayamount ?? ""}
+                    disabled
+                  />
+                </div>
+
+                <div>
+                  <Label>Average (m³/s)</Label>
+                  <Input
+                    type="number"
+                    name="spillwayaverage"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={data.spillwayaverage ?? ""}
+                    disabled
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-sm font-bold">* Other Water Released</h2>
+              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                <div>
+                  <Label>Amount (m³)</Label>
+                  <Input
+                    type="number"
+                    name="owramount"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={data.owramount ?? ""}
+                    disabled
+                  />
+                </div>
+
+                <div>
+                  <Label>Average (m³/s)</Label>
+                  <Input
+                    type="number"
+                    name="owraverage"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={data.owraverage ?? ""}
+                    disabled
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4 grid grid-cols-1 gap-x-3 gap-y-5 lg:grid-cols-7">
+            <div>
+              <Label>Rain fall (mm)</Label>
+              <Input
+                type="number"
+                name="rainFall"
+                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                value={data.rainFall ?? ""}
+                disabled
+              />
+            </div>
+
+            <div>
+              <Label>power Generation (kWh)</Label>
+              <Input
+                type="number"
+                name="powerGeneration"
+                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                value={data.powerGeneration ?? ""}
+                disabled
+              />
+            </div>
+
+            <div>
+              <Label>Net Energy Import (kWh)</Label>
+              <Input
+                type="number"
+                name="netEnergyImport"
+                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                value={data.netEnergyImport ?? ""}
+                disabled
+              />
+            </div>
+
+            <div>
+              <Label>Net Energy Output (kWh)</Label>
+              <Input
+                type="number"
+                name="netEnergyOutput"
+                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                value={data.netEnergyOutput ?? ""}
+                disabled
+              />
+            </div>
+
+            <div>
+              <Label>Water Rate (m³/kWh)</Label>
+              <Input
+                type="number"
+                disabled
+                name="waterRate"
+                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                value={data.waterRate ?? 0}
+              />
+            </div>
+            <div>
+              <Label>Total Outflow (m³)</Label>
+              <Input
+                type="number"
+                disabled
+                name="totalOutflow"
+                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                value={data.totalOutflow ?? 0}
+              />
+            </div>
+            <div>
+              <Label>Average Outflow (m³/s)</Label>
+              <Input
+                type="number"
+                disabled
+                name="averageOutflow"
+                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                value={data.averageOutflow ?? 0}
+              />
+            </div>
+          </div>
+
+          <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
             <div>
               <h2 className="text-sm font-bold">* Active Storage</h2>
               <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 <div>
-                  <Label>Amount (MCM)</Label>
+                  <Label>Amount (m³)</Label>
                   <Input
                     type="number"
                     name="activeStorageamount"
@@ -266,7 +458,7 @@ export default function ReportRevise() {
             </div>
 
             <div>
-              <Label>Potential Water Storage (MCM)</Label>
+              <Label>Potential Water Storage (m³)</Label>
               <Input
                 type="number"
                 disabled
@@ -274,173 +466,6 @@ export default function ReportRevise() {
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
                 // value={formatValue(formData.pws ?? 0)}
                 value={data.pws ?? 0}
-              />
-            </div>
-          </div>
-
-          <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-            <div>
-              <h2 className="text-sm font-bold">* InFlow</h2>
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                <div>
-                  <Label>Amount (MCM)</Label>
-                  <Input
-                    type="number"
-                    name="inflowamount"
-                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.inflowamount ?? ""}
-                    disabled
-                  />
-                </div>
-
-                <div>
-                  <Label>Average (m³/s)</Label>
-                  <Input
-                    type="number"
-                    name="inflowaverage"
-                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.inflowaverage ?? ""}
-                    disabled
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h2 className="text-sm font-bold">* Turbine Dischard</h2>
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                <div>
-                  <Label>Amount (MCM)</Label>
-                  <Input
-                    type="number"
-                    name="tdAmount"
-                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.tdAmount ?? ""}
-                    disabled
-                  />
-                </div>
-
-                <div>
-                  <Label>Average (m³/s)</Label>
-                  <Input
-                    type="number"
-                    name="tdAverage"
-                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.tdAverage ?? ""}
-                    disabled
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-            <div>
-              <h2 className="text-sm font-bold">* Spill Way</h2>
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                <div>
-                  <Label>Amount (MCM)</Label>
-                  <Input
-                    type="number"
-                    name="spillwayamount"
-                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.spillwayamount ?? ""}
-                    disabled
-                  />
-                </div>
-
-                <div>
-                  <Label>Average (m³/s)</Label>
-                  <Input
-                    type="number"
-                    name="spillwayaverage"
-                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.spillwayaverage ?? ""}
-                    disabled
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h2 className="text-sm font-bold">* Other Water Released</h2>
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                <div>
-                  <Label>Amount (MCM)</Label>
-                  <Input
-                    type="number"
-                    name="owramount"
-                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.owramount ?? ""}
-                    disabled
-                  />
-                </div>
-
-                <div>
-                  <Label>Average (m³/s)</Label>
-                  <Input
-                    type="number"
-                    name="owraverage"
-                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.owraverage ?? ""}
-                    disabled
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-4 grid grid-cols-1 gap-x-4 gap-y-5 lg:grid-cols-5">
-            <div>
-              <Label>Rain fall (mm)</Label>
-              <Input
-                type="number"
-                name="rainFall"
-                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.rainFall ?? ""}
-                disabled
-              />
-            </div>
-
-            <div>
-              <Label>Net Energy Output (NEO) (kWh)</Label>
-              <Input
-                type="number"
-                name="netEnergyOutput"
-                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.netEnergyOutput ?? ""}
-                disabled
-              />
-            </div>
-
-            <div>
-              <Label>Water Rate (m³/kWh)</Label>
-              <Input
-                type="number"
-                disabled
-                name="waterRate"
-                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.waterRate ?? 0}
-              />
-            </div>
-            <div>
-              <Label>Total Outflow (MCM)</Label>
-              <Input
-                type="number"
-                disabled
-                name="totalOutflow"
-                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.totalOutflow ?? 0}
-              />
-            </div>
-            <div>
-              <Label>Average Outflow (m³/S)</Label>
-              <Input
-                type="number"
-                disabled
-                name="averageOutflow"
-                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.averageOutflow ?? 0}
               />
             </div>
           </div>

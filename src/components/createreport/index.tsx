@@ -25,6 +25,7 @@ import Select from "@/components/form/Select";
 import DatePickerAll from "@/components/form/date-pickerall";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import { useFilterStore } from "@/store/useDailyReportFilter";
 
 const hours = [
   "00:00-01:00",
@@ -101,6 +102,8 @@ type DayReportCurrent = {
   owramount: string;
   owraverage: string;
   rainFall: string;
+  powerGeneration: string;
+  netEnergyImport: string;
   netEnergyOutput: string;
   waterRate: string;
   totalOutflow: string;
@@ -119,11 +122,22 @@ export default function DayTable() {
   const [data, setData] = useState<Day[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [powerList, setPowerList] = useState<Power[]>([]);
-  const [selectedPowerId, setSelectedPowerId] = useState<string | null>(null);
-  const [startDate, setStartDate] = useState<Date>(new Date());
-  const [endDate, setEndDate] = useState<Date>(new Date());
+  // const [selectedPowerId, setSelectedPowerId] = useState<string | null>(null);
+  // const [startDate, setStartDate] = useState<Date>(new Date());
+  // const [endDate, setEndDate] = useState<Date>(new Date());
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
+
+  const selectedPowerId = useFilterStore((state) => state.selectedPowerId);
+  const setSelectedPowerId = useFilterStore(
+    (state) => state.setSelectedPowerId,
+  );
+
+  const startDate = useFilterStore((state) => state.startDate);
+  const setStartDate = useFilterStore((state) => state.setStartDate);
+
+  const endDate = useFilterStore((state) => state.endDate);
+  const setEndDate = useFilterStore((state) => state.setEndDate);
 
   useEffect(() => {
     const storedUser = getLocalStorage("user");
@@ -166,9 +180,16 @@ export default function DayTable() {
     try {
       setLoading(true);
 
-      const formatDate = (date: Date) => moment(date).format("YYYY-MM-DD");
-      const start = formatDate(startDate);
-      const end = formatDate(endDate);
+      const formatDate = (date: Date): string =>
+        moment(date).format("YYYY-MM-DD");
+
+      if (!startDate || !endDate) {
+        console.warn("StartDate or EndDate is null");
+        return;
+      }
+
+      const start: string = formatDate(startDate);
+      const end: string = formatDate(endDate);
 
       let url = "";
 
@@ -186,9 +207,9 @@ export default function DayTable() {
     }
   };
 
-  const handleSelectChange = (value: string) => {
-    setSelectedPowerId(value);
-  };
+  // const handleSelectChange = (value: string) => {
+  //   setSelectedPowerId(value);
+  // };
 
   const powerOptions = powerList.map(({ id, name }) => ({
     value: id.toString(),
@@ -391,6 +412,28 @@ export default function DayTable() {
       },
     },
     {
+      accessorKey: "dayReportCurrent.powerGeneration",
+      cell: ({ getValue }) => {
+        const value = getValue() as number | null;
+        if (value === null || value === undefined) return "-";
+        return new Intl.NumberFormat("lo-LA", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 20,
+        }).format(value);
+      },
+    },
+    {
+      accessorKey: "dayReportCurrent.netEnergyImport",
+      cell: ({ getValue }) => {
+        const value = getValue() as number | null;
+        if (value === null || value === undefined) return "-";
+        return new Intl.NumberFormat("lo-LA", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 20,
+        }).format(value);
+      },
+    },
+    {
       accessorKey: "dayReportCurrent.netEnergyOutput",
       cell: ({ getValue }) => {
         const value = getValue() as number | null;
@@ -520,6 +563,8 @@ export default function DayTable() {
           Other_Water_Released_Amount: item.dayReportCurrent?.owramount ?? "",
           Other_Water_Released_Average: item.dayReportCurrent?.owraverage ?? "",
           Rain_Fall: item.dayReportCurrent?.rainFall ?? "",
+          Power_Generation: item.dayReportCurrent?.powerGeneration ?? "",
+          Net_Energy_Import: item.dayReportCurrent?.netEnergyImport ?? "",
           Net_Energy_Output: item.dayReportCurrent?.netEnergyOutput ?? "",
           Water_Rate: item.dayReportCurrent?.waterRate ?? "",
           Total_Outflow: item.dayReportCurrent?.totalOutflow ?? "",
@@ -589,7 +634,7 @@ export default function DayTable() {
                 options={powerOptions}
                 value={selectedPowerId ?? ""}
                 placeholder="Select All Power"
-                onChange={handleSelectChange}
+                onChange={(value) => setSelectedPowerId(value)}
                 className="dark:bg-dark-900"
               />
               <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 dark:text-gray-400">
@@ -695,7 +740,9 @@ export default function DayTable() {
                     Other Water Released
                   </th>
                   <th className="border px-2 py-2">Rain fall</th>
-                  <th className="border px-2 py-2">Net Energy Output (NEO)</th>
+                  <th className="border px-2 py-2">power Generation</th>
+                  <th className="border px-2 py-2">Net Energy Import</th>
+                  <th className="border px-2 py-2">Net Energy Output</th>
                   <th className="border px-2 py-2">Water Rate</th>
                   <th className="border px-2 py-2">Total Outflow</th>
                   <th className="border px-2 py-2">Average Outflow</th>
@@ -711,21 +758,23 @@ export default function DayTable() {
                   <th className="border px-2 py-2">m</th>
                   <th className="border px-2 py-2">m</th>
                   <th className="border px-2 py-2">m</th>
-                  <th className="border px-2 py-2">MCM</th>
-                  <th className="border px-2 py-2">MCM</th>
+                  <th className="border px-2 py-2">m³</th>
+                  <th className="border px-2 py-2">m³</th>
                   <th className="border px-2 py-2">(%)</th>
-                  <th className="border px-2 py-2">MCM</th>
+                  <th className="border px-2 py-2">m³</th>
                   <th className="border px-2 py-2">m³/s</th>
-                  <th className="border px-2 py-2">MCM</th>
+                  <th className="border px-2 py-2">m³</th>
                   <th className="border px-2 py-2">m³/s</th>
-                  <th className="border px-2 py-2">MCM</th>
+                  <th className="border px-2 py-2">m³</th>
                   <th className="border px-2 py-2">m³/s</th>
-                  <th className="border px-2 py-2">MCM</th>
+                  <th className="border px-2 py-2">m³</th>
                   <th className="border px-2 py-2">m³/s</th>
                   <th className="border px-2 py-2">mm</th>
                   <th className="border px-2 py-2">kWh</th>
+                  <th className="border px-2 py-2">kWh</th>
+                  <th className="border px-2 py-2">kWh</th>
                   <th className="border px-2 py-2">m³/kWh</th>
-                  <th className="border px-2 py-2">MCM</th>
+                  <th className="border px-2 py-2">m³</th>
                   <th className="border px-2 py-2">m³/S</th>
                 </tr>
               </thead>

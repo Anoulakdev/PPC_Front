@@ -96,6 +96,10 @@ type MonthPowerData = {
   powerOriginal: PowerOriginal | null;
   powerCurrent: PowerCurrent | null;
   powerRevises: PowerRevise[];
+  power: {
+    id: number;
+    name: string;
+  };
 };
 
 type User = {
@@ -168,9 +172,12 @@ export default function MonthView({ onPowerIdChange }: MonthViewProps) {
             Back
           </button>
         )}
-        <h1 className="text-center text-xl font-bold">
-          Monthly Availability and Declaration
-        </h1>
+        <div>
+          <h1 className="text-center text-xl font-bold">
+            Monthly Availability and Declaration
+          </h1>
+          <p className="text-center text-red-500">{data?.power?.name}</p>
+        </div>
         <div className="text-md font-semibold text-red-600">
           {data?.sMonth} / {data?.sYear}
         </div>

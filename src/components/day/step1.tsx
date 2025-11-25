@@ -38,19 +38,33 @@ export const Step1 = () => {
       const fetched = response.data;
 
       updateFormData({
-        machinesAvailability: fetched.machinesAvailability || [],
-        upstreamLevel: Number(fetched.upstreamLevel),
-        downstreamLevel: Number(fetched.downstreamLevel),
-        totalStorageamount: Number(fetched.totalStorageamount),
-        totalStorageaverage: Number(fetched.totalStorageaverage),
-        activeStorageamount: Number(fetched.activeStorageamount),
-        activeStorageaverage: Number(fetched.activeStorageaverage),
-        turbineDischargeamount: Number(fetched.turbineDischargeamount),
-        turbineDischargeaverage: Number(fetched.turbineDischargeaverage),
-        spillwayDischargeamount: Number(fetched.spillwayDischargeamount),
-        spillwayDischargeaverage: Number(fetched.spillwayDischargeaverage),
-        ecologicalDischargeamount: Number(fetched.ecologicalDischargeamount),
-        ecologicalDischargeaverage: Number(fetched.ecologicalDischargeaverage),
+        machinesAvailability: fetched.powerCurrent?.machinesAvailability || [],
+        upstreamLevel: Number(fetched.powerCurrent?.upstreamLevel),
+        downstreamLevel: Number(fetched.powerCurrent?.downstreamLevel),
+        totalStorageamount: Number(fetched.powerCurrent?.totalStorageamount),
+        totalStorageaverage: Number(fetched.powerCurrent?.totalStorageaverage),
+        activeStorageamount: Number(fetched.powerCurrent?.activeStorageamount),
+        activeStorageaverage: Number(
+          fetched.powerCurrent?.activeStorageaverage,
+        ),
+        turbineDischargeamount: Number(
+          fetched.powerCurrent?.turbineDischargeamount,
+        ),
+        turbineDischargeaverage: Number(
+          fetched.powerCurrent?.turbineDischargeaverage,
+        ),
+        spillwayDischargeamount: Number(
+          fetched.powerCurrent?.spillwayDischargeamount,
+        ),
+        spillwayDischargeaverage: Number(
+          fetched.powerCurrent?.spillwayDischargeaverage,
+        ),
+        ecologicalDischargeamount: Number(
+          fetched.powerCurrent?.ecologicalDischargeamount,
+        ),
+        ecologicalDischargeaverage: Number(
+          fetched.powerCurrent?.ecologicalDischargeaverage,
+        ),
       });
     } catch (error) {
       console.error("Error fetching data:", error);

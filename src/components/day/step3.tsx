@@ -265,7 +265,7 @@ export const Step3 = () => {
                       >
                         <input
                           type="number"
-                          value={t.hourly[hIdx] || 0} // แสดง 2 ตำแหน่งทศนิยม
+                          value={t.hourly[hIdx] === 0 ? "" : t.hourly[hIdx]} // ถ้าเป็น 0 ให้แสดงว่าง
                           min={machine?.mins ?? 0}
                           max={machine?.maxs ?? 9999}
                           step="any"
@@ -279,12 +279,15 @@ export const Step3 = () => {
                           onBlur={(e) => {
                             // ปรับเลขให้มี 2 ตำแหน่งทศนิยมตอนออกจาก input
                             const val = e.target.value;
-                            if (val !== "") {
+                            if (val === "") {
+                              // ถ้าเป็นค่าว่าง ให้เซ็ตเป็น 0
+                              handleHourlyValidate(tIdx, hIdx, "0");
+                            } else {
                               handleHourlyValidate(tIdx, hIdx, val);
                             }
                           }}
-                          className="w-full rounded border px-1 py-1"
-                          placeholder="0.00"
+                          className="w-full rounded border px-1 py-1 placeholder:text-gray-900 dark:placeholder:text-gray-100"
+                          placeholder="0"
                         />
                       </td>
                     );

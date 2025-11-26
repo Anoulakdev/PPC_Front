@@ -279,7 +279,7 @@ export default function WeekRevise() {
                           >
                             <input
                               type="number"
-                              value={t.hourly[hIdx]}
+                              value={t.hourly[hIdx] === 0 ? "" : t.hourly[hIdx]}
                               onChange={(e) => {
                                 const val = e.target.value;
                                 if (/^\d*\.?\d{0,2}$/.test(val)) {
@@ -296,8 +296,8 @@ export default function WeekRevise() {
                                   val.toString(),
                                 );
                               }}
-                              className="w-full rounded border px-1 py-1"
-                              placeholder="MW"
+                              className="w-full rounded border px-1 py-1 placeholder:text-gray-900 dark:placeholder:text-gray-100"
+                              placeholder="0"
                             />
                           </td>
                         );

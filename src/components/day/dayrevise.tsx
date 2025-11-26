@@ -541,7 +541,7 @@ export default function DayRevise() {
                           >
                             <input
                               type="number"
-                              value={t.hourly[hIdx]}
+                              value={t.hourly[hIdx] === 0 ? "" : t.hourly[hIdx]}
                               min={machine?.mins ?? 0}
                               max={machine?.maxs ?? 9999}
                               onChange={(e) => {
@@ -560,8 +560,8 @@ export default function DayRevise() {
                                   val.toString(),
                                 );
                               }}
-                              className="w-full rounded border px-1 py-1"
-                              placeholder="MW"
+                              className="w-full rounded border px-1 py-1 placeholder:text-gray-900 dark:placeholder:text-gray-100"
+                              placeholder="0"
                             />
                           </td>
                         );

@@ -974,7 +974,7 @@ export default function DayRevise() {
                 <div>
                   <Label>Average (m³/s)</Label>
                   <Input
-                    type="text"
+                    type="number"
                     disabled
                     name="totalDischargeaverage"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"

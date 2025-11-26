@@ -104,10 +104,6 @@ export default function EnergyTablePage() {
   const handleLogout = () => {
     removeLocalStorage("token");
     removeLocalStorage("user");
-    removeLocalStorage("day-power-storage");
-    removeLocalStorage("week-power-storage");
-    removeLocalStorage("month-power-storage");
-    removeLocalStorage("create-report-storage");
 
     // ลบ token จาก cookie
     document.cookie = "token=; path=/; max-age=0";
@@ -253,7 +249,7 @@ export default function EnergyTablePage() {
                           )}
 
                           {/* Tooltip */}
-                          <div className="absolute bottom-full left-1/2 z-10 mb-2 w-max -translate-x-1/2 rounded bg-gray-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                          <div className="absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 rounded bg-gray-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
                             {item.decAcknowUser
                               ? `${item.decAcknowUser.firstname ?? ""} ${item.decAcknowUser.lastname ?? ""}`.trim()
                               : "Not Acknowledge Yet"}
@@ -270,7 +266,7 @@ export default function EnergyTablePage() {
                           )}
 
                           {/* Tooltip */}
-                          <div className="absolute bottom-full left-1/2 z-10 mb-2 w-max -translate-x-1/2 rounded bg-gray-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                          <div className="absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 rounded bg-gray-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
                             {item.disAcknowUser
                               ? `${item.disAcknowUser.firstname ?? ""} ${item.disAcknowUser.lastname ?? ""}`.trim()
                               : "Not Acknowledge Yet"}

@@ -87,6 +87,8 @@ type PowerCurrent = {
   spillwayDischargeaverage: number;
   ecologicalDischargeamount: number;
   ecologicalDischargeaverage: number;
+  totalDischargeamount: number;
+  totalDischargeaverage: number;
   machinesAvailability: MachineAvailability[];
   totalPower: number;
   totalUnit: number;
@@ -175,44 +177,44 @@ export default function DayTable() {
     fetchData();
   }, [id, router]);
 
-  const totalDischarge = useMemo(() => {
-    const tdAmount =
-      parseFloat(
-        (data?.powerCurrent?.turbineDischargeamount ?? "").toString(),
-      ) || 0;
-    const tdAverage =
-      parseFloat(
-        (data?.powerCurrent?.turbineDischargeaverage ?? "").toString(),
-      ) || 0;
-    const sdAmount =
-      parseFloat(
-        (data?.powerCurrent?.spillwayDischargeamount ?? "").toString(),
-      ) || 0;
-    const sdAverage =
-      parseFloat(
-        (data?.powerCurrent?.spillwayDischargeaverage ?? "").toString(),
-      ) || 0;
-    const edAmount =
-      parseFloat(
-        (data?.powerCurrent?.ecologicalDischargeamount ?? "").toString(),
-      ) || 0;
-    const edAverage =
-      parseFloat(
-        (data?.powerCurrent?.ecologicalDischargeaverage ?? "").toString(),
-      ) || 0;
+  // const totalDischarge = useMemo(() => {
+  //   const tdAmount =
+  //     parseFloat(
+  //       (data?.powerCurrent?.turbineDischargeamount ?? "").toString(),
+  //     ) || 0;
+  //   const tdAverage =
+  //     parseFloat(
+  //       (data?.powerCurrent?.turbineDischargeaverage ?? "").toString(),
+  //     ) || 0;
+  //   const sdAmount =
+  //     parseFloat(
+  //       (data?.powerCurrent?.spillwayDischargeamount ?? "").toString(),
+  //     ) || 0;
+  //   const sdAverage =
+  //     parseFloat(
+  //       (data?.powerCurrent?.spillwayDischargeaverage ?? "").toString(),
+  //     ) || 0;
+  //   const edAmount =
+  //     parseFloat(
+  //       (data?.powerCurrent?.ecologicalDischargeamount ?? "").toString(),
+  //     ) || 0;
+  //   const edAverage =
+  //     parseFloat(
+  //       (data?.powerCurrent?.ecologicalDischargeaverage ?? "").toString(),
+  //     ) || 0;
 
-    return {
-      amount: tdAmount + sdAmount + edAmount,
-      average: tdAverage + sdAverage + edAverage,
-    };
-  }, [
-    data?.powerCurrent?.turbineDischargeamount,
-    data?.powerCurrent?.turbineDischargeaverage,
-    data?.powerCurrent?.spillwayDischargeamount,
-    data?.powerCurrent?.spillwayDischargeaverage,
-    data?.powerCurrent?.ecologicalDischargeamount,
-    data?.powerCurrent?.ecologicalDischargeaverage,
-  ]);
+  //   return {
+  //     amount: tdAmount + sdAmount + edAmount,
+  //     average: tdAverage + sdAverage + edAverage,
+  //   };
+  // }, [
+  //   data?.powerCurrent?.turbineDischargeamount,
+  //   data?.powerCurrent?.turbineDischargeaverage,
+  //   data?.powerCurrent?.spillwayDischargeamount,
+  //   data?.powerCurrent?.spillwayDischargeaverage,
+  //   data?.powerCurrent?.ecologicalDischargeamount,
+  //   data?.powerCurrent?.ecologicalDischargeaverage,
+  // ]);
 
   // แปลง powerDate เป็น Date
   const isReviseDisabled = useMemo(() => {
@@ -704,20 +706,20 @@ export default function DayTable() {
                 <div>
                   <Label>Amount (m³)</Label>
                   <Input
-                    type="text"
+                    type="number"
                     disabled
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={`${totalDischarge.amount}`}
+                    value={data.powerCurrent?.totalDischargeamount || ""}
                   />
                 </div>
 
                 <div>
                   <Label>Average (m³/s)</Label>
                   <Input
-                    type="text"
+                    type="number"
                     disabled
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={`${totalDischarge.average}`}
+                    value={data.powerCurrent?.totalDischargeaverage || ""}
                   />
                 </div>
               </div>

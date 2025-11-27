@@ -269,9 +269,19 @@ const AppSidebar: React.FC = () => {
                 width={60}
                 height={60}
               />
-              <span className="text-2xl font-semibold text-gray-800 dark:text-white">
-                EDL PPC
-              </span>
+              <div className="flex flex-col pb-2">
+                <div className="flex items-center space-x-1">
+                  <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                    EDL
+                  </span>
+                  <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                    PPC
+                  </span>
+                </div>
+                <span className="bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-xs font-semibold text-transparent">
+                  Power Purchase Confirmation
+                </span>
+              </div>
             </>
           ) : (
             <Image src="/edl.png" alt="Logo" width={32} height={32} />

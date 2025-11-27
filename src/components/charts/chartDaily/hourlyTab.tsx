@@ -107,10 +107,11 @@ export default function TotalChart() {
       const rawData: TotalChartRawData = response.data;
 
       // สร้าง labels: 01:00 ถึง 00:00
-      const labels = Array.from(
-        { length: 24 },
-        (_, i) => `${((i + 1) % 24).toString().padStart(2, "0")}:00`,
-      );
+      const labels = Array.from({ length: 24 }, (_, i) => {
+        const start = i.toString().padStart(2, "0");
+        const end = ((i + 1) % 24).toString().padStart(2, "0");
+        return `${start} - ${end}`;
+      });
 
       // สร้าง chartData สำหรับ chart.js
       const formattedData = {
@@ -193,6 +194,17 @@ export default function TotalChart() {
               options={{
                 responsive: true,
                 maintainAspectRatio: false, // ให้ chart ยืดตาม container
+                scales: {
+                  x: {
+                    ticks: {
+                      maxRotation: 45, // หมุน label ได้สูงสุด 45 องศา
+                      minRotation: 65, // หมุน label อย่างน้อย 30 องศา
+                    },
+                  },
+                  y: {
+                    beginAtZero: true,
+                  },
+                },
               }}
             />
           </div>

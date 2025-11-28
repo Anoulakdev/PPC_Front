@@ -443,7 +443,7 @@ export const Step2 = () => {
                       >
                         <input
                           type="number"
-                          value={t.hourly[hIdx]} // แสดง 2 ตำแหน่งทศนิยม
+                          value={t.hourly[hIdx] === 0 ? "" : t.hourly[hIdx]} // ถ้าเป็น 0 ให้แสดงว่าง
                           onChange={(e) => {
                             const val = e.target.value;
                             if (/^\d*\.?\d{0,2}$/.test(val)) {
@@ -456,8 +456,8 @@ export const Step2 = () => {
                             val = parseFloat(val.toFixed(2)); // ตัดทศนิยม 2 ตำแหน่งจริง ๆ
                             handleHourlyValidate(tIdx, hIdx, val.toString());
                           }}
-                          className="w-full rounded border px-1 py-1"
-                          placeholder="MW"
+                          className="w-full rounded border px-1 py-1 placeholder:text-gray-900 dark:placeholder:text-gray-100"
+                          placeholder="0"
                         />
                       </td>
                     );

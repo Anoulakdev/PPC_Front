@@ -227,7 +227,7 @@ export default function UserRevise() {
               <Input
                 type="text"
                 name="upstreamLevel"
-                value={data?.upstreamLevel || ""}
+                value={Number(data?.upstreamLevel).toLocaleString() || ""}
                 disabled
                 className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
               />
@@ -238,7 +238,7 @@ export default function UserRevise() {
               <Input
                 type="text"
                 name="downstreamLevel"
-                value={data?.downstreamLevel || ""}
+                value={Number(data?.downstreamLevel).toLocaleString() || ""}
                 disabled
                 className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
               />
@@ -254,7 +254,9 @@ export default function UserRevise() {
                   <Input
                     type="text"
                     name="totalStorageamount"
-                    value={data?.totalStorageamount || ""}
+                    value={
+                      Number(data?.totalStorageamount).toLocaleString() || ""
+                    }
                     disabled
                     className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                   />
@@ -282,7 +284,9 @@ export default function UserRevise() {
                   <Input
                     type="text"
                     name="activeStorageamount"
-                    value={data?.activeStorageamount || ""}
+                    value={
+                      Number(data?.activeStorageamount).toLocaleString() || ""
+                    }
                     disabled
                     className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                   />
@@ -316,7 +320,10 @@ export default function UserRevise() {
                   <Input
                     type="text"
                     name="turbineDischargeamount"
-                    value={data?.turbineDischargeamount || ""}
+                    value={
+                      Number(data?.turbineDischargeamount).toLocaleString() ||
+                      ""
+                    }
                     disabled
                     className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                   />
@@ -327,7 +334,10 @@ export default function UserRevise() {
                   <Input
                     type="text"
                     name="turbineDischargeaverage"
-                    value={data?.turbineDischargeaverage || ""}
+                    value={
+                      Number(data?.turbineDischargeaverage).toLocaleString() ||
+                      ""
+                    }
                     disabled
                     className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                   />
@@ -343,7 +353,10 @@ export default function UserRevise() {
                   <Input
                     type="text"
                     name="spillwayDischargeamount"
-                    value={data?.spillwayDischargeamount || ""}
+                    value={
+                      Number(data?.spillwayDischargeamount).toLocaleString() ||
+                      ""
+                    }
                     disabled
                     className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                   />
@@ -354,7 +367,10 @@ export default function UserRevise() {
                   <Input
                     type="text"
                     name="spillwayDischargeaverage"
-                    value={data?.spillwayDischargeaverage || ""}
+                    value={
+                      Number(data?.spillwayDischargeaverage).toLocaleString() ||
+                      ""
+                    }
                     disabled
                     className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                   />
@@ -372,7 +388,11 @@ export default function UserRevise() {
                   <Input
                     type="text"
                     name="ecologicalDischargeamount"
-                    value={data?.ecologicalDischargeamount || ""}
+                    value={
+                      Number(
+                        data?.ecologicalDischargeamount,
+                      ).toLocaleString() || ""
+                    }
                     disabled
                     className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                   />
@@ -383,7 +403,11 @@ export default function UserRevise() {
                   <Input
                     type="text"
                     name="ecologicalDischargeaverage"
-                    value={data?.ecologicalDischargeaverage || ""}
+                    value={
+                      Number(
+                        data?.ecologicalDischargeaverage,
+                      ).toLocaleString() || ""
+                    }
                     disabled
                     className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                   />
@@ -397,22 +421,26 @@ export default function UserRevise() {
                 <div>
                   <Label>Amount (m³)</Label>
                   <Input
-                    type="number"
+                    type="text"
                     disabled
                     name="totalDischargeamount"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data?.totalDischargeamount || ""}
+                    value={
+                      Number(data?.totalDischargeamount).toLocaleString() || ""
+                    }
                   />
                 </div>
 
                 <div>
                   <Label>Average (m³/s)</Label>
                   <Input
-                    type="number"
+                    type="text"
                     disabled
                     name="totalDischargeaverage"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data?.totalDischargeaverage || ""}
+                    value={
+                      Number(data?.totalDischargeaverage).toLocaleString() || ""
+                    }
                   />
                 </div>
               </div>

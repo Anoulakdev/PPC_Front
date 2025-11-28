@@ -305,10 +305,10 @@ export default function ReportView() {
                 <div>
                   <Label>Amount (m³)</Label>
                   <Input
-                    type="number"
+                    type="text"
                     name="inflowamount"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.dayReportCurrent?.inflowamount ?? ""}
+                    value={Number(data.dayReportCurrent?.inflowamount).toLocaleString() ?? ""}
                     disabled
                   />
                 </div>
@@ -316,10 +316,10 @@ export default function ReportView() {
                 <div>
                   <Label>Average (m³/s)</Label>
                   <Input
-                    type="number"
+                    type="text"
                     name="inflowaverage"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.dayReportCurrent?.inflowaverage ?? ""}
+                    value={Number(data.dayReportCurrent?.inflowaverage).toLocaleString() ?? ""}
                     disabled
                   />
                 </div>
@@ -332,10 +332,10 @@ export default function ReportView() {
                 <div>
                   <Label>Amount (m³)</Label>
                   <Input
-                    type="number"
+                    type="text"
                     name="tdAmount"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.dayReportCurrent?.tdAmount ?? ""}
+                    value={Number(data.dayReportCurrent?.tdAmount).toLocaleString() ?? ""}
                     disabled
                   />
                 </div>
@@ -343,10 +343,10 @@ export default function ReportView() {
                 <div>
                   <Label>Average (m³/s)</Label>
                   <Input
-                    type="number"
+                    type="text"
                     name="tdAverage"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.dayReportCurrent?.tdAverage ?? ""}
+                    value={Number(data.dayReportCurrent?.tdAverage).toLocaleString() ?? ""}
                     disabled
                   />
                 </div>
@@ -361,10 +361,10 @@ export default function ReportView() {
                 <div>
                   <Label>Amount (m³)</Label>
                   <Input
-                    type="number"
+                    type="text"
                     name="spillwayamount"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.dayReportCurrent?.spillwayamount ?? ""}
+                    value={Number(data.dayReportCurrent?.spillwayamount).toLocaleString() ?? ""}
                     disabled
                   />
                 </div>
@@ -372,10 +372,10 @@ export default function ReportView() {
                 <div>
                   <Label>Average (m³/s)</Label>
                   <Input
-                    type="number"
+                    type="text"
                     name="spillwayaverage"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.dayReportCurrent?.spillwayaverage ?? ""}
+                    value={Number(data.dayReportCurrent?.spillwayaverage).toLocaleString() ?? ""}
                     disabled
                   />
                 </div>
@@ -388,10 +388,10 @@ export default function ReportView() {
                 <div>
                   <Label>Amount (m³)</Label>
                   <Input
-                    type="number"
+                    type="text"
                     name="owramount"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.dayReportCurrent?.owramount ?? ""}
+                    value={Number(data.dayReportCurrent?.owramount).toLocaleString() ?? ""}
                     disabled
                   />
                 </div>
@@ -399,10 +399,10 @@ export default function ReportView() {
                 <div>
                   <Label>Average (m³/s)</Label>
                   <Input
-                    type="number"
+                    type="text"
                     name="owraverage"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.dayReportCurrent?.owraverage ?? ""}
+                    value={Number(data.dayReportCurrent?.owraverage).toLocaleString() ?? ""}
                     disabled
                   />
                 </div>
@@ -414,10 +414,10 @@ export default function ReportView() {
             <div>
               <Label>Rain fall (mm)</Label>
               <Input
-                type="number"
+                type="text"
                 name="rainFall"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.dayReportCurrent?.rainFall ?? ""}
+                value={Number(data.dayReportCurrent?.rainFall).toLocaleString() ?? ""}
                 disabled
               />
             </div>
@@ -425,10 +425,10 @@ export default function ReportView() {
             <div>
               <Label>power Generation (kWh)</Label>
               <Input
-                type="number"
+                type="text"
                 name="powerGeneration"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.dayReportCurrent?.powerGeneration ?? ""}
+                value={Number(data.dayReportCurrent?.powerGeneration).toLocaleString() ?? ""}
                 disabled
               />
             </div>
@@ -436,10 +436,10 @@ export default function ReportView() {
             <div>
               <Label>Net Energy Import (kWh)</Label>
               <Input
-                type="number"
+                type="text"
                 name="netEnergyImport"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.dayReportCurrent?.netEnergyImport ?? ""}
+                value={Number(data.dayReportCurrent?.netEnergyImport).toLocaleString() ?? ""}
                 disabled
               />
             </div>
@@ -447,10 +447,10 @@ export default function ReportView() {
             <div>
               <Label>Net Energy Output (kWh)</Label>
               <Input
-                type="number"
+                type="text"
                 name="netEnergyOutput"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.dayReportCurrent?.netEnergyOutput ?? ""}
+                value={Number(data.dayReportCurrent?.netEnergyOutput).toLocaleString() ?? ""}
                 disabled
               />
             </div>
@@ -458,31 +458,31 @@ export default function ReportView() {
             <div>
               <Label>Water Rate (m³/kWh)</Label>
               <Input
-                type="number"
+                type="text"
                 disabled
                 name="waterRate"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.dayReportCurrent?.waterRate ?? 0}
+                value={Number(data.dayReportCurrent?.waterRate).toLocaleString() ?? 0}
               />
             </div>
             <div>
               <Label>Total Outflow (m³)</Label>
               <Input
-                type="number"
+                type="text"
                 disabled
                 name="totalOutflow"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.dayReportCurrent?.totalOutflow ?? 0}
+                value={Number(data.dayReportCurrent?.totalOutflow).toLocaleString() ?? 0}
               />
             </div>
             <div>
               <Label>Average Outflow (m³/s)</Label>
               <Input
-                type="number"
+                type="text"
                 disabled
                 name="averageOutflow"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.dayReportCurrent?.averageOutflow ?? 0}
+                value={Number(data.dayReportCurrent?.averageOutflow).toLocaleString() ?? 0}
               />
             </div>
           </div>
@@ -494,10 +494,10 @@ export default function ReportView() {
                 <div>
                   <Label>Amount (m³)</Label>
                   <Input
-                    type="number"
+                    type="text"
                     name="activeStorageamount"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.dayReportCurrent?.activeStorageamount ?? ""}
+                    value={Number(data.dayReportCurrent?.activeStorageamount).toLocaleString() ?? ""}
                     disabled
                   />
                 </div>
@@ -505,11 +505,11 @@ export default function ReportView() {
                 <div>
                   <Label>Percent ( % )</Label>
                   <Input
-                    type="number"
+                    type="text"
                     disabled
                     name="activeStorageaverage"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.dayReportCurrent?.activeStorageaverage ?? 0}
+                    value={Number(data.dayReportCurrent?.activeStorageaverage).toLocaleString() ?? 0}
                   />
                 </div>
               </div>
@@ -520,10 +520,10 @@ export default function ReportView() {
             <div>
               <Label>Water Level at 00:00 (masl)</Label>
               <Input
-                type="number"
+                type="text"
                 name="waterLevel"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.dayReportCurrent?.waterLevel ?? ""}
+                value={Number(data.dayReportCurrent?.waterLevel).toLocaleString() ?? ""}
                 disabled
               />
             </div>
@@ -531,45 +531,45 @@ export default function ReportView() {
             <div>
               <Label>Diff with Yesterday (m)</Label>
               <Input
-                type="number"
+                type="text"
                 disabled
                 name="dwy"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.dayReportCurrent?.dwy ?? 0}
+                value={Number(data.dayReportCurrent?.dwy).toLocaleString() ?? 0}
               />
             </div>
 
             <div>
               <Label>Diff with Full (m)</Label>
               <Input
-                type="number"
+                type="text"
                 disabled
                 name="dwf"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.dayReportCurrent?.dwf ?? 0}
+                value={Number(data.dayReportCurrent?.dwf).toLocaleString() ?? 0}
               />
             </div>
 
             <div>
               <Label>Diff with Min (m)</Label>
               <Input
-                type="number"
+                type="text"
                 disabled
                 name="dwm"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.dayReportCurrent?.dwm ?? 0}
+                value={Number(data.dayReportCurrent?.dwm).toLocaleString() ?? 0}
               />
             </div>
 
             <div>
               <Label>Potential Water Storage (m³)</Label>
               <Input
-                type="number"
+                type="text"
                 disabled
                 name="pws"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
                 // value={formatValue(formData.pws ?? 0)}
-                value={data.dayReportCurrent?.pws ?? 0}
+                value={Number(data.dayReportCurrent?.pws).toLocaleString() ?? 0}
               />
             </div>
           </div>

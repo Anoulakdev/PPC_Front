@@ -201,10 +201,10 @@ export default function ReportRevise() {
                 <div>
                   <Label>Amount (m³)</Label>
                   <Input
-                    type="number"
+                    type="text"
                     name="inflowamount"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.inflowamount ?? ""}
+                    value={Number(data.inflowamount).toLocaleString() ?? ""}
                     disabled
                   />
                 </div>
@@ -212,10 +212,10 @@ export default function ReportRevise() {
                 <div>
                   <Label>Average (m³/s)</Label>
                   <Input
-                    type="number"
+                    type="text"
                     name="inflowaverage"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.inflowaverage ?? ""}
+                    value={Number(data.inflowaverage).toLocaleString() ?? ""}
                     disabled
                   />
                 </div>
@@ -228,10 +228,10 @@ export default function ReportRevise() {
                 <div>
                   <Label>Amount (m³)</Label>
                   <Input
-                    type="number"
+                    type="text"
                     name="tdAmount"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.tdAmount ?? ""}
+                    value={Number(data.tdAmount).toLocaleString() ?? ""}
                     disabled
                   />
                 </div>
@@ -239,10 +239,10 @@ export default function ReportRevise() {
                 <div>
                   <Label>Average (m³/s)</Label>
                   <Input
-                    type="number"
+                    type="text"
                     name="tdAverage"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.tdAverage ?? ""}
+                    value={Number(data.tdAverage).toLocaleString() ?? ""}
                     disabled
                   />
                 </div>
@@ -257,10 +257,10 @@ export default function ReportRevise() {
                 <div>
                   <Label>Amount (m³)</Label>
                   <Input
-                    type="number"
+                    type="text"
                     name="spillwayamount"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.spillwayamount ?? ""}
+                    value={Number(data.spillwayamount).toLocaleString() ?? ""}
                     disabled
                   />
                 </div>
@@ -268,10 +268,10 @@ export default function ReportRevise() {
                 <div>
                   <Label>Average (m³/s)</Label>
                   <Input
-                    type="number"
+                    type="text"
                     name="spillwayaverage"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.spillwayaverage ?? ""}
+                    value={Number(data.spillwayaverage).toLocaleString() ?? ""}
                     disabled
                   />
                 </div>
@@ -284,10 +284,10 @@ export default function ReportRevise() {
                 <div>
                   <Label>Amount (m³)</Label>
                   <Input
-                    type="number"
+                    type="text"
                     name="owramount"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.owramount ?? ""}
+                    value={Number(data.owramount).toLocaleString() ?? ""}
                     disabled
                   />
                 </div>
@@ -295,10 +295,10 @@ export default function ReportRevise() {
                 <div>
                   <Label>Average (m³/s)</Label>
                   <Input
-                    type="number"
+                    type="text"
                     name="owraverage"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.owraverage ?? ""}
+                    value={Number(data.owraverage).toLocaleString() ?? ""}
                     disabled
                   />
                 </div>
@@ -310,10 +310,10 @@ export default function ReportRevise() {
             <div>
               <Label>Rain fall (mm)</Label>
               <Input
-                type="number"
+                type="text"
                 name="rainFall"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.rainFall ?? ""}
+                value={Number(data.rainFall).toLocaleString() ?? ""}
                 disabled
               />
             </div>
@@ -321,10 +321,10 @@ export default function ReportRevise() {
             <div>
               <Label>power Generation (kWh)</Label>
               <Input
-                type="number"
+                type="text"
                 name="powerGeneration"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.powerGeneration ?? ""}
+                value={Number(data.powerGeneration).toLocaleString() ?? ""}
                 disabled
               />
             </div>
@@ -332,10 +332,10 @@ export default function ReportRevise() {
             <div>
               <Label>Net Energy Import (kWh)</Label>
               <Input
-                type="number"
+                type="text"
                 name="netEnergyImport"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.netEnergyImport ?? ""}
+                value={Number(data.netEnergyImport).toLocaleString() ?? ""}
                 disabled
               />
             </div>
@@ -343,10 +343,10 @@ export default function ReportRevise() {
             <div>
               <Label>Net Energy Output (kWh)</Label>
               <Input
-                type="number"
+                type="text"
                 name="netEnergyOutput"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.netEnergyOutput ?? ""}
+                value={Number(data.netEnergyOutput).toLocaleString() ?? ""}
                 disabled
               />
             </div>
@@ -354,31 +354,31 @@ export default function ReportRevise() {
             <div>
               <Label>Water Rate (m³/kWh)</Label>
               <Input
-                type="number"
+                type="text"
                 disabled
                 name="waterRate"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.waterRate ?? 0}
+                value={Number(data.waterRate).toLocaleString() ?? 0}
               />
             </div>
             <div>
               <Label>Total Outflow (m³)</Label>
               <Input
-                type="number"
+                type="text"
                 disabled
                 name="totalOutflow"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.totalOutflow ?? 0}
+                value={Number(data.totalOutflow).toLocaleString() ?? 0}
               />
             </div>
             <div>
               <Label>Average Outflow (m³/s)</Label>
               <Input
-                type="number"
+                type="text"
                 disabled
                 name="averageOutflow"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.averageOutflow ?? 0}
+                value={Number(data.averageOutflow).toLocaleString() ?? 0}
               />
             </div>
           </div>
@@ -390,10 +390,10 @@ export default function ReportRevise() {
                 <div>
                   <Label>Amount (m³)</Label>
                   <Input
-                    type="number"
+                    type="text"
                     name="activeStorageamount"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.activeStorageamount ?? ""}
+                    value={Number(data.activeStorageamount).toLocaleString() ?? ""}
                     disabled
                   />
                 </div>
@@ -401,11 +401,11 @@ export default function ReportRevise() {
                 <div>
                   <Label>Percent ( % )</Label>
                   <Input
-                    type="number"
+                    type="text"
                     disabled
                     name="activeStorageaverage"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.activeStorageaverage ?? 0}
+                    value={Number(data.activeStorageaverage).toLocaleString() ?? 0}
                   />
                 </div>
               </div>
@@ -416,10 +416,10 @@ export default function ReportRevise() {
             <div>
               <Label>Water Level at 00:00 (masl)</Label>
               <Input
-                type="number"
+                type="text"
                 name="waterLevel"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.waterLevel ?? ""}
+                value={Number(data.waterLevel).toLocaleString() ?? ""}
                 disabled
               />
             </div>
@@ -427,45 +427,45 @@ export default function ReportRevise() {
             <div>
               <Label>Diff with Yesterday (m)</Label>
               <Input
-                type="number"
+                type="text"
                 disabled
                 name="dwy"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.dwy ?? 0}
+                value={Number(data.dwy).toLocaleString() ?? 0}
               />
             </div>
 
             <div>
               <Label>Diff with Full (m)</Label>
               <Input
-                type="number"
+                type="text"
                 disabled
                 name="dwf"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.dwf ?? 0}
+                value={Number(data.dwf).toLocaleString() ?? 0}
               />
             </div>
 
             <div>
               <Label>Diff with Min (m)</Label>
               <Input
-                type="number"
+                type="text"
                 disabled
                 name="dwm"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data.dwm ?? 0}
+                value={Number(data.dwm).toLocaleString() ?? 0}
               />
             </div>
 
             <div>
               <Label>Potential Water Storage (m³)</Label>
               <Input
-                type="number"
+                type="text"
                 disabled
                 name="pws"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
                 // value={formatValue(formData.pws ?? 0)}
-                value={data.pws ?? 0}
+                value={Number(data.pws).toLocaleString() ?? 0}
               />
             </div>
           </div>

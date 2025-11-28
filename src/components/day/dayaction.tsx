@@ -527,7 +527,10 @@ export default function DayAction() {
               <Input
                 type="text"
                 name="upstreamLevel"
-                value={data.powerCurrent?.upstreamLevel || ""}
+                value={
+                  Number(data.powerCurrent?.upstreamLevel).toLocaleString() ||
+                  ""
+                }
                 disabled
                 className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
               />
@@ -538,7 +541,10 @@ export default function DayAction() {
               <Input
                 type="text"
                 name="downstreamLevel"
-                value={data.powerCurrent?.downstreamLevel || ""}
+                value={
+                  Number(data.powerCurrent?.downstreamLevel).toLocaleString() ||
+                  ""
+                }
                 disabled
                 className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
               />
@@ -554,7 +560,11 @@ export default function DayAction() {
                   <Input
                     type="text"
                     name="totalStorageamount"
-                    value={data.powerCurrent?.totalStorageamount || ""}
+                    value={
+                      Number(
+                        data.powerCurrent?.totalStorageamount,
+                      ).toLocaleString() || ""
+                    }
                     disabled
                     className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                   />
@@ -582,7 +592,11 @@ export default function DayAction() {
                   <Input
                     type="text"
                     name="activeStorageamount"
-                    value={data.powerCurrent?.activeStorageamount || ""}
+                    value={
+                      Number(
+                        data.powerCurrent?.activeStorageamount,
+                      ).toLocaleString() || ""
+                    }
                     disabled
                     className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                   />
@@ -616,7 +630,11 @@ export default function DayAction() {
                   <Input
                     type="text"
                     name="turbineDischargeamount"
-                    value={data.powerCurrent?.turbineDischargeamount || ""}
+                    value={
+                      Number(
+                        data.powerCurrent?.turbineDischargeamount,
+                      ).toLocaleString() || ""
+                    }
                     disabled
                     className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                   />
@@ -627,7 +645,11 @@ export default function DayAction() {
                   <Input
                     type="text"
                     name="turbineDischargeaverage"
-                    value={data.powerCurrent?.turbineDischargeaverage || ""}
+                    value={
+                      Number(
+                        data.powerCurrent?.turbineDischargeaverage,
+                      ).toLocaleString() || ""
+                    }
                     disabled
                     className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                   />
@@ -643,7 +665,11 @@ export default function DayAction() {
                   <Input
                     type="text"
                     name="spillwayDischargeamount"
-                    value={data.powerCurrent?.spillwayDischargeamount || ""}
+                    value={
+                      Number(
+                        data.powerCurrent?.spillwayDischargeamount,
+                      ).toLocaleString() || ""
+                    }
                     disabled
                     className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                   />
@@ -654,7 +680,11 @@ export default function DayAction() {
                   <Input
                     type="text"
                     name="spillwayDischargeaverage"
-                    value={data.powerCurrent?.spillwayDischargeaverage || ""}
+                    value={
+                      Number(
+                        data.powerCurrent?.spillwayDischargeaverage,
+                      ).toLocaleString() || ""
+                    }
                     disabled
                     className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                   />
@@ -672,7 +702,11 @@ export default function DayAction() {
                   <Input
                     type="text"
                     name="ecologicalDischargeamount"
-                    value={data.powerCurrent?.ecologicalDischargeamount || ""}
+                    value={
+                      Number(
+                        data.powerCurrent?.ecologicalDischargeamount,
+                      ).toLocaleString() || ""
+                    }
                     disabled
                     className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                   />
@@ -683,7 +717,11 @@ export default function DayAction() {
                   <Input
                     type="text"
                     name="ecologicalDischargeaverage"
-                    value={data.powerCurrent?.ecologicalDischargeaverage || ""}
+                    value={
+                      Number(
+                        data.powerCurrent?.ecologicalDischargeaverage,
+                      ).toLocaleString() || ""
+                    }
                     disabled
                     className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                   />
@@ -697,20 +735,28 @@ export default function DayAction() {
                 <div>
                   <Label>Amount (m³)</Label>
                   <Input
-                    type="number"
+                    type="text"
                     disabled
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.powerCurrent?.totalDischargeamount || ""}
+                    value={
+                      Number(
+                        data.powerCurrent?.totalDischargeamount,
+                      ).toLocaleString() || ""
+                    }
                   />
                 </div>
 
                 <div>
                   <Label>Average (m³/s)</Label>
                   <Input
-                    type="number"
+                    type="text"
                     disabled
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data.powerCurrent?.totalDischargeaverage || ""}
+                    value={
+                      Number(
+                        data.powerCurrent?.totalDischargeaverage,
+                      ).toLocaleString() || ""
+                    }
                   />
                 </div>
               </div>

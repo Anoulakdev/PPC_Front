@@ -18,6 +18,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const redirectUser = useCallback(
@@ -51,6 +52,8 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true); // เริ่มโหลด
+
     try {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/login`,
@@ -78,6 +81,8 @@ export default function LoginPage() {
       setError(
         err.response?.data?.message || "Login failed. Please try again.",
       );
+    } finally {
+      setLoading(false); // จบการโหลด
     }
   };
 
@@ -148,10 +153,15 @@ export default function LoginPage() {
           </div>
           <div>
             <button
-              className="focus:shadow-outline w-full rounded-lg bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700 focus:outline-none"
+              className="focus:shadow-outline flex w-full items-center justify-center gap-2 rounded-lg bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700 focus:outline-none disabled:bg-blue-300"
               type="submit"
+              disabled={loading}
             >
-              Login
+              {loading && (
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+              )}
+
+              {loading ? "Loading..." : "Login"}
             </button>
           </div>
         </form>

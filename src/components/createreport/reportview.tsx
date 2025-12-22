@@ -180,7 +180,11 @@ export default function ReportView() {
         )}
         <h1 className="text-center text-xl font-bold">
           Daily Operation{" "}
-          {data?.powerDate ? moment(data.powerDate).format("DD/MM/YYYY") : ""}
+          <span className="text-red-700">
+            (
+            {data?.powerDate ? moment(data.powerDate).format("DD/MM/YYYY") : ""}
+            )
+          </span>
         </h1>
         {user?.roleId === 6 ? (
           <button
@@ -308,7 +312,11 @@ export default function ReportView() {
                     type="text"
                     name="inflowamount"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={Number(data.dayReportCurrent?.inflowamount).toLocaleString() ?? ""}
+                    value={
+                      Number(
+                        data.dayReportCurrent?.inflowamount,
+                      ).toLocaleString() ?? ""
+                    }
                     disabled
                   />
                 </div>
@@ -319,7 +327,11 @@ export default function ReportView() {
                     type="text"
                     name="inflowaverage"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={Number(data.dayReportCurrent?.inflowaverage).toLocaleString() ?? ""}
+                    value={
+                      Number(
+                        data.dayReportCurrent?.inflowaverage,
+                      ).toLocaleString() ?? ""
+                    }
                     disabled
                   />
                 </div>
@@ -335,7 +347,11 @@ export default function ReportView() {
                     type="text"
                     name="tdAmount"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={Number(data.dayReportCurrent?.tdAmount).toLocaleString() ?? ""}
+                    value={
+                      Number(
+                        data.dayReportCurrent?.tdAmount,
+                      ).toLocaleString() ?? ""
+                    }
                     disabled
                   />
                 </div>
@@ -346,7 +362,11 @@ export default function ReportView() {
                     type="text"
                     name="tdAverage"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={Number(data.dayReportCurrent?.tdAverage).toLocaleString() ?? ""}
+                    value={
+                      Number(
+                        data.dayReportCurrent?.tdAverage,
+                      ).toLocaleString() ?? ""
+                    }
                     disabled
                   />
                 </div>
@@ -364,7 +384,11 @@ export default function ReportView() {
                     type="text"
                     name="spillwayamount"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={Number(data.dayReportCurrent?.spillwayamount).toLocaleString() ?? ""}
+                    value={
+                      Number(
+                        data.dayReportCurrent?.spillwayamount,
+                      ).toLocaleString() ?? ""
+                    }
                     disabled
                   />
                 </div>
@@ -375,7 +399,11 @@ export default function ReportView() {
                     type="text"
                     name="spillwayaverage"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={Number(data.dayReportCurrent?.spillwayaverage).toLocaleString() ?? ""}
+                    value={
+                      Number(
+                        data.dayReportCurrent?.spillwayaverage,
+                      ).toLocaleString() ?? ""
+                    }
                     disabled
                   />
                 </div>
@@ -391,7 +419,11 @@ export default function ReportView() {
                     type="text"
                     name="owramount"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={Number(data.dayReportCurrent?.owramount).toLocaleString() ?? ""}
+                    value={
+                      Number(
+                        data.dayReportCurrent?.owramount,
+                      ).toLocaleString() ?? ""
+                    }
                     disabled
                   />
                 </div>
@@ -402,7 +434,11 @@ export default function ReportView() {
                     type="text"
                     name="owraverage"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={Number(data.dayReportCurrent?.owraverage).toLocaleString() ?? ""}
+                    value={
+                      Number(
+                        data.dayReportCurrent?.owraverage,
+                      ).toLocaleString() ?? ""
+                    }
                     disabled
                   />
                 </div>
@@ -417,7 +453,9 @@ export default function ReportView() {
                 type="text"
                 name="rainFall"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={Number(data.dayReportCurrent?.rainFall).toLocaleString() ?? ""}
+                value={
+                  Number(data.dayReportCurrent?.rainFall).toLocaleString() ?? ""
+                }
                 disabled
               />
             </div>
@@ -428,7 +466,11 @@ export default function ReportView() {
                 type="text"
                 name="powerGeneration"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={Number(data.dayReportCurrent?.powerGeneration).toLocaleString() ?? ""}
+                value={
+                  Number(
+                    data.dayReportCurrent?.powerGeneration,
+                  ).toLocaleString() ?? ""
+                }
                 disabled
               />
             </div>
@@ -439,7 +481,11 @@ export default function ReportView() {
                 type="text"
                 name="netEnergyImport"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={Number(data.dayReportCurrent?.netEnergyImport).toLocaleString() ?? ""}
+                value={
+                  Number(
+                    data.dayReportCurrent?.netEnergyImport,
+                  ).toLocaleString() ?? ""
+                }
                 disabled
               />
             </div>
@@ -450,7 +496,11 @@ export default function ReportView() {
                 type="text"
                 name="netEnergyOutput"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={Number(data.dayReportCurrent?.netEnergyOutput).toLocaleString() ?? ""}
+                value={
+                  Number(
+                    data.dayReportCurrent?.netEnergyOutput,
+                  ).toLocaleString() ?? ""
+                }
                 disabled
               />
             </div>
@@ -462,7 +512,9 @@ export default function ReportView() {
                 disabled
                 name="waterRate"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={Number(data.dayReportCurrent?.waterRate).toLocaleString() ?? 0}
+                value={
+                  Number(data.dayReportCurrent?.waterRate).toLocaleString() ?? 0
+                }
               />
             </div>
             <div>
@@ -472,7 +524,11 @@ export default function ReportView() {
                 disabled
                 name="totalOutflow"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={Number(data.dayReportCurrent?.totalOutflow).toLocaleString() ?? 0}
+                value={
+                  Number(
+                    data.dayReportCurrent?.totalOutflow,
+                  ).toLocaleString() ?? 0
+                }
               />
             </div>
             <div>
@@ -482,7 +538,11 @@ export default function ReportView() {
                 disabled
                 name="averageOutflow"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={Number(data.dayReportCurrent?.averageOutflow).toLocaleString() ?? 0}
+                value={
+                  Number(
+                    data.dayReportCurrent?.averageOutflow,
+                  ).toLocaleString() ?? 0
+                }
               />
             </div>
           </div>
@@ -497,7 +557,11 @@ export default function ReportView() {
                     type="text"
                     name="activeStorageamount"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={Number(data.dayReportCurrent?.activeStorageamount).toLocaleString() ?? ""}
+                    value={
+                      Number(
+                        data.dayReportCurrent?.activeStorageamount,
+                      ).toLocaleString() ?? ""
+                    }
                     disabled
                   />
                 </div>
@@ -509,7 +573,11 @@ export default function ReportView() {
                     disabled
                     name="activeStorageaverage"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={Number(data.dayReportCurrent?.activeStorageaverage).toLocaleString() ?? 0}
+                    value={
+                      Number(
+                        data.dayReportCurrent?.activeStorageaverage,
+                      ).toLocaleString() ?? 0
+                    }
                   />
                 </div>
               </div>
@@ -523,7 +591,10 @@ export default function ReportView() {
                 type="text"
                 name="waterLevel"
                 className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={Number(data.dayReportCurrent?.waterLevel).toLocaleString() ?? ""}
+                value={
+                  Number(data.dayReportCurrent?.waterLevel).toLocaleString() ??
+                  ""
+                }
                 disabled
               />
             </div>

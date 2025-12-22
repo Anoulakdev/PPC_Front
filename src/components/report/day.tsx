@@ -39,19 +39,6 @@ type Power = {
 
 type PowerOriginal = {
   totalPower: number | string | null;
-};
-
-type PowerCurrent = {
-  totalPower: number | string | null;
-};
-
-type Day = {
-  id: number;
-  powerNo: string;
-  powerDate: string;
-  remarks: string;
-  decAcknow: boolean;
-  disAcknow: boolean;
   upstreamLevel: string;
   downstreamLevel: string;
   totalStorageamount: string;
@@ -64,6 +51,35 @@ type Day = {
   spillwayDischargeaverage: string;
   ecologicalDischargeamount: string;
   ecologicalDischargeaverage: string;
+  totalDischargeamount: string;
+  totalDischargeaverage: string;
+};
+
+type PowerCurrent = {
+  totalPower: number | string | null;
+  upstreamLevel: string;
+  downstreamLevel: string;
+  totalStorageamount: string;
+  totalStorageaverage: string;
+  activeStorageamount: string;
+  activeStorageaverage: string;
+  turbineDischargeamount: string;
+  turbineDischargeaverage: string;
+  spillwayDischargeamount: string;
+  spillwayDischargeaverage: string;
+  ecologicalDischargeamount: string;
+  ecologicalDischargeaverage: string;
+  totalDischargeamount: string;
+  totalDischargeaverage: string;
+};
+
+type Day = {
+  id: number;
+  powerNo: string;
+  powerDate: string;
+  remarks: string;
+  decAcknow: boolean;
+  disAcknow: boolean;
   revise: boolean;
   power?: Power;
   powerOriginal?: PowerOriginal;
@@ -357,18 +373,22 @@ export default function DayTable() {
           CreatedBy: `${item.createdByUser?.firstname ?? ""} ${
             item.createdByUser?.lastname ?? ""
           }`.trim(),
-          upstreamLevel: item.upstreamLevel,
-          downstreamLevel: item.downstreamLevel,
-          totalStorageamount: item.totalStorageamount,
-          totalStorageaverage: item.totalStorageaverage,
-          activeStorageamount: item.activeStorageamount,
-          activeStorageaverage: item.activeStorageaverage,
-          turbineDischargeamount: item.turbineDischargeamount,
-          turbineDischargeaverage: item.turbineDischargeaverage,
-          spillwayDischargeamount: item.spillwayDischargeamount,
-          spillwayDischargeaverage: item.spillwayDischargeaverage,
-          ecologicalDischargeamount: item.ecologicalDischargeamount,
-          ecologicalDischargeaverage: item.ecologicalDischargeaverage,
+          upstreamLevel: item.powerCurrent?.upstreamLevel,
+          downstreamLevel: item.powerCurrent?.downstreamLevel,
+          totalStorageamount: item.powerCurrent?.totalStorageamount,
+          totalStorageaverage: item.powerCurrent?.totalStorageaverage,
+          activeStorageamount: item.powerCurrent?.activeStorageamount,
+          activeStorageaverage: item.powerCurrent?.activeStorageaverage,
+          turbineDischargeamount: item.powerCurrent?.turbineDischargeamount,
+          turbineDischargeaverage: item.powerCurrent?.turbineDischargeaverage,
+          spillwayDischargeamount: item.powerCurrent?.spillwayDischargeamount,
+          spillwayDischargeaverage: item.powerCurrent?.spillwayDischargeaverage,
+          ecologicalDischargeamount:
+            item.powerCurrent?.ecologicalDischargeamount,
+          ecologicalDischargeaverage:
+            item.powerCurrent?.ecologicalDischargeaverage,
+          totalDischargeamount: item.powerCurrent?.totalDischargeamount,
+          totalDischargeaverage: item.powerCurrent?.totalDischargeaverage,
         })),
       );
       const workbook = XLSX.utils.book_new();

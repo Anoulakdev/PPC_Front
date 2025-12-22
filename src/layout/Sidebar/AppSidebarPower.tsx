@@ -13,6 +13,7 @@ import {
   PieChartIcon,
   ReportIcon,
   PaperPlaneIcon,
+  PeopleIcon,
 } from "../../icons/index";
 // import SidebarWidget from "./SidebarWidget";
 
@@ -70,6 +71,11 @@ const navItems: NavItem[] = [
     icon: <PaperPlaneIcon />,
     name: "Hydrology Report",
     path: "/declaration/createreport",
+  },
+  {
+    icon: <PeopleIcon />,
+    name: "Power Plant",
+    path: "/powerplant",
   },
 ];
 

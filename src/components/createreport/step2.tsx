@@ -345,6 +345,10 @@ export const Step2 = () => {
   //   return num.toFixed(2); // return string เช่น "68.00"
   // };
 
+  const nextDay = moment(formData.powerDate, "DD-MM-YYYY")
+  .add(1, "day")
+  .format("DD-MM-YYYY");
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting) return;
@@ -399,7 +403,8 @@ export const Step2 = () => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4" noValidate>
       <div className="text-3xl font-bold">
-        # <span className="underline">Data Yesterday</span>
+        # <span className="underline">Data Yesterday</span>{" "}
+        <span className="text-red-700">({formData.powerDate})</span>
       </div>
       <div className="overflow-x-auto">
         <table className="table-auto text-left">
@@ -873,7 +878,8 @@ export const Step2 = () => {
       </div>
 
       <div className="text-3xl font-bold">
-        # <span className="underline">Data Today</span>
+        # <span className="underline">Data Today</span>{" "}
+        <span className="text-red-700">({nextDay})</span>
       </div>
 
       <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">

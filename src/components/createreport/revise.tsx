@@ -370,6 +370,10 @@ export default function DayRevise() {
 
   // ------------------------------------------
 
+  const nextDay = moment(data?.powerDate, "YYYY-MM-DD")
+    .add(1, "day")
+    .format("DD-MM-YYYY");
+
   // --- Submit revise ---
   const handleRevise = async () => {
     try {
@@ -431,7 +435,14 @@ export default function DayRevise() {
       ) : (
         <>
           <div className="my-3 text-3xl font-bold">
-            # <span className="underline">Data Yesterday</span>
+            # <span className="underline">Data Yesterday</span>{" "}
+            <span className="text-red-700">
+              (
+              {data?.powerDate
+                ? moment(data.powerDate).format("DD-MM-YYYY")
+                : ""}
+              )
+            </span>
           </div>
           <div className="overflow-x-auto">
             <table className="table-auto text-left">
@@ -885,7 +896,8 @@ export default function DayRevise() {
           </div>
 
           <div className="my-3 text-3xl font-bold">
-            # <span className="underline">Data Today</span>
+            # <span className="underline">Data Today</span>{" "}
+            <span className="text-red-700"> ({nextDay})</span>
           </div>
 
           <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">

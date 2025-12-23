@@ -134,6 +134,7 @@ type DayPowerData = {
   power: {
     id: number;
     name: string;
+    fuelId: number;
   };
 };
 
@@ -496,56 +497,25 @@ export default function DayView({ onPowerIdChange }: DayViewProps) {
             </div>
           </div>
 
-          <h1 className="pt-8 pb-4 text-center text-xl font-bold">
-            Daily Availability
-          </h1>
+          {data?.power?.fuelId === 1 && (
+            <>
+              <h1 className="pt-8 pb-4 text-center text-xl font-bold">
+                Daily Availability
+              </h1>
 
-          <h2 className="mb-2 text-sm font-bold">
-            1. Reservoir Situation (00:00)
-          </h2>
+              <h2 className="mb-2 text-sm font-bold">
+                1. Reservoir Situation (00:00)
+              </h2>
 
-          <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-            <div>
-              <Label>Upstream Level (masl)</Label>
-              <Input
-                type="text"
-                name="upstreamLevel"
-                value={
-                  Number(data.powerCurrent?.upstreamLevel).toLocaleString() ||
-                  ""
-                }
-                disabled
-                className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-              />
-            </div>
-
-            <div>
-              <Label>Downstream Level (masl)</Label>
-              <Input
-                type="text"
-                name="downstreamLevel"
-                value={
-                  Number(data.powerCurrent?.downstreamLevel).toLocaleString() ||
-                  ""
-                }
-                disabled
-                className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-              />
-            </div>
-          </div>
-
-          <div className="mt-3 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-            <div>
-              <h2 className="text-sm font-bold">* Total Storage</h2>
               <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 <div>
-                  <Label>Amount (m³)</Label>
+                  <Label>Upstream Level (masl)</Label>
                   <Input
                     type="text"
-                    name="totalStorageamount"
+                    name="upstreamLevel"
                     value={
                       Number(
-                        data.powerCurrent?.totalStorageamount,
+                        data.powerCurrent?.upstreamLevel,
                       ).toLocaleString() || ""
                     }
                     disabled
@@ -554,83 +524,13 @@ export default function DayView({ onPowerIdChange }: DayViewProps) {
                 </div>
 
                 <div>
-                  <Label>Percent ( % )</Label>
+                  <Label>Downstream Level (masl)</Label>
                   <Input
                     type="text"
-                    name="totalStorageaverage"
-                    // value={data.powerCurrent?.totalStorageaverage || ""}
-                    value={`${Number(data.powerCurrent?.totalStorageaverage ?? 0).toFixed(2)}`}
-                    disabled
-                    className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h2 className="text-sm font-bold">* Active Storage</h2>
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                <div>
-                  <Label>Amount (m³)</Label>
-                  <Input
-                    type="text"
-                    name="activeStorageamount"
+                    name="downstreamLevel"
                     value={
                       Number(
-                        data.powerCurrent?.activeStorageamount,
-                      ).toLocaleString() || ""
-                    }
-                    disabled
-                    className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                  />
-                </div>
-
-                <div>
-                  <Label>Percent ( % )</Label>
-                  <Input
-                    type="text"
-                    name="activeStorageaverage"
-                    // value={data.powerCurrent?.activeStorageaverage || ""}
-                    value={`${Number(data.powerCurrent?.activeStorageaverage ?? 0).toFixed(2)}`}
-                    disabled
-                    className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <h2 className="mt-6 mb-2 text-sm font-bold">
-            2. Daily Water Discharge Plan.
-          </h2>
-
-          <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-            <div>
-              <h2 className="text-sm font-bold">* Turbine Discharge</h2>
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                <div>
-                  <Label>Amount (m³)</Label>
-                  <Input
-                    type="text"
-                    name="turbineDischargeamount"
-                    value={
-                      Number(
-                        data.powerCurrent?.turbineDischargeamount,
-                      ).toLocaleString() || ""
-                    }
-                    disabled
-                    className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                  />
-                </div>
-
-                <div>
-                  <Label>Average (m³/s)</Label>
-                  <Input
-                    type="text"
-                    name="turbineDischargeaverage"
-                    value={
-                      Number(
-                        data.powerCurrent?.turbineDischargeaverage,
+                        data.powerCurrent?.downstreamLevel,
                       ).toLocaleString() || ""
                     }
                     disabled
@@ -638,113 +538,220 @@ export default function DayView({ onPowerIdChange }: DayViewProps) {
                   />
                 </div>
               </div>
-            </div>
 
-            <div>
-              <h2 className="text-sm font-bold">* Spillway Discharge</h2>
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+              <div className="mt-3 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 <div>
-                  <Label>Amount (m³)</Label>
-                  <Input
-                    type="text"
-                    name="spillwayDischargeamount"
-                    value={
-                      Number(
-                        data.powerCurrent?.spillwayDischargeamount,
-                      ).toLocaleString() || ""
-                    }
-                    disabled
-                    className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                  />
+                  <h2 className="text-sm font-bold">* Total Storage</h2>
+                  <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                    <div>
+                      <Label>Amount (m³)</Label>
+                      <Input
+                        type="text"
+                        name="totalStorageamount"
+                        value={
+                          Number(
+                            data.powerCurrent?.totalStorageamount,
+                          ).toLocaleString() || ""
+                        }
+                        disabled
+                        className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Percent ( % )</Label>
+                      <Input
+                        type="text"
+                        name="totalStorageaverage"
+                        // value={data.powerCurrent?.totalStorageaverage || ""}
+                        value={`${Number(data.powerCurrent?.totalStorageaverage ?? 0).toFixed(2)}`}
+                        disabled
+                        className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div>
-                  <Label>Average (m³/s)</Label>
-                  <Input
-                    type="text"
-                    name="spillwayDischargeaverage"
-                    value={
-                      Number(
-                        data.powerCurrent?.spillwayDischargeaverage,
-                      ).toLocaleString() || ""
-                    }
-                    disabled
-                    className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+                  <h2 className="text-sm font-bold">* Active Storage</h2>
+                  <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                    <div>
+                      <Label>Amount (m³)</Label>
+                      <Input
+                        type="text"
+                        name="activeStorageamount"
+                        value={
+                          Number(
+                            data.powerCurrent?.activeStorageamount,
+                          ).toLocaleString() || ""
+                        }
+                        disabled
+                        className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                      />
+                    </div>
 
-          <div className="mt-3 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-            <div>
-              <h2 className="text-sm font-bold">* Ecological Discharge</h2>
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                <div>
-                  <Label>Amount (m³)</Label>
-                  <Input
-                    type="text"
-                    name="ecologicalDischargeamount"
-                    value={
-                      Number(
-                        data.powerCurrent?.ecologicalDischargeamount,
-                      ).toLocaleString() || ""
-                    }
-                    disabled
-                    className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                  />
-                </div>
-
-                <div>
-                  <Label>Average (m³/s)</Label>
-                  <Input
-                    type="text"
-                    name="ecologicalDischargeaverage"
-                    value={
-                      Number(
-                        data.powerCurrent?.ecologicalDischargeaverage,
-                      ).toLocaleString() || ""
-                    }
-                    disabled
-                    className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                  />
+                    <div>
+                      <Label>Percent ( % )</Label>
+                      <Input
+                        type="text"
+                        name="activeStorageaverage"
+                        // value={data.powerCurrent?.activeStorageaverage || ""}
+                        value={`${Number(data.powerCurrent?.activeStorageaverage ?? 0).toFixed(2)}`}
+                        disabled
+                        className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div>
-              <h2 className="text-sm font-bold">* Total Discharge</h2>
+              <h2 className="mt-6 mb-2 text-sm font-bold">
+                2. Daily Water Discharge Plan.
+              </h2>
+
               <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 <div>
-                  <Label>Amount (m³)</Label>
-                  <Input
-                    type="text"
-                    disabled
-                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={
-                      Number(
-                        data.powerCurrent?.totalDischargeamount,
-                      ).toLocaleString() || ""
-                    }
-                  />
+                  <h2 className="text-sm font-bold">* Turbine Discharge</h2>
+                  <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                    <div>
+                      <Label>Amount (m³)</Label>
+                      <Input
+                        type="text"
+                        name="turbineDischargeamount"
+                        value={
+                          Number(
+                            data.powerCurrent?.turbineDischargeamount,
+                          ).toLocaleString() || ""
+                        }
+                        disabled
+                        className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Average (m³/s)</Label>
+                      <Input
+                        type="text"
+                        name="turbineDischargeaverage"
+                        value={
+                          Number(
+                            data.powerCurrent?.turbineDischargeaverage,
+                          ).toLocaleString() || ""
+                        }
+                        disabled
+                        className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div>
-                  <Label>Average (m³/s)</Label>
-                  <Input
-                    type="text"
-                    disabled
-                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={
-                      Number(
-                        data.powerCurrent?.totalDischargeaverage,
-                      ).toLocaleString() || ""
-                    }
-                  />
+                  <h2 className="text-sm font-bold">* Spillway Discharge</h2>
+                  <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                    <div>
+                      <Label>Amount (m³)</Label>
+                      <Input
+                        type="text"
+                        name="spillwayDischargeamount"
+                        value={
+                          Number(
+                            data.powerCurrent?.spillwayDischargeamount,
+                          ).toLocaleString() || ""
+                        }
+                        disabled
+                        className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Average (m³/s)</Label>
+                      <Input
+                        type="text"
+                        name="spillwayDischargeaverage"
+                        value={
+                          Number(
+                            data.powerCurrent?.spillwayDischargeaverage,
+                          ).toLocaleString() || ""
+                        }
+                        disabled
+                        className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
+
+              <div className="mt-3 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                <div>
+                  <h2 className="text-sm font-bold">* Ecological Discharge</h2>
+                  <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                    <div>
+                      <Label>Amount (m³)</Label>
+                      <Input
+                        type="text"
+                        name="ecologicalDischargeamount"
+                        value={
+                          Number(
+                            data.powerCurrent?.ecologicalDischargeamount,
+                          ).toLocaleString() || ""
+                        }
+                        disabled
+                        className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Average (m³/s)</Label>
+                      <Input
+                        type="text"
+                        name="ecologicalDischargeaverage"
+                        value={
+                          Number(
+                            data.powerCurrent?.ecologicalDischargeaverage,
+                          ).toLocaleString() || ""
+                        }
+                        disabled
+                        className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h2 className="text-sm font-bold">* Total Discharge</h2>
+                  <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                    <div>
+                      <Label>Amount (m³)</Label>
+                      <Input
+                        type="text"
+                        disabled
+                        className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                        value={
+                          Number(
+                            data.powerCurrent?.totalDischargeamount,
+                          ).toLocaleString() || ""
+                        }
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Average (m³/s)</Label>
+                      <Input
+                        type="text"
+                        disabled
+                        className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                        value={
+                          Number(
+                            data.powerCurrent?.totalDischargeaverage,
+                          ).toLocaleString() || ""
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
 
           <h2 className="mt-6 mb-2 text-sm font-bold">
             3. Machines Availability.

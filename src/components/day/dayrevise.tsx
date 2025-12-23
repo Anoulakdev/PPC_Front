@@ -619,371 +619,385 @@ export default function DayRevise() {
             ></textarea>
           </div>
 
-          <h2 className="mt-4 text-sm font-bold">
-            1. Reservoir Situation (00:00)
-          </h2>
+          {data?.power?.fuelId === 1 && (
+            <>
+              <h2 className="mt-4 text-sm font-bold">
+                1. Reservoir Situation (00:00)
+              </h2>
 
-          <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-            <div>
-              <Label>Upstream Level (masl)</Label>
-              <Input
-                type="number"
-                name="upstreamLevel"
-                placeholder="0.00"
-                value={data?.powerCurrent?.upstreamLevel || ""}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div>
-              <Label>Downstream Level (masl)</Label>
-              <Input
-                type="number"
-                name="downstreamLevel"
-                placeholder="0.00"
-                value={data?.powerCurrent?.downstreamLevel || ""}
-                onChange={handleChange}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-            <div>
-              <h2 className="text-sm font-bold">* Total Storage</h2>
               <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 <div>
-                  <Label>Amount (m³)</Label>
+                  <Label>Upstream Level (masl)</Label>
                   <Input
                     type="number"
-                    name="totalStorageamount"
+                    name="upstreamLevel"
                     placeholder="0.00"
-                    value={data?.powerCurrent?.totalStorageamount || ""}
+                    value={data?.powerCurrent?.upstreamLevel || ""}
                     onChange={handleChange}
                     required
                   />
                 </div>
 
                 <div>
-                  <Label>Percent ( % )</Label>
+                  <Label>Downstream Level (masl)</Label>
                   <Input
                     type="number"
-                    disabled
-                    name="totalStorageaverage"
-                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={`${data?.powerCurrent?.totalStorageaverage ?? 0}`}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h2 className="text-sm font-bold">* Active Storage</h2>
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                <div>
-                  <Label>Amount (m³)</Label>
-                  <Input
-                    type="number"
-                    name="activeStorageamount"
+                    name="downstreamLevel"
                     placeholder="0.00"
-                    value={data?.powerCurrent?.activeStorageamount || ""}
+                    value={data?.powerCurrent?.downstreamLevel || ""}
                     onChange={handleChange}
                     required
                   />
                 </div>
+              </div>
+
+              <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                <div>
+                  <h2 className="text-sm font-bold">* Total Storage</h2>
+                  <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                    <div>
+                      <Label>Amount (m³)</Label>
+                      <Input
+                        type="number"
+                        name="totalStorageamount"
+                        placeholder="0.00"
+                        value={data?.powerCurrent?.totalStorageamount || ""}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Percent ( % )</Label>
+                      <Input
+                        type="number"
+                        disabled
+                        name="totalStorageaverage"
+                        className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                        value={`${data?.powerCurrent?.totalStorageaverage ?? 0}`}
+                      />
+                    </div>
+                  </div>
+                </div>
 
                 <div>
-                  <Label>Percent ( % )</Label>
-                  <Input
-                    type="number"
-                    disabled
-                    name="activeStorageaverage"
-                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={`${data?.powerCurrent?.activeStorageaverage ?? 0}`}
-                  />
+                  <h2 className="text-sm font-bold">* Active Storage</h2>
+                  <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                    <div>
+                      <Label>Amount (m³)</Label>
+                      <Input
+                        type="number"
+                        name="activeStorageamount"
+                        placeholder="0.00"
+                        value={data?.powerCurrent?.activeStorageamount || ""}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Percent ( % )</Label>
+                      <Input
+                        type="number"
+                        disabled
+                        name="activeStorageaverage"
+                        className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                        value={`${data?.powerCurrent?.activeStorageaverage ?? 0}`}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          <h2 className="mt-4 text-sm font-bold">
-            2. Daily Water Discharge Plan
-          </h2>
+              <h2 className="mt-4 text-sm font-bold">
+                2. Daily Water Discharge Plan
+              </h2>
 
-          <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-            <div>
-              <h2 className="text-sm font-bold">* Turbine Discharge</h2>
               <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 <div>
-                  <Label>Amount (m³)</Label>
-                  <Input
-                    type="number"
-                    name="turbineDischargeamount"
-                    placeholder="0.00"
-                    value={data?.powerCurrent?.turbineDischargeamount ?? ""}
-                    onChange={(e) => {
-                      const raw = e.target.value;
-                      if (raw === "") {
-                        setData((prev: any) => ({
-                          ...prev,
-                          powerCurrent: {
-                            ...prev.powerCurrent,
-                            turbineDischargeamount: "",
-                            turbineDischargeaverage: "",
-                          },
-                        }));
-                        setEditingTD(null);
-                      } else {
-                        const num = parseFloat(raw);
-                        setData((prev: any) => ({
-                          ...prev,
-                          powerCurrent: {
-                            ...prev.powerCurrent,
-                            turbineDischargeamount: isNaN(num)
-                              ? ""
-                              : Number(num.toFixed(2)),
-                          },
-                        }));
-                        setEditingTD("amount");
-                      }
-                    }}
-                    readOnly={editingTD === "average"}
-                    required
-                  />
+                  <h2 className="text-sm font-bold">* Turbine Discharge</h2>
+                  <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                    <div>
+                      <Label>Amount (m³)</Label>
+                      <Input
+                        type="number"
+                        name="turbineDischargeamount"
+                        placeholder="0.00"
+                        value={data?.powerCurrent?.turbineDischargeamount ?? ""}
+                        onChange={(e) => {
+                          const raw = e.target.value;
+                          if (raw === "") {
+                            setData((prev: any) => ({
+                              ...prev,
+                              powerCurrent: {
+                                ...prev.powerCurrent,
+                                turbineDischargeamount: "",
+                                turbineDischargeaverage: "",
+                              },
+                            }));
+                            setEditingTD(null);
+                          } else {
+                            const num = parseFloat(raw);
+                            setData((prev: any) => ({
+                              ...prev,
+                              powerCurrent: {
+                                ...prev.powerCurrent,
+                                turbineDischargeamount: isNaN(num)
+                                  ? ""
+                                  : Number(num.toFixed(2)),
+                              },
+                            }));
+                            setEditingTD("amount");
+                          }
+                        }}
+                        readOnly={editingTD === "average"}
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Average (m³/s)</Label>
+                      <Input
+                        type="number"
+                        name="turbineDischargeaverage"
+                        placeholder="0.00"
+                        value={
+                          data?.powerCurrent?.turbineDischargeaverage ?? ""
+                        }
+                        onChange={(e) => {
+                          const raw = e.target.value;
+                          if (raw === "") {
+                            setData((prev: any) => ({
+                              ...prev,
+                              powerCurrent: {
+                                ...prev.powerCurrent,
+                                turbineDischargeamount: "",
+                                turbineDischargeaverage: "",
+                              },
+                            }));
+                            setEditingTD(null);
+                          } else {
+                            const num = parseFloat(raw);
+                            setData((prev: any) => ({
+                              ...prev,
+                              powerCurrent: {
+                                ...prev.powerCurrent,
+                                turbineDischargeaverage: isNaN(num)
+                                  ? ""
+                                  : Number(num.toFixed(2)),
+                              },
+                            }));
+                            setEditingTD("average");
+                          }
+                        }}
+                        readOnly={editingTD === "amount"}
+                        required
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div>
-                  <Label>Average (m³/s)</Label>
-                  <Input
-                    type="number"
-                    name="turbineDischargeaverage"
-                    placeholder="0.00"
-                    value={data?.powerCurrent?.turbineDischargeaverage ?? ""}
-                    onChange={(e) => {
-                      const raw = e.target.value;
-                      if (raw === "") {
-                        setData((prev: any) => ({
-                          ...prev,
-                          powerCurrent: {
-                            ...prev.powerCurrent,
-                            turbineDischargeamount: "",
-                            turbineDischargeaverage: "",
-                          },
-                        }));
-                        setEditingTD(null);
-                      } else {
-                        const num = parseFloat(raw);
-                        setData((prev: any) => ({
-                          ...prev,
-                          powerCurrent: {
-                            ...prev.powerCurrent,
-                            turbineDischargeaverage: isNaN(num)
-                              ? ""
-                              : Number(num.toFixed(2)),
-                          },
-                        }));
-                        setEditingTD("average");
-                      }
-                    }}
-                    readOnly={editingTD === "amount"}
-                    required
-                  />
+                  <h2 className="text-sm font-bold">* Spillway Discharge</h2>
+                  <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                    <div>
+                      <Label>Amount (m³)</Label>
+                      <Input
+                        type="number"
+                        name="spillwayDischargeamount"
+                        placeholder="0.00"
+                        value={
+                          data?.powerCurrent?.spillwayDischargeamount ?? ""
+                        }
+                        onChange={(e) => {
+                          const raw = e.target.value;
+                          if (raw === "") {
+                            setData((prev: any) => ({
+                              ...prev,
+                              powerCurrent: {
+                                ...prev.powerCurrent,
+                                spillwayDischargeamount: "",
+                                spillwayDischargeaverage: "",
+                              },
+                            }));
+                            setEditingSW(null);
+                          } else {
+                            const num = parseFloat(raw);
+                            setData((prev: any) => ({
+                              ...prev,
+                              powerCurrent: {
+                                ...prev.powerCurrent,
+                                spillwayDischargeamount: isNaN(num)
+                                  ? ""
+                                  : Number(num.toFixed(2)),
+                              },
+                            }));
+                            setEditingSW("amount");
+                          }
+                        }}
+                        readOnly={editingSW === "average"}
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Average (m³/s)</Label>
+                      <Input
+                        type="number"
+                        name="spillwayDischargeaverage"
+                        placeholder="0.00"
+                        value={
+                          data?.powerCurrent?.spillwayDischargeaverage ?? ""
+                        }
+                        onChange={(e) => {
+                          const raw = e.target.value;
+                          if (raw === "") {
+                            setData((prev: any) => ({
+                              ...prev,
+                              powerCurrent: {
+                                ...prev.powerCurrent,
+                                spillwayDischargeamount: "",
+                                spillwayDischargeaverage: "",
+                              },
+                            }));
+                            setEditingSW(null);
+                          } else {
+                            const num = parseFloat(raw);
+                            setData((prev: any) => ({
+                              ...prev,
+                              powerCurrent: {
+                                ...prev.powerCurrent,
+                                spillwayDischargeaverage: isNaN(num)
+                                  ? ""
+                                  : Number(num.toFixed(2)),
+                              },
+                            }));
+                            setEditingSW("average");
+                          }
+                        }}
+                        readOnly={editingSW === "amount"}
+                        required
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div>
-              <h2 className="text-sm font-bold">* Spillway Discharge</h2>
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+              <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 <div>
-                  <Label>Amount (m³)</Label>
-                  <Input
-                    type="number"
-                    name="spillwayDischargeamount"
-                    placeholder="0.00"
-                    value={data?.powerCurrent?.spillwayDischargeamount ?? ""}
-                    onChange={(e) => {
-                      const raw = e.target.value;
-                      if (raw === "") {
-                        setData((prev: any) => ({
-                          ...prev,
-                          powerCurrent: {
-                            ...prev.powerCurrent,
-                            spillwayDischargeamount: "",
-                            spillwayDischargeaverage: "",
-                          },
-                        }));
-                        setEditingSW(null);
-                      } else {
-                        const num = parseFloat(raw);
-                        setData((prev: any) => ({
-                          ...prev,
-                          powerCurrent: {
-                            ...prev.powerCurrent,
-                            spillwayDischargeamount: isNaN(num)
-                              ? ""
-                              : Number(num.toFixed(2)),
-                          },
-                        }));
-                        setEditingSW("amount");
-                      }
-                    }}
-                    readOnly={editingSW === "average"}
-                    required
-                  />
+                  <h2 className="text-sm font-bold">* Ecological Discharge</h2>
+                  <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                    <div>
+                      <Label>Amount (m³)</Label>
+                      <Input
+                        type="number"
+                        name="ecologicalDischargeamount"
+                        placeholder="0.00"
+                        value={
+                          data?.powerCurrent?.ecologicalDischargeamount ?? ""
+                        }
+                        onChange={(e) => {
+                          const raw = e.target.value;
+                          if (raw === "") {
+                            setData((prev: any) => ({
+                              ...prev,
+                              powerCurrent: {
+                                ...prev.powerCurrent,
+                                ecologicalDischargeamount: "",
+                                ecologicalDischargeaverage: "",
+                              },
+                            }));
+                            setEditingED(null);
+                          } else {
+                            const num = parseFloat(raw);
+                            setData((prev: any) => ({
+                              ...prev,
+                              powerCurrent: {
+                                ...prev.powerCurrent,
+                                ecologicalDischargeamount: isNaN(num)
+                                  ? ""
+                                  : Number(num.toFixed(2)),
+                              },
+                            }));
+                            setEditingED("amount");
+                          }
+                        }}
+                        readOnly={editingED === "average"}
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Average (m³/s)</Label>
+                      <Input
+                        type="number"
+                        name="ecologicalDischargeaverage"
+                        placeholder="0.00"
+                        value={
+                          data?.powerCurrent?.ecologicalDischargeaverage ?? ""
+                        }
+                        onChange={(e) => {
+                          const raw = e.target.value;
+                          if (raw === "") {
+                            setData((prev: any) => ({
+                              ...prev,
+                              powerCurrent: {
+                                ...prev.powerCurrent,
+                                ecologicalDischargeamount: "",
+                                ecologicalDischargeaverage: "",
+                              },
+                            }));
+                            setEditingED(null);
+                          } else {
+                            const num = parseFloat(raw);
+                            setData((prev: any) => ({
+                              ...prev,
+                              powerCurrent: {
+                                ...prev.powerCurrent,
+                                ecologicalDischargeaverage: isNaN(num)
+                                  ? ""
+                                  : Number(num.toFixed(2)),
+                              },
+                            }));
+                            setEditingED("average");
+                          }
+                        }}
+                        readOnly={editingED === "amount"}
+                        required
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div>
-                  <Label>Average (m³/s)</Label>
-                  <Input
-                    type="number"
-                    name="spillwayDischargeaverage"
-                    placeholder="0.00"
-                    value={data?.powerCurrent?.spillwayDischargeaverage ?? ""}
-                    onChange={(e) => {
-                      const raw = e.target.value;
-                      if (raw === "") {
-                        setData((prev: any) => ({
-                          ...prev,
-                          powerCurrent: {
-                            ...prev.powerCurrent,
-                            spillwayDischargeamount: "",
-                            spillwayDischargeaverage: "",
-                          },
-                        }));
-                        setEditingSW(null);
-                      } else {
-                        const num = parseFloat(raw);
-                        setData((prev: any) => ({
-                          ...prev,
-                          powerCurrent: {
-                            ...prev.powerCurrent,
-                            spillwayDischargeaverage: isNaN(num)
-                              ? ""
-                              : Number(num.toFixed(2)),
-                          },
-                        }));
-                        setEditingSW("average");
-                      }
-                    }}
-                    readOnly={editingSW === "amount"}
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+                  <h2 className="text-sm font-bold">* Total Discharge</h2>
+                  <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                    <div>
+                      <Label>Amount (m³)</Label>
+                      <Input
+                        type="number"
+                        disabled
+                        name="totalDischargeamount"
+                        className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                        value={`${data?.powerCurrent?.totalDischargeamount ?? 0}`}
+                      />
+                    </div>
 
-          <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-            <div>
-              <h2 className="text-sm font-bold">* Ecological Discharge</h2>
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                <div>
-                  <Label>Amount (m³)</Label>
-                  <Input
-                    type="number"
-                    name="ecologicalDischargeamount"
-                    placeholder="0.00"
-                    value={data?.powerCurrent?.ecologicalDischargeamount ?? ""}
-                    onChange={(e) => {
-                      const raw = e.target.value;
-                      if (raw === "") {
-                        setData((prev: any) => ({
-                          ...prev,
-                          powerCurrent: {
-                            ...prev.powerCurrent,
-                            ecologicalDischargeamount: "",
-                            ecologicalDischargeaverage: "",
-                          },
-                        }));
-                        setEditingED(null);
-                      } else {
-                        const num = parseFloat(raw);
-                        setData((prev: any) => ({
-                          ...prev,
-                          powerCurrent: {
-                            ...prev.powerCurrent,
-                            ecologicalDischargeamount: isNaN(num)
-                              ? ""
-                              : Number(num.toFixed(2)),
-                          },
-                        }));
-                        setEditingED("amount");
-                      }
-                    }}
-                    readOnly={editingED === "average"}
-                    required
-                  />
-                </div>
-
-                <div>
-                  <Label>Average (m³/s)</Label>
-                  <Input
-                    type="number"
-                    name="ecologicalDischargeaverage"
-                    placeholder="0.00"
-                    value={data?.powerCurrent?.ecologicalDischargeaverage ?? ""}
-                    onChange={(e) => {
-                      const raw = e.target.value;
-                      if (raw === "") {
-                        setData((prev: any) => ({
-                          ...prev,
-                          powerCurrent: {
-                            ...prev.powerCurrent,
-                            ecologicalDischargeamount: "",
-                            ecologicalDischargeaverage: "",
-                          },
-                        }));
-                        setEditingED(null);
-                      } else {
-                        const num = parseFloat(raw);
-                        setData((prev: any) => ({
-                          ...prev,
-                          powerCurrent: {
-                            ...prev.powerCurrent,
-                            ecologicalDischargeaverage: isNaN(num)
-                              ? ""
-                              : Number(num.toFixed(2)),
-                          },
-                        }));
-                        setEditingED("average");
-                      }
-                    }}
-                    readOnly={editingED === "amount"}
-                    required
-                  />
+                    <div>
+                      <Label>Average (m³/s)</Label>
+                      <Input
+                        type="number"
+                        disabled
+                        name="totalDischargeaverage"
+                        className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                        value={`${data?.powerCurrent?.totalDischargeaverage ?? 0}`}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <div>
-              <h2 className="text-sm font-bold">* Total Discharge</h2>
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                <div>
-                  <Label>Amount (m³)</Label>
-                  <Input
-                    type="number"
-                    disabled
-                    name="totalDischargeamount"
-                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={`${data?.powerCurrent?.totalDischargeamount ?? 0}`}
-                  />
-                </div>
-
-                <div>
-                  <Label>Average (m³/s)</Label>
-                  <Input
-                    type="number"
-                    disabled
-                    name="totalDischargeaverage"
-                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={`${data?.powerCurrent?.totalDischargeaverage ?? 0}`}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+            </>
+          )}
 
           <h2 className="mt-4 mb-2 text-sm font-bold">
             3. Machines Availability.

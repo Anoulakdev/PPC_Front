@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
@@ -52,6 +53,15 @@ export default function EnergyTablePage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const token = getLocalStorage("token");
+  const tabs = ["ALL", "NORTH", "CENTER", "SOUTH"];
+  const [activeTab, setActiveTab] = useState("ALL");
+  // map region
+  const regionMap: Record<string, number | null> = {
+    ALL: null,
+    NORTH: 1,
+    CENTER: 2,
+    SOUTH: 3,
+  };
 
   const hourLabels = Array.from({ length: 24 }, (_, i) => {
     const s = i.toString().padStart(2, "0");
@@ -61,45 +71,66 @@ export default function EnergyTablePage() {
 
   useEffect(() => {
     const formattedDate = moment(selectedDate).format("YYYY-MM-DD");
+    let sse: EventSourcePolyfill | null = null;
+    let reconnectTimer: NodeJS.Timeout | null = null;
 
-    setLoading(true);
+    const connect = () => {
+      setLoading(true);
 
-    // ✅ เชื่อมต่อ SSE
-    const sse = new EventSourcePolyfill(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/daypowers/nccget?powerDate=${formattedDate}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const regionId = regionMap[activeTab];
+      const url = regionId
+        ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/daypowers/nccget?powerDate=${formattedDate}&regionId=${regionId}`
+        : `${process.env.NEXT_PUBLIC_API_BASE_URL}/daypowers/nccget?powerDate=${formattedDate}`;
+
+      sse = new EventSourcePolyfill(url, {
+        headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
-      },
-    );
+        heartbeatTimeout: 60000, // กัน idle
+      });
 
-    sse.onmessage = (event) => {
-      try {
-        const parsed = JSON.parse(event.data);
-        if (Array.isArray(parsed)) {
-          setData(parsed);
-        } else if (parsed.data && Array.isArray(parsed.data)) {
-          setData(parsed.data);
+      sse.onmessage = (event) => {
+        try {
+          const parsed = JSON.parse(event.data);
+
+          if (Array.isArray(parsed)) setData(parsed);
+          else if (parsed?.data && Array.isArray(parsed.data))
+            setData(parsed.data);
+
+          setLoading(false);
+        } catch (err) {
+          console.error("SSE parse error:", err);
         }
-        setLoading(false); // ✅ ปิด loading เมื่อข้อมูลมา
-      } catch (err) {
-        console.error("SSE parse error:", err);
-      }
+      };
+
+      sse.onerror = (err: any) => {
+        console.error("SSE error — reconnecting...", err);
+        setLoading(false);
+
+        // ⛔ ถ้า token หมดอายุ → logout ทันที
+        if (err?.status === 401) {
+          handleLogout();
+          return;
+        }
+
+        sse?.close();
+
+        if (!reconnectTimer) {
+          reconnectTimer = setTimeout(() => {
+            connect();
+            reconnectTimer = null;
+          }, 3000); // 3 วิ reconnect
+        }
+      };
     };
 
-    sse.onerror = (err) => {
-      console.error("SSE error:", err);
-      sse.close();
-      setLoading(false);
-    };
+    connect();
 
-    // ✅ cleanup เมื่อเปลี่ยนวันที่หรือออกจากหน้า
     return () => {
-      sse.close();
+      console.log("cleanup SSE");
+      if (reconnectTimer) clearTimeout(reconnectTimer);
+      sse?.close();
     };
-  }, [selectedDate]);
+  }, [selectedDate, activeTab]);
 
   const handleLogout = () => {
     removeLocalStorage("token");
@@ -171,6 +202,28 @@ export default function EnergyTablePage() {
             </svg>
             <span>Logout</span>
           </button>
+        </div>
+      </div>
+
+      {/* Tabs Section */}
+      <div className="flex justify-center">
+        <div className="inline-flex gap-1 rounded-3xl border border-white/20 bg-white/10 p-2 shadow-2xl backdrop-blur-xl">
+          {tabs.map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`group relative overflow-hidden rounded-2xl px-8 py-3 text-sm font-bold transition-all duration-500 ${
+                activeTab === tab
+                  ? "bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-700 text-white shadow-2xl shadow-blue-500/40"
+                  : "border border-white/20 bg-white/5 text-gray-700 backdrop-blur-sm hover:bg-white/20 hover:text-gray-900"
+              }`}
+            >
+              <span className="relative z-10">{tab}</span>
+              {activeTab === tab && (
+                <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+              )}
+            </button>
+          ))}
         </div>
       </div>
 

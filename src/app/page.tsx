@@ -8,8 +8,13 @@ import {
   getLocalStorage,
   removeLocalStorage,
 } from "@/utils/storage";
-import { toast } from "react-toastify";
-import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
+// import { toast } from "react-toastify";
+import {
+  CheckCircleIcon,
+  EyeIcon,
+  EyeSlashIcon,
+  XCircleIcon,
+} from "@heroicons/react/24/outline";
 import Image from "next/image";
 import axios from "axios";
 
@@ -19,7 +24,19 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [alert, setAlert] = useState<{
+    show: boolean;
+    type: "success" | "error";
+    message: string;
+  }>({ show: false, type: "success", message: "" });
   const router = useRouter();
+
+  const showAlert = (type: "success" | "error", message: string) => {
+    setAlert({ show: true, type, message });
+    setTimeout(() => {
+      setAlert({ show: false, type: "success", message: "" });
+    }, 3000);
+  };
 
   const redirectUser = useCallback(
     (user: any) => {
@@ -37,7 +54,8 @@ export default function LoginPage() {
       } else if (user.roleId === 8) {
         router.push("/energy");
       } else {
-        toast.error("Invalid User Role");
+        showAlert("error", "Invalid User Role");
+        // toast.error("Invalid User Role");
       }
     },
     [router], // ใช้ router เป็น dependency
@@ -73,11 +91,18 @@ export default function LoginPage() {
       removeLocalStorage("month-filter-page");
       removeLocalStorage("dayreport-filter-page");
 
+      showAlert("success", "Login Success");
+
+      setTimeout(() => {
+        redirectUser(user);
+      }, 1500);
+
       // Redirect to the dashboard
-      toast.success("Login Success");
-      redirectUser(user);
+      // toast.success("Login Success");
+      // redirectUser(user);
     } catch (err: any) {
-      toast.error("Login Fail");
+      showAlert("error", err.response?.data?.message || "Login Fail");
+      // toast.error("Login Fail");
       setError(
         err.response?.data?.message || "Login failed. Please try again.",
       );
@@ -91,6 +116,25 @@ export default function LoginPage() {
       className="flex min-h-screen items-center justify-center bg-cover bg-center px-2"
       style={{ backgroundImage: "url('/_MG_1557.jpg')" }}
     >
+      {/* Custom Alert */}
+      {alert.show && (
+        <div className="fixed top-4 left-1/2 z-50 -translate-x-1/2 transform animate-bounce">
+          <div
+            className={`flex items-center gap-3 rounded-lg px-6 py-4 shadow-2xl ${
+              alert.type === "success"
+                ? "bg-gradient-to-r from-green-500 to-green-600"
+                : "bg-gradient-to-r from-red-500 to-red-600"
+            }`}
+          >
+            {alert.type === "success" ? (
+              <CheckCircleIcon className="h-8 w-8 text-white" />
+            ) : (
+              <XCircleIcon className="h-8 w-8 text-white" />
+            )}
+            <p className="text-lg font-semibold text-white">{alert.message}</p>
+          </div>
+        </div>
+      )}
       <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-lg">
         <div className="mb-5 flex flex-col items-center text-center">
           <Image src={`/edl.png`} alt="nophoto" width={100} height={100} />

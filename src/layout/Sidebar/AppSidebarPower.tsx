@@ -62,14 +62,14 @@ const navItems: NavItem[] = [
     name: "Report",
     icon: <ReportIcon />,
     subItems: [
-      { name: "Daily Report", path: "/report/day", pro: false },
-      { name: "Weekly Report", path: "/report/week", pro: false },
-      { name: "Monthly Report", path: "/report/month", pro: false },
+      { name: "Daily", path: "/report/day", pro: false },
+      { name: "Weekly", path: "/report/week", pro: false },
+      { name: "Monthly", path: "/report/month", pro: false },
     ],
   },
   {
     icon: <PaperPlaneIcon />,
-    name: "Hydrology Report",
+    name: "Daily Report",
     path: "/declaration/createreport",
   },
   {

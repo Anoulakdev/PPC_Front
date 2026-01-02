@@ -179,6 +179,9 @@ export default function MonthView() {
             Monthly Availability and Declaration
           </h1>
           <p className="text-center text-red-500">{data?.power?.name}</p>
+          <p className="text-center text-red-500">
+            {data?.sMonth} / {data?.sYear}
+          </p>
         </div>
 
         {user?.roleId === 4 || user?.roleId === 6 ? (

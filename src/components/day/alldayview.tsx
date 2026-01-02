@@ -258,6 +258,9 @@ export default function DayTable() {
             Daily Availability and Declaration
           </h1>
           <p className="text-center text-red-500">{data?.power?.name}</p>
+          <p className="text-center text-red-500">
+            {data?.powerDate ? moment(data.powerDate).format("DD/MM/YYYY") : ""}
+          </p>
         </div>
 
         {user?.roleId === 4 || user?.roleId === 6 ? (

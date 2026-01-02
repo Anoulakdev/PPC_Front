@@ -190,6 +190,9 @@ export default function WeekAction() {
             {user?.roleId === 4 ? "Dispatch" : "Declaration"}
           </h1>
           <p className="text-center text-red-500">{data?.power?.name}</p>
+          <p className="text-center text-red-500">
+            week-{data?.sWeek} / {data?.sYear}
+          </p>
         </div>
 
         {(user?.roleId === 4 || user?.roleId === 6) && (

@@ -9,6 +9,7 @@ import Input from "@/components/form/input/InputField";
 import { toast } from "react-toastify";
 import { decryptId, encryptId } from "@/lib/cryptoId";
 import { getLocalStorage } from "@/utils/storage";
+import moment from "moment";
 
 const hours = [
   "00:00-01:00",
@@ -250,6 +251,9 @@ export default function DayAction() {
             Daily Availability {user?.roleId === 4 ? "Dispatch" : "Declaration"}
           </h1>
           <p className="text-center text-red-500">{data?.power?.name}</p>
+          <p className="text-center text-red-500">
+            {data?.powerDate ? moment(data.powerDate).format("DD/MM/YYYY") : ""}
+          </p>
         </div>
 
         {(user?.roleId === 4 || user?.roleId === 6) && (

@@ -5,6 +5,8 @@ import axios from "axios";
 import moment from "moment";
 
 export async function GET(req: NextRequest) {
+  let browser;
+
   try {
     const { searchParams } = new URL(req.url);
     const startDate = searchParams.get("startDate");
@@ -22,24 +24,50 @@ export async function GET(req: NextRequest) {
       ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/reports/day?powerId=${powerId}&startDate=${startDate}&endDate=${endDate}`
       : `${process.env.NEXT_PUBLIC_API_BASE_URL}/reports/day?startDate=${startDate}&endDate=${endDate}`;
 
+    console.log("📡 Calling API:", apiUrl);
+
     // ✅ ดึงข้อมูลจาก NestJS ด้วย token จาก cookie
     const response = await axios.get(apiUrl, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      timeout: 30000, // 30 วินาที
     });
 
     const data = response.data;
+    console.log("✅ Data received, generating HTML...");
 
     // สร้าง HTML สำหรับ PDF
     const html = generatePDF(data);
+    console.log("✅ HTML generated, launching Puppeteer...");
 
     // ✅ Generate PDF ด้วย Puppeteer
-    const browser = await puppeteer.launch({
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    browser = await puppeteer.launch({
+      headless: true,
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu",
+        "--disable-software-rasterizer",
+        "--disable-extensions",
+      ],
+      timeout: 30000,
     });
+
+    console.log("✅ Browser launched, creating page...");
+
     const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: "networkidle0" });
+
+    console.log("✅ Page created, setting content...");
+
+    await page.setContent(html, {
+      waitUntil: "networkidle0",
+      timeout: 60000,
+    });
+
+    console.log("✅ Content set, generating PDF...");
+
     const pdfBuffer = await page.pdf({
       format: "A4",
       printBackground: true,
@@ -49,7 +77,11 @@ export async function GET(req: NextRequest) {
         bottom: "10mm",
         left: "10mm",
       },
+      timeout: 60000,
     });
+
+    console.log("✅ PDF generated successfully!");
+
     await browser.close();
 
     // ✅ ส่ง PDF กลับ client
@@ -60,10 +92,26 @@ export async function GET(req: NextRequest) {
         "Content-Disposition": `attachment; filename=Daily_Report_${moment().format("DDMMYYYY_HHmmss")}.pdf`,
       },
     });
-  } catch (error) {
-    console.error("PDF generation error:", error);
+  } catch (error: any) {
+    console.error("❌ PDF generation error:", error);
+    console.error("❌ Error message:", error.message);
+    console.error("❌ Error stack:", error.stack);
+
+    // ปิด browser ถ้ายังเปิดอยู่
+    if (browser) {
+      try {
+        await browser.close();
+      } catch (closeError) {
+        console.error("❌ Error closing browser:", closeError);
+      }
+    }
+
     return NextResponse.json(
-      { error: "Failed to generate PDF" },
+      {
+        error: "Failed to generate PDF",
+        message: error.message,
+        details: error.toString(),
+      },
       { status: 500 },
     );
   }

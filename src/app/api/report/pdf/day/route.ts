@@ -1,0 +1,488 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { NextRequest, NextResponse } from "next/server";
+import puppeteer from "puppeteer";
+import axios from "axios";
+import moment from "moment";
+
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const startDate = searchParams.get("startDate");
+    const endDate = searchParams.get("endDate");
+    const powerId = searchParams.get("powerId");
+
+    // ✅ ดึง token จาก cookie
+    const token = req.cookies.get("token")?.value;
+    if (!token) {
+      return NextResponse.redirect(new URL("/", req.url));
+    }
+
+    // ✅ สร้าง URL สำหรับเรียก NestJS API
+    const apiUrl = powerId
+      ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/reports/day?powerId=${powerId}&startDate=${startDate}&endDate=${endDate}`
+      : `${process.env.NEXT_PUBLIC_API_BASE_URL}/reports/day?startDate=${startDate}&endDate=${endDate}`;
+
+    // ✅ ดึงข้อมูลจาก NestJS ด้วย token จาก cookie
+    const response = await axios.get(apiUrl, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = response.data;
+
+    // สร้าง HTML สำหรับ PDF
+    const html = generatePDF(data);
+
+    // ✅ Generate PDF ด้วย Puppeteer
+    const browser = await puppeteer.launch({
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: "networkidle0" });
+    const pdfBuffer = await page.pdf({
+      format: "A4",
+      printBackground: true,
+      margin: {
+        top: "10mm",
+        right: "10mm",
+        bottom: "10mm",
+        left: "10mm",
+      },
+    });
+    await browser.close();
+
+    // ✅ ส่ง PDF กลับ client
+    return new NextResponse(new Uint8Array(pdfBuffer), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename=Daily_Report_${moment().format("DDMMYYYY_HHmmss")}.pdf`,
+      },
+    });
+  } catch (error) {
+    console.error("PDF generation error:", error);
+    return NextResponse.json(
+      { error: "Failed to generate PDF" },
+      { status: 500 },
+    );
+  }
+}
+
+// ✅ Helper function สำหรับแปลงค่าเป็นตัวเลขและจัดการ null/undefined
+function formatNumber(value: any, decimals: number = 2): string {
+  if (value === null || value === undefined || value === "") return "-";
+
+  const num = Number(value);
+  if (isNaN(num)) return "-";
+
+  // ใช้ en-US เพื่อให้เลขเป็น 0-9 ไม่เป็นไทย/ลาว
+  return num.toLocaleString("en-US", {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+    useGrouping: true, // comma หลักพัน
+  });
+}
+
+// Helper function สำหรับสร้าง HTML
+function generatePDF(data: any[]) {
+  return `
+    <html>
+      <head>
+        <meta charset="UTF-8">
+        <style>
+          @page { 
+            size: A4; 
+            margin: 0;
+          }
+          
+          body { 
+            font-family: 'Arial', sans-serif; 
+            font-size: 9pt;
+            margin: 0;
+            padding: 0;
+          }
+          
+          .page { 
+            page-break-after: always;
+            padding: 15px;
+          }
+          
+          .header {
+            text-align: center;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 8px;
+          }
+          
+          .header h1 {
+            margin: 3px 0;
+            font-size: 14pt;
+            font-weight: bold;
+          }
+          
+          .header h2 {
+            margin: 2px 0;
+            font-size: 11pt;
+            font-weight: normal;
+          }
+          
+          .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            font-size: 8.5pt;
+          }
+          
+          .info-item {
+            flex: 1;
+            padding: 3px 8px;
+            border: 1px solid #666;
+            background-color: #f5f5f5;
+          }
+          
+          .info-item strong {
+            font-weight: bold;
+          }
+          
+          .section-title {
+            background-color: #d0d0d0;
+            padding: 4px 8px;
+            font-weight: bold;
+            border: 1px solid #000;
+            margin-top: 8px;
+            font-size: 9pt;
+          }
+          
+          table { 
+            width: 100%; 
+            border-collapse: collapse;
+            margin-top: 3px;
+            font-size: 8pt;
+          }
+          
+          th, td { 
+            border: 1px solid #000; 
+            padding: 3px 5px;
+            text-align: center;
+          }
+          
+          th { 
+            background-color: #e0e0e0;
+            font-weight: bold;
+          }
+          
+          .left-align { text-align: left; }
+          .right-align { text-align: right; }
+          
+          .two-column {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            gap: 5px;
+          }
+          
+          .column {
+            width: 48%;
+          }
+          
+          .signature-section {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+            font-size: 8.5pt;
+          }
+          
+          .signature-box {
+            width: 48%;
+          }
+          
+          .signature-box strong {
+            display: block;
+            margin-bottom: 3px;
+            text-decoration: underline;
+          }
+          
+          .signature-line {
+            margin-top: 20px;
+            padding-top: 5px;
+          }
+          
+          .total-row {
+            background-color: #e0e0e0;
+            font-weight: bold;
+          }
+        </style>
+      </head>
+      <body>
+        ${data.map((item) => generatePage(item)).join("")}
+      </body>
+    </html>
+  `;
+}
+
+// Helper function สำหรับสร้างแต่ละหน้า
+function generatePage(item: any) {
+  const powerOriginal = item.powerOriginal;
+  const powerCurrent = item.powerCurrent;
+
+  return `
+    <div class="page">
+      <!-- Header -->
+      <div class="header">
+        <h1>${item.power?.company?.name || "-"}</h1>
+        <h2>Daily Availability and Declaration</h2>
+      </div>
+      
+      <!-- Declaration Info -->
+      <div class="info-row">
+        <div class="info-item">
+          <strong>${item.power?.name || "-"} Power Plant</strong>
+        </div>
+        <div class="info-item" style="margin: 0 5px;">
+          <strong>Declaration for Date:</strong> ${moment(item.powerDate).format("DD/MM/YYYY")}
+        </div>
+        <div class="info-item">
+          <strong>Create Document:</strong> ${moment(item.createdAt).format("DD/MM/YYYY HH:mm:ss")}
+        </div>
+      </div>
+      
+    <!-- Reservoir Situation & Daily Water Discharge Plan (Two Column) -->
+    <div class="two-column">
+    <!-- Left Column: Reservoir Situation -->
+    <div class="column">
+        <div class="section-title">Reservoir Situation at 00:00 AM</div>
+        <table>
+        <tr>
+            <td class="left-align" style="width: 60%; border-right: 2px solid #000;">Upstream Level:</td>
+            <td style="width: 25%;">${formatNumber(powerCurrent?.upstreamLevel)}</td>
+            <td style="width: 15%;">masl</td>
+        </tr>
+        <tr>
+            <td class="left-align" style="border-right: 2px solid #000;">Downstream Level:</td>
+            <td>${formatNumber(powerCurrent?.downstreamLevel)}</td>
+            <td>masl</td>
+        </tr>
+        <tr>
+            <td class="left-align" style="border-right: 2px solid #000;" rowspan="2">Total Storage:</td>
+            <td>${formatNumber(powerCurrent?.totalStorageamount)}</td>
+            <td>m³</td>
+        </tr>
+        <tr>
+            <td>${formatNumber(powerCurrent?.totalStorageaverage)}</td>
+            <td>%</td>
+        </tr>
+        <tr>
+            <td class="left-align" style="border-right: 2px solid #000;" rowspan="2">Active Storage:</td>
+            <td>${formatNumber(powerCurrent?.activeStorageamount)}</td>
+            <td>m³</td>
+        </tr>
+        <tr>
+            <td>${formatNumber(powerCurrent?.activeStorageaverage)}</td>
+            <td>%</td>
+        </tr>
+        </table>
+    </div>
+    
+    <!-- Right Column: Daily Water Discharge Plan -->
+    <div class="column">
+        <div class="section-title">Daily Water Discharge Plan</div>
+        <table>
+        <tr>
+            <th style="width: 50%;">Descriptions</th>
+            <th style="width: 25%;">Amount<br/>m³</th>
+            <th style="width: 25%;">Average<br/>m³/s</th>
+        </tr>
+        <tr>
+            <td class="left-align">Turbine Discharge:</td>
+            <td>${formatNumber(powerCurrent?.turbineDischargeamount)}</td>
+            <td>${formatNumber(powerCurrent?.turbineDischargeaverage)}</td>
+        </tr>
+        <tr>
+            <td class="left-align">Spillway Discharge:</td>
+            <td>${formatNumber(powerCurrent?.spillwayDischargeamount)}</td>
+            <td>${formatNumber(powerCurrent?.spillwayDischargeaverage)}</td>
+        </tr>
+        <tr>
+            <td class="left-align">Ecological Discharge:</td>
+            <td>${formatNumber(powerCurrent?.ecologicalDischargeamount)}</td>
+            <td>${formatNumber(powerCurrent?.ecologicalDischargeaverage)}</td>
+        </tr>
+        <tr class="total-row">
+            <td class="left-align">Total Discharge:</td>
+            <td>${formatNumber(powerCurrent?.totalDischargeamount)}</td>
+            <td>${formatNumber(powerCurrent?.totalDischargeaverage)}</td>
+        </tr>
+        </table>
+    </div>
+    </div>
+      
+      <!-- Machines Availability -->
+      <div class="section-title">Machines Availability</div>
+      <table>
+        <tr>
+          <th>Units</th>
+          ${
+            powerOriginal?.machinesAvailability
+              ?.map((m: any) => `<th>Unit ${m.turbine} (MW)</th>`)
+              .join("") ?? ""
+          }
+        </tr>
+        <tr>
+          <td class="left-align">Max</td>
+          ${
+            powerOriginal?.machinesAvailability
+              ?.map((m: any) => `<td>${formatNumber(m.maxs)}</td>`)
+              .join("") ?? ""
+          }
+        </tr>
+        <tr>
+          <td class="left-align">Min</td>
+          ${
+            powerOriginal?.machinesAvailability
+              ?.map((m: any) => `<td>${formatNumber(m.mins)}</td>`)
+              .join("") ?? ""
+          }
+        </tr>
+      </table>
+      
+      <!-- Declaration & Dispatch Programs (Side by Side) -->
+      <div class="two-column">
+        <div class="column">
+          <div class="section-title">Declaration Program</div>
+          <table>
+            <tr>
+              <th style="width: 30%;">Time</th>
+              ${
+                powerOriginal?.originalTurbines
+                  ?.map((t: any) => `<th>Unit${t.turbine}</th>`)
+                  .join("") ?? ""
+              }
+              <th>Total</th>
+              <th style="width: 15%;">Remark</th>
+            </tr>
+            ${generateHourlyRows(powerOriginal?.originalTurbines, powerOriginal?.remarks)}
+            <tr class="total-row">
+              <td>Total (MWh)</td>
+              ${
+                powerOriginal?.originalTurbines
+                  ?.map((t: any) => {
+                    const total = (t.hourly || []).reduce(
+                      (sum: number, val: any) => sum + (parseFloat(val) || 0),
+                      0,
+                    );
+                    return `<td>${formatNumber(total)}</td>`;
+                  })
+                  .join("") ?? "<td>-</td><td>-</td><td>-</td>"
+              }
+              <td>${formatNumber(powerOriginal?.totalPower)}</td>
+              <td></td>
+            </tr>
+          </table>
+        </div>
+        
+        <div class="column">
+          <div class="section-title">PCD Dispatch Program</div>
+          <table>
+            <tr>
+              <th style="width: 30%;">Time</th>
+              ${
+                powerCurrent?.currentTurbines
+                  ?.map((t: any) => `<th>Unit${t.turbine}</th>`)
+                  .join("") ?? ""
+              }
+              <th>Total</th>
+              <th style="width: 15%;">Remark</th>
+            </tr>
+            ${generateHourlyRows(powerCurrent?.currentTurbines, powerCurrent?.remarks)}
+            <tr class="total-row">
+              <td>Total (MWh)</td>
+              ${
+                powerCurrent?.currentTurbines
+                  ?.map((t: any) => {
+                    const total = (t.hourly || []).reduce(
+                      (sum: number, val: any) => sum + (parseFloat(val) || 0),
+                      0,
+                    );
+                    return `<td>${formatNumber(total)}</td>`;
+                  })
+                  .join("") ?? ""
+              }
+              <td>${formatNumber(powerCurrent?.totalPower)}</td>
+              <td></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      
+      <!-- Remark -->
+        ${
+          powerOriginal?.remark || powerCurrent?.remark
+            ? `
+        <div class="two-column" style="margin-top: 10px; font-size: 8.5pt;">
+            <div class="column">
+            ${powerOriginal?.remark ? `<strong>Remark:</strong><br/>${powerOriginal.remark}` : ""}
+            </div>
+            <div class="column">
+            ${powerCurrent?.remark ? `<strong>Remark:</strong><br/>${powerCurrent.remark}` : ""}
+            </div>
+        </div>
+        `
+            : ""
+        }
+
+      
+      <!-- Signatures -->
+      <div class="signature-section">
+        <div class="signature-box">
+          <strong>Issued by ${item.power?.name || "-"}</strong>
+          <div class="signature-line">
+            <div>Name: ${item.decAcknowUser ? `${item.decAcknowUser.firstname} ${item.decAcknowUser.lastname}` : "_______________________"}</div>
+            <div>Date: ${item.decAcknowAt ? moment(item.decAcknowAt).format("DD/MM/YYYY HH:mm:ss") : "_____________"}</div>
+          </div>
+        </div>
+        
+        <div class="signature-box">
+          <strong>Acknowledged by PCD</strong>
+          <div class="signature-line">
+            <div>Name: ${item.disAcknowUser ? `${item.disAcknowUser.firstname} ${item.disAcknowUser.lastname}` : "_______________________"}</div>
+            <div>Date: ${item.disAcknowAt ? moment(item.disAcknowAt).format("DD/MM/YYYY HH:mm:ss") : "_____________"}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ✅ Helper function สำหรับสร้างแถวข้อมูลรายชั่วโมง (แก้ไขแล้ว)
+function generateHourlyRows(turbines: any[], remarks: string[] = []) {
+  if (!turbines || turbines.length === 0)
+    return '<tr><td colspan="6">No data</td></tr>';
+
+  const rows = [];
+  for (let hour = 0; hour < 24; hour++) {
+    const timeRange = `${String(hour).padStart(2, "0")}:00-${String(hour + 1).padStart(2, "0")}:00`;
+
+    // ✅ แก้ไข: จัดการค่า null/undefined และแปลงเป็นตัวเลข
+    const turbineValues = turbines.map((t) => {
+      const hourlyData = t.hourly || [];
+      const value = hourlyData[hour];
+      return parseFloat(value) || 0;
+    });
+
+    // ✅ คำนวณผลรวมและแสดงทศนิยม 2 ตำแหน่ง
+    const total = turbineValues.reduce((sum, val) => sum + val, 0);
+    const remark = remarks[hour] || "";
+
+    rows.push(`
+      <tr>
+        <td style="font-size: 7pt;">${timeRange}</td>
+        ${turbineValues.map((val) => `<td style="font-size: 7pt;">${formatNumber(val)}</td>`).join("")}
+        <td style="font-size: 7pt;">${formatNumber(total)}</td>
+        <td style="font-size: 7pt;">${remark}</td>
+      </tr>
+    `);
+  }
+
+  return rows.join("");
+}

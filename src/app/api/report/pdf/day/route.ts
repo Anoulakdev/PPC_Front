@@ -24,8 +24,6 @@ export async function GET(req: NextRequest) {
       ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/reports/day?powerId=${powerId}&startDate=${startDate}&endDate=${endDate}`
       : `${process.env.NEXT_PUBLIC_API_BASE_URL}/reports/day?startDate=${startDate}&endDate=${endDate}`;
 
-    console.log("📡 Calling API:", apiUrl);
-
     // ✅ ดึงข้อมูลจาก NestJS ด้วย token จาก cookie
     const response = await axios.get(apiUrl, {
       headers: {
@@ -35,11 +33,9 @@ export async function GET(req: NextRequest) {
     });
 
     const data = response.data;
-    console.log("✅ Data received, generating HTML...");
 
     // สร้าง HTML สำหรับ PDF
     const html = generatePDF(data);
-    console.log("✅ HTML generated, launching Puppeteer...");
 
     // ✅ Generate PDF ด้วย Puppeteer
     browser = await puppeteer.launch({
@@ -55,18 +51,12 @@ export async function GET(req: NextRequest) {
       timeout: 30000,
     });
 
-    console.log("✅ Browser launched, creating page...");
-
     const page = await browser.newPage();
-
-    console.log("✅ Page created, setting content...");
 
     await page.setContent(html, {
       waitUntil: "networkidle0",
       timeout: 60000,
     });
-
-    console.log("✅ Content set, generating PDF...");
 
     const pdfBuffer = await page.pdf({
       format: "A4",
@@ -80,8 +70,6 @@ export async function GET(req: NextRequest) {
       timeout: 60000,
     });
 
-    console.log("✅ PDF generated successfully!");
-
     await browser.close();
 
     // ✅ ส่ง PDF กลับ client
@@ -93,10 +81,6 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch (error: any) {
-    console.error("❌ PDF generation error:", error);
-    console.error("❌ Error message:", error.message);
-    console.error("❌ Error stack:", error.stack);
-
     // ปิด browser ถ้ายังเปิดอยู่
     if (browser) {
       try {
@@ -211,7 +195,7 @@ function generatePDF(data: any[]) {
           
           th, td { 
             border: 1px solid #000; 
-            padding: 3px 5px;
+            padding: 2px 1px;
             text-align: center;
           }
           
@@ -377,7 +361,7 @@ function generatePage(item: any) {
           }
         </tr>
         <tr>
-          <td class="left-align">Max</td>
+          <td>Max</td>
           ${
             powerOriginal?.machinesAvailability
               ?.map((m: any) => `<td>${formatNumber(m.maxs)}</td>`)
@@ -385,7 +369,7 @@ function generatePage(item: any) {
           }
         </tr>
         <tr>
-          <td class="left-align">Min</td>
+          <td>Min</td>
           ${
             powerOriginal?.machinesAvailability
               ?.map((m: any) => `<td>${formatNumber(m.mins)}</td>`)
@@ -399,7 +383,11 @@ function generatePage(item: any) {
         <div class="column">
           <div class="section-title">Declaration Program</div>
           <table>
-            <tr>
+          ${
+            (powerOriginal?.originalTurbines?.length ?? 0) > 5
+              ? `<tr style="font-size:6pt;">`
+              : `<tr>`
+          }
               <th style="width: 30%;">Time</th>
               ${
                 powerOriginal?.originalTurbines
@@ -410,7 +398,11 @@ function generatePage(item: any) {
               <th style="width: 15%;">Remark</th>
             </tr>
             ${generateHourlyRows(powerOriginal?.originalTurbines, powerOriginal?.remarks)}
-            <tr class="total-row">
+            ${
+              (powerOriginal?.originalTurbines?.length ?? 0) > 5
+                ? `<tr style="font-size:6pt;" class="total-row">`
+                : `<tr class="total-row">`
+            }
               <td>Total (MWh)</td>
               ${
                 powerOriginal?.originalTurbines
@@ -421,7 +413,7 @@ function generatePage(item: any) {
                     );
                     return `<td>${formatNumber(total)}</td>`;
                   })
-                  .join("") ?? "<td>-</td><td>-</td><td>-</td>"
+                  .join("") ?? ""
               }
               <td>${formatNumber(powerOriginal?.totalPower)}</td>
               <td></td>
@@ -432,7 +424,11 @@ function generatePage(item: any) {
         <div class="column">
           <div class="section-title">PCD Dispatch Program</div>
           <table>
-            <tr>
+            ${
+              (powerCurrent?.currentTurbines?.length ?? 0) > 5
+                ? `<tr style="font-size:6pt;">`
+                : `<tr>`
+            }
               <th style="width: 30%;">Time</th>
               ${
                 powerCurrent?.currentTurbines
@@ -443,7 +439,11 @@ function generatePage(item: any) {
               <th style="width: 15%;">Remark</th>
             </tr>
             ${generateHourlyRows(powerCurrent?.currentTurbines, powerCurrent?.remarks)}
-            <tr class="total-row">
+            ${
+              (powerCurrent?.currentTurbines?.length ?? 0) > 5
+                ? `<tr style="font-size:6pt;" class="total-row">`
+                : `<tr class="total-row">`
+            }
               <td>Total (MWh)</td>
               ${
                 powerCurrent?.currentTurbines
@@ -523,11 +523,15 @@ function generateHourlyRows(turbines: any[], remarks: string[] = []) {
     const remark = remarks[hour] || "";
 
     rows.push(`
-      <tr>
-        <td style="font-size: 7pt;">${timeRange}</td>
-        ${turbineValues.map((val) => `<td style="font-size: 7pt;">${formatNumber(val)}</td>`).join("")}
-        <td style="font-size: 7pt;">${formatNumber(total)}</td>
-        <td style="font-size: 7pt;">${remark}</td>
+      ${
+        (turbines?.length ?? 0) > 5
+          ? `<tr style="font-size:6pt;">`
+          : `<tr style="font-size:7pt;">`
+      }
+        <td>${timeRange}</td>
+        ${turbineValues.map((val) => `<td>${formatNumber(val)}</td>`).join("")}
+        <td>${formatNumber(total)}</td>
+        <td style="white-space: normal; word-break: break-word;">${remark}</td>
       </tr>
     `);
   }

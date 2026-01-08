@@ -384,7 +384,7 @@ function generatePage(item: any) {
           <div class="section-title">Declaration Program</div>
           <table>
           ${
-            (powerOriginal?.originalTurbines?.length ?? 0) > 5
+            (powerOriginal?.originalTurbines?.length ?? 0) > 4
               ? `<tr style="font-size:6pt;">`
               : `<tr>`
           }
@@ -399,7 +399,7 @@ function generatePage(item: any) {
             </tr>
             ${generateHourlyRows(powerOriginal?.originalTurbines, powerOriginal?.remarks)}
             ${
-              (powerOriginal?.originalTurbines?.length ?? 0) > 5
+              (powerOriginal?.originalTurbines?.length ?? 0) > 4
                 ? `<tr style="font-size:6pt;" class="total-row">`
                 : `<tr class="total-row">`
             }
@@ -425,7 +425,7 @@ function generatePage(item: any) {
           <div class="section-title">PCD Dispatch Program</div>
           <table>
             ${
-              (powerCurrent?.currentTurbines?.length ?? 0) > 5
+              (powerCurrent?.currentTurbines?.length ?? 0) > 4
                 ? `<tr style="font-size:6pt;">`
                 : `<tr>`
             }
@@ -440,7 +440,7 @@ function generatePage(item: any) {
             </tr>
             ${generateHourlyRows(powerCurrent?.currentTurbines, powerCurrent?.remarks)}
             ${
-              (powerCurrent?.currentTurbines?.length ?? 0) > 5
+              (powerCurrent?.currentTurbines?.length ?? 0) > 4
                 ? `<tr style="font-size:6pt;" class="total-row">`
                 : `<tr class="total-row">`
             }
@@ -524,7 +524,7 @@ function generateHourlyRows(turbines: any[], remarks: string[] = []) {
 
     rows.push(`
       ${
-        (turbines?.length ?? 0) > 5
+        (turbines?.length ?? 0) > 4
           ? `<tr style="font-size:6pt;">`
           : `<tr style="font-size:7pt;">`
       }

@@ -105,6 +105,8 @@ export default function DayTable() {
   const [user, setUser] = useState<User | null>(null);
   //   const router = useRouter();
 
+  const formatDate = (date: Date) => moment(date).format("YYYY-MM-DD");
+
   useEffect(() => {
     const storedUser = getLocalStorage("user");
     setUser(storedUser as User);
@@ -146,7 +148,6 @@ export default function DayTable() {
     try {
       setLoading(true);
 
-      const formatDate = (date: Date) => moment(date).format("YYYY-MM-DD");
       const start = formatDate(startDate);
       const end = formatDate(endDate);
 
@@ -406,8 +407,8 @@ export default function DayTable() {
 
   const exportToPDF = () => {
     const params = new URLSearchParams({
-      startDate: startDate.toISOString().slice(0, 10),
-      endDate: endDate.toISOString().slice(0, 10),
+      startDate: formatDate(startDate),
+      endDate: formatDate(endDate),
       powerId: selectedPowerId ?? "",
     }).toString();
 

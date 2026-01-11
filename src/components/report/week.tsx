@@ -396,6 +396,17 @@ export default function WeekTable() {
     }
   };
 
+  const exportToPDF = () => {
+    const params = new URLSearchParams({
+      powerId: selectedPowerId ?? "",
+      sYear: selectedYear ?? "",
+      sWeek: selectedWeek ?? "",
+    }).toString();
+
+    const url = `/api/report/pdf/week?${params}`;
+    window.open(url, "_blank");
+  };
+
   return (
     <>
       <div className="rounded-xl bg-white p-6 shadow-lg dark:bg-gray-900 dark:text-gray-100">
@@ -443,17 +454,24 @@ export default function WeekTable() {
               </span>
             </div>
           </div>
-          <button
-            onClick={exportToExcel}
-            disabled={loading || data.length === 0}
-            className={`mt-2 self-start rounded-md bg-green-500 px-4 py-2 text-lg text-white hover:bg-green-600 md:mt-6 md:self-auto ${
-              loading || data.length === 0
-                ? "cursor-not-allowed opacity-50"
-                : ""
-            }`}
-          >
-            Excel
-          </button>
+
+          <div className="flex gap-2 self-start md:mt-6">
+            <button
+              onClick={exportToExcel}
+              disabled={loading || data.length === 0}
+              className={`rounded-md bg-green-500 px-4 py-2 text-lg text-white hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-green-500`}
+            >
+              Excel
+            </button>
+
+            <button
+              onClick={exportToPDF}
+              disabled={loading || data.length === 0}
+              className={`rounded-md bg-red-500 px-4 py-2 text-lg text-white hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-red-500`}
+            >
+              PDF
+            </button>
+          </div>
         </div>
         <hr />
 

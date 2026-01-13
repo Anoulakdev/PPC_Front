@@ -21,8 +21,8 @@ export async function GET(req: NextRequest) {
 
     // ✅ สร้าง URL สำหรับเรียก NestJS API
     const apiUrl = powerId
-      ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/reports/day?powerId=${powerId}&startDate=${startDate}&endDate=${endDate}`
-      : `${process.env.NEXT_PUBLIC_API_BASE_URL}/reports/day?startDate=${startDate}&endDate=${endDate}`;
+      ? `${process.env.NEXT_PUBLIC_API_BASE_URL}/dayreports?powerId=${powerId}&startDate=${startDate}&endDate=${endDate}`
+      : `${process.env.NEXT_PUBLIC_API_BASE_URL}/dayreports?startDate=${startDate}&endDate=${endDate}`;
 
     // ✅ ดึงข้อมูลจาก NestJS ด้วย token จาก cookie
     const response = await axios.get(apiUrl, {
@@ -77,7 +77,7 @@ export async function GET(req: NextRequest) {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename=Day_Report_${moment().format("DDMMYYYY_HHmmss")}.pdf`,
+        "Content-Disposition": `attachment; filename=Daily_Report_${moment().format("DDMMYYYY_HHmmss")}.pdf`,
       },
     });
   } catch (error: any) {
@@ -195,7 +195,7 @@ function generatePDF(data: any[]) {
           
           th, td { 
             border: 1px solid #000; 
-            padding: 2px 1px;
+            padding: 4px 2px;
             text-align: center;
           }
           
@@ -255,15 +255,14 @@ function generatePDF(data: any[]) {
 
 // Helper function สำหรับสร้างแต่ละหน้า
 function generatePage(item: any) {
-  const powerOriginal = item.powerOriginal;
-  const powerCurrent = item.powerCurrent;
+  const powerCurrent = item.dayReportCurrent?.powerCurrent;
 
   return `
     <div class="page">
       <!-- Header -->
       <div class="header">
         <h1>${item.power?.company?.name || "-"}</h1>
-        <h2>Daily Availability and Declaration</h2>
+        <h2>Daily Report</h2>
       </div>
       
       <!-- Declaration Info -->
@@ -272,140 +271,29 @@ function generatePage(item: any) {
           <strong>${item.power?.name || "-"} Power Plant</strong>
         </div>
         <div class="info-item" style="margin: 0 5px;">
-          <strong>Declaration for Date:</strong> ${moment(item.powerDate).format("DD/MM/YYYY")}
+          <strong>Daily Report for Date:</strong> ${moment(item.powerDate).format("DD/MM/YYYY")}
         </div>
         <div class="info-item">
-          <strong>Create Document:</strong> ${moment(item.createdAt).format("DD/MM/YYYY HH:mm:ss")}
+          <strong>Create Document:</strong> ${moment(item.dayReportCurrent?.createdAt).format("DD/MM/YYYY HH:mm:ss")}
         </div>
       </div>
       
-    <!-- Reservoir Situation & Daily Water Discharge Plan (Two Column) -->
-    <div class="two-column">
-    <!-- Left Column: Reservoir Situation -->
-    <div class="column">
-        <div class="section-title">Reservoir Situation at 00:00 AM</div>
-        <table>
-        <tr>
-            <td class="left-align" style="width: 60%; border-right: 2px solid #000;">Upstream Level:</td>
-            <td style="width: 25%;">${formatNumber(powerCurrent?.upstreamLevel)}</td>
-            <td style="width: 15%;">masl</td>
-        </tr>
-        <tr>
-            <td class="left-align" style="border-right: 2px solid #000;">Downstream Level:</td>
-            <td>${formatNumber(powerCurrent?.downstreamLevel)}</td>
-            <td>masl</td>
-        </tr>
-        <tr>
-            <td class="left-align" style="border-right: 2px solid #000;" rowspan="2">Total Storage:</td>
-            <td>${formatNumber(powerCurrent?.totalStorageamount)}</td>
-            <td>m³</td>
-        </tr>
-        <tr>
-            <td>${formatNumber(powerCurrent?.totalStorageaverage)}</td>
-            <td>%</td>
-        </tr>
-        <tr>
-            <td class="left-align" style="border-right: 2px solid #000;" rowspan="2">Active Storage:</td>
-            <td>${formatNumber(powerCurrent?.activeStorageamount)}</td>
-            <td>m³</td>
-        </tr>
-        <tr>
-            <td>${formatNumber(powerCurrent?.activeStorageaverage)}</td>
-            <td>%</td>
-        </tr>
-        </table>
-    </div>
-    
-    <!-- Right Column: Daily Water Discharge Plan -->
-    <div class="column">
-        <div class="section-title">Daily Water Discharge Plan</div>
-        <table>
-        <tr>
-            <th style="width: 50%;">Descriptions</th>
-            <th style="width: 25%;">Amount<br/>m³</th>
-            <th style="width: 25%;">Average<br/>m³/s</th>
-        </tr>
-        <tr>
-            <td class="left-align">Turbine Discharge:</td>
-            <td>${formatNumber(powerCurrent?.turbineDischargeamount)}</td>
-            <td>${formatNumber(powerCurrent?.turbineDischargeaverage)}</td>
-        </tr>
-        <tr>
-            <td class="left-align">Spillway Discharge:</td>
-            <td>${formatNumber(powerCurrent?.spillwayDischargeamount)}</td>
-            <td>${formatNumber(powerCurrent?.spillwayDischargeaverage)}</td>
-        </tr>
-        <tr>
-            <td class="left-align">Ecological Discharge:</td>
-            <td>${formatNumber(powerCurrent?.ecologicalDischargeamount)}</td>
-            <td>${formatNumber(powerCurrent?.ecologicalDischargeaverage)}</td>
-        </tr>
-        <tr class="total-row">
-            <td class="left-align">Total Discharge:</td>
-            <td>${formatNumber(powerCurrent?.totalDischargeamount)}</td>
-            <td>${formatNumber(powerCurrent?.totalDischargeaverage)}</td>
-        </tr>
-        </table>
-    </div>
-    </div>
-      
-      <!-- Machines Availability -->
-      <div class="section-title">Machines Availability</div>
-      <table>
-        <tr>
-          <th>Units</th>
-          ${
-            powerOriginal?.machinesAvailability
-              ?.map((m: any) => `<th>Unit ${m.turbine} (MW)</th>`)
-              .join("") ?? ""
-          }
-        </tr>
-        <tr>
-          <td>Max</td>
-          ${
-            powerOriginal?.machinesAvailability
-              ?.map((m: any) => `<td>${formatNumber(m.maxs)}</td>`)
-              .join("") ?? ""
-          }
-        </tr>
-        <tr>
-          <td>Min</td>
-          ${
-            powerOriginal?.machinesAvailability
-              ?.map((m: any) => `<td>${formatNumber(m.mins)}</td>`)
-              .join("") ?? ""
-          }
-        </tr>
-      </table>
       
       <!-- Declaration & Dispatch Programs (Side by Side) -->
       <div class="two-column">
         <div class="column">
-          <div class="section-title">Declaration Program</div>
+          <div class="section-title">Hourly Power Generation (MWh)</div>
           <table>
-          ${
-            (powerOriginal?.originalTurbines?.length ?? 0) > 4
-              ? `<tr style="font-size:6pt;">`
-              : `<tr>`
-          }
-              <th style="width: 30%;">Time</th>
-              ${
-                powerOriginal?.originalTurbines
-                  ?.map((t: any) => `<th>Unit${t.turbine}</th>`)
-                  .join("") ?? ""
-              }
-              <th>Total</th>
+            <tr>
+              <th style="width: 30%;">Time Of Day</th>
+              <th style="width: 15%;">Total (MWh)</th>
               <th style="width: 15%;">Remark</th>
             </tr>
-            ${generateHourlyRows(powerOriginal?.originalTurbines, powerOriginal?.remarks)}
-            ${
-              (powerOriginal?.originalTurbines?.length ?? 0) > 4
-                ? `<tr style="font-size:6pt;" class="total-row">`
-                : `<tr class="total-row">`
-            }
+            ${generateHourlyRows(powerCurrent?.originalTurbines, powerCurrent?.remarks)}
+            <tr class="total-row">
               <td>Total (MWh)</td>
               ${
-                powerOriginal?.originalTurbines
+                powerCurrent?.originalTurbines
                   ?.map((t: any) => {
                     const total = (t.hourly || []).reduce(
                       (sum: number, val: any) => sum + (parseFloat(val) || 0),
@@ -415,89 +303,171 @@ function generatePage(item: any) {
                   })
                   .join("") ?? ""
               }
-              <td>${formatNumber(powerOriginal?.totalPower)}</td>
+              
               <td></td>
             </tr>
           </table>
         </div>
-        
-        <div class="column">
-          <div class="section-title">PCD Dispatch Program</div>
-          <table>
-            ${
-              (powerCurrent?.currentTurbines?.length ?? 0) > 4
-                ? `<tr style="font-size:6pt;">`
-                : `<tr>`
-            }
-              <th style="width: 30%;">Time</th>
-              ${
-                powerCurrent?.currentTurbines
-                  ?.map((t: any) => `<th>Unit${t.turbine}</th>`)
-                  .join("") ?? ""
-              }
-              <th>Total</th>
-              <th style="width: 15%;">Remark</th>
-            </tr>
-            ${generateHourlyRows(powerCurrent?.currentTurbines, powerCurrent?.remarks)}
-            ${
-              (powerCurrent?.currentTurbines?.length ?? 0) > 4
-                ? `<tr style="font-size:6pt;" class="total-row">`
-                : `<tr class="total-row">`
-            }
-              <td>Total (MWh)</td>
-              ${
-                powerCurrent?.currentTurbines
-                  ?.map((t: any) => {
-                    const total = (t.hourly || []).reduce(
-                      (sum: number, val: any) => sum + (parseFloat(val) || 0),
-                      0,
-                    );
-                    return `<td>${formatNumber(total)}</td>`;
-                  })
-                  .join("") ?? ""
-              }
-              <td>${formatNumber(powerCurrent?.totalPower)}</td>
-              <td></td>
-            </tr>
-          </table>
-        </div>
-      </div>
-      
-      <!-- Remark -->
-        ${
-          powerOriginal?.remark || powerCurrent?.remark
-            ? `
-        <div class="two-column" style="margin-top: 10px; font-size: 8.5pt;">
-            <div class="column">
-            ${powerOriginal?.remark ? `<strong>Remark:</strong><br/>${powerOriginal.remark}` : ""}
-            </div>
-            <div class="column">
-            ${powerCurrent?.remark ? `<strong>Remark:</strong><br/>${powerCurrent.remark}` : ""}
-            </div>
-        </div>
-        `
-            : ""
-        }
 
-      
-      <!-- Signatures -->
-      <div class="signature-section">
-        <div class="signature-box">
-          <strong>Issued by ${item.power?.name || "-"}</strong>
-          <div class="signature-line">
-            <div>Name: ${item.decAcknowUser ? `${item.decAcknowUser.firstname} ${item.decAcknowUser.lastname}` : "_______________________"}</div>
-            <div>Date: ${item.decAcknowAt ? moment(item.decAcknowAt).format("DD/MM/YYYY HH:mm:ss") : "_____________"}</div>
-          </div>
-        </div>
+        <div class="column">
+          <div class="section-title">Data Yesterday: ${moment(item.powerDate).format("DD/MM/YYYY")}</div>
+        <table>
+        <tr>
+            <th style="width: 50%;">Descriptions</th>
+            <th style="width: 25%;">Value</th>
+            <th style="width: 25%;">Unit</th>
+        </tr>
         
-        <div class="signature-box">
-          <strong>Acknowledged by PCD</strong>
-          <div class="signature-line">
-            <div>Name: ${item.disAcknowUser ? `${item.disAcknowUser.firstname} ${item.disAcknowUser.lastname}` : "_______________________"}</div>
-            <div>Date: ${item.disAcknowAt ? moment(item.disAcknowAt).format("DD/MM/YYYY HH:mm:ss") : "_____________"}</div>
-          </div>
+        <tr>
+            <td class="left-align" style="border-right: 2px solid #000;" rowspan="2">InFlow:</td>
+            <td>${formatNumber(item.dayReportCurrent?.inflowamount)}</td>
+            <td>m³</td>
+        </tr>
+        <tr>
+            <td>${formatNumber(item.dayReportCurrent?.inflowaverage)}</td>
+            <td>m³/s</td>
+        </tr>
+
+        <tr>
+            <td class="left-align" style="border-right: 2px solid #000;" rowspan="2">Turbine Dischard:</td>
+            <td>${formatNumber(item.dayReportCurrent?.tdAmount)}</td>
+            <td>m³</td>
+        </tr>
+        <tr>
+            <td>${formatNumber(item.dayReportCurrent?.tdAverage)}</td>
+            <td>m³/s</td>
+        </tr>
+
+        <tr>
+            <td class="left-align" style="border-right: 2px solid #000;" rowspan="2">Spill Way:</td>
+            <td>${formatNumber(item.dayReportCurrent?.spillwayamount)}</td>
+            <td>m³</td>
+        </tr>
+        <tr>
+            <td>${formatNumber(item.dayReportCurrent?.spillwayaverage)}</td>
+            <td>m³/s</td>
+        </tr>
+
+        <tr>
+            <td class="left-align" style="border-right: 2px solid #000;" rowspan="2">Other Water Released:</td>
+            <td>${formatNumber(item.dayReportCurrent?.owramount)}</td>
+            <td>m³</td>
+        </tr>
+        <tr>
+            <td>${formatNumber(item.dayReportCurrent?.owraverage)}</td>
+            <td>m³/s</td>
+        </tr>
+
+        <tr>
+            <td class="left-align" style="width: 60%; border-right: 2px solid #000;">Rain fall:</td>
+            <td style="width: 25%;">${formatNumber(item.dayReportCurrent?.rainFall)}</td>
+            <td style="width: 15%;">mm</td>
+        </tr>
+
+        <tr>
+            <td class="left-align" style="width: 60%; border-right: 2px solid #000;">Power Generation:</td>
+            <td style="width: 25%;">${formatNumber(item.dayReportCurrent?.powerGeneration)}</td>
+            <td style="width: 15%;">kWh</td>
+        </tr>
+
+        <tr>
+            <td class="left-align" style="width: 60%; border-right: 2px solid #000;">Net Energy Import:</td>
+            <td style="width: 25%;">${formatNumber(item.dayReportCurrent?.netEnergyImport)}</td>
+            <td style="width: 15%;">kWh</td>
+        </tr>
+
+        <tr>
+            <td class="left-align" style="width: 60%; border-right: 2px solid #000;">Net Energy Output:</td>
+            <td style="width: 25%;">${formatNumber(item.dayReportCurrent?.netEnergyOutput)}</td>
+            <td style="width: 15%;">kWh</td>
+        </tr>
+
+        <tr>
+            <td class="left-align" style="width: 60%; border-right: 2px solid #000;">Water Rate:</td>
+            <td style="width: 25%;">${formatNumber(item.dayReportCurrent?.waterRate)}</td>
+            <td style="width: 15%;">m³/kWh</td>
+        </tr>
+
+        <tr>
+            <td class="left-align" style="width: 60%; border-right: 2px solid #000;">Total Outflow:</td>
+            <td style="width: 25%;">${formatNumber(item.dayReportCurrent?.totalOutflow)}</td>
+            <td style="width: 15%;">m³</td>
+        </tr>
+
+        <tr>
+            <td class="left-align" style="width: 60%; border-right: 2px solid #000;">Average Outflow:</td>
+            <td style="width: 25%;">${formatNumber(item.dayReportCurrent?.averageOutflow)}</td>
+            <td style="width: 15%;">m³/s</td>
+        </tr>
+        
+        </table>
+
+        <div class="section-title">Data Today: ${moment(item.powerDate).add(1, "day").format("DD/MM/YYYY")}</div>
+
+        <table>
+        <tr>
+            <th style="width: 50%;">Descriptions</th>
+            <th style="width: 25%;">Value</th>
+            <th style="width: 25%;">Unit</th>
+        </tr>
+        
+        <tr>
+            <td class="left-align" style="border-right: 2px solid #000;" rowspan="2">Active Storage:</td>
+            <td>${formatNumber(item.dayReportCurrent?.activeStorageamount)}</td>
+            <td>m³</td>
+        </tr>
+        <tr>
+            <td>${formatNumber(item.dayReportCurrent?.activeStorageaverage)}</td>
+            <td>m³/s</td>
+        </tr>
+
+        <tr>
+            <td class="left-align" style="width: 60%; border-right: 2px solid #000;">Water Level:</td>
+            <td style="width: 25%;">${formatNumber(item.dayReportCurrent?.waterLevel)}</td>
+            <td style="width: 15%;">masl</td>
+        </tr>
+
+        <tr>
+            <td class="left-align" style="width: 60%; border-right: 2px solid #000;">Diff with Yesterday:</td>
+            <td style="width: 25%;">${formatNumber(item.dayReportCurrent?.dwy)}</td>
+            <td style="width: 15%;">m</td>
+        </tr>
+
+        <tr>
+            <td class="left-align" style="width: 60%; border-right: 2px solid #000;">Diff with Full:</td>
+            <td style="width: 25%;">${formatNumber(item.dayReportCurrent?.dwf)}</td>
+            <td style="width: 15%;">m</td>
+        </tr>
+
+        <tr>
+            <td class="left-align" style="width: 60%; border-right: 2px solid #000;">Diff with Min:</td>
+            <td style="width: 25%;">${formatNumber(item.dayReportCurrent?.dwm)}</td>
+            <td style="width: 15%;">m</td>
+        </tr>
+
+        <tr>
+            <td class="left-align" style="width: 60%; border-right: 2px solid #000;">Potential Water Storage:</td>
+            <td style="width: 25%;">${formatNumber(item.dayReportCurrent?.pws)}</td>
+            <td style="width: 15%;">m³</td>
+        </tr>
+        </table>
+
         </div>
       </div>
+
+      <!-- Signatures -->
+            <div class="signature-section">
+              <div class="signature-box">
+                <strong>Issued by ${item.power?.name || "-"}</strong>
+                <div class="signature-line">
+                  <div>Name: ${item.dayReportHistory?.createdByUser ? `${item.dayReportHistory?.createdByUser.firstname} ${item.dayReportHistory?.createdByUser.lastname}` : "_______________________"}</div>
+                  <div>Date: ${item.dayReportHistory?.createdAt ? moment(item.dayReportHistory?.createdAt).format("DD/MM/YYYY HH:mm:ss") : "_____________"}</div>
+                </div>
+              </div>
+              
+              
+            </div>
+
     </div>
   `;
 }
@@ -519,18 +489,13 @@ function generateHourlyRows(turbines: any[], remarks: string[] = []) {
     });
 
     // ✅ คำนวณผลรวมและแสดงทศนิยม 2 ตำแหน่ง
-    const total = turbineValues.reduce((sum, val) => sum + val, 0);
+    // const total = turbineValues.reduce((sum, val) => sum + val, 0);
     const remark = remarks[hour] || "";
 
     rows.push(`
-      ${
-        (turbines?.length ?? 0) > 4
-          ? `<tr style="font-size:6pt;">`
-          : `<tr style="font-size:7pt;">`
-      }
+      <tr style="font-size:8pt;">
         <td>${timeRange}</td>
         ${turbineValues.map((val) => `<td>${formatNumber(val)}</td>`).join("")}
-        <td>${formatNumber(total)}</td>
         <td style="white-space: normal; word-break: break-word;">${remark}</td>
       </tr>
     `);

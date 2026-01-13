@@ -139,6 +139,8 @@ export default function DayTable() {
   const endDate = useFilterStore((state) => state.endDate);
   const setEndDate = useFilterStore((state) => state.setEndDate);
 
+  const formatDate = (date: Date): string => moment(date).format("YYYY-MM-DD");
+
   useEffect(() => {
     const storedUser = getLocalStorage("user");
     setUser(storedUser as User);
@@ -179,9 +181,6 @@ export default function DayTable() {
   const fetchData = async () => {
     try {
       setLoading(true);
-
-      const formatDate = (date: Date): string =>
-        moment(date).format("YYYY-MM-DD");
 
       if (!startDate || !endDate) {
         console.warn("StartDate or EndDate is null");
@@ -623,6 +622,17 @@ export default function DayTable() {
     }
   };
 
+  const exportToPDF = () => {
+    const params = new URLSearchParams({
+      startDate: formatDate(startDate!),
+      endDate: formatDate(endDate!),
+      powerId: selectedPowerId ?? "",
+    }).toString();
+
+    const url = `/api/report/pdf/daily?${params}`;
+    window.open(url, "_blank");
+  };
+
   return (
     <>
       <div className="rounded-xl bg-white p-6 shadow-lg dark:bg-gray-900 dark:text-gray-100">
@@ -667,17 +677,23 @@ export default function DayTable() {
             />
           </div>
 
-          <button
-            onClick={exportToExcel}
-            disabled={loading || data.length === 0}
-            className={`mt-2 self-start rounded-md bg-green-500 px-4 py-2 text-lg text-white hover:bg-green-600 md:mt-6 md:self-auto ${
-              loading || data.length === 0
-                ? "cursor-not-allowed opacity-50"
-                : ""
-            }`}
-          >
-            Excel
-          </button>
+          <div className="flex gap-2 self-start md:mt-6">
+            <button
+              onClick={exportToExcel}
+              disabled={loading || data.length === 0}
+              className={`rounded-md bg-green-500 px-4 py-2 text-lg text-white hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-green-500`}
+            >
+              Excel
+            </button>
+
+            <button
+              onClick={exportToPDF}
+              disabled={loading || data.length === 0}
+              className={`rounded-md bg-red-500 px-4 py-2 text-lg text-white hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-red-500`}
+            >
+              PDF
+            </button>
+          </div>
         </div>
         <hr />
 

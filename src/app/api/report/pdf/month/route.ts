@@ -79,7 +79,7 @@ export async function GET(req: NextRequest) {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename=Weekly_Report_${moment().format("DDMMYYYY_HHmmss")}.pdf`,
+        "Content-Disposition": `attachment; filename=Monthly_Report_${moment().format("DDMMYYYY_HHmmss")}.pdf`,
       },
     });
   } catch (error: any) {

@@ -18,6 +18,7 @@ import {
   UserCircleIcon,
   BuildingIcon,
   PeopleIcon,
+  TrashBinIcon,
 } from "../../icons/index";
 // import SidebarWidget from "./SidebarWidget";
 
@@ -73,6 +74,11 @@ const navItems: NavItem[] = [
     icon: <ListIcon />,
     name: "Owner",
     path: "/owner",
+  },
+  {
+    icon: <TrashBinIcon />,
+    name: "Daily Delete",
+    path: "/dailydelete",
   },
 ];
 

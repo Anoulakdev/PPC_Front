@@ -41,6 +41,7 @@ export async function middleware(request: NextRequest) {
       "/region",
       "/user/admin",
       "/voltage",
+      "/dailydelete",
     ];
     const edlPaths = ["/alldocument/edl", "/dispatch"];
     const powerPaths = ["/alldocument/power", "/declaration"];
@@ -89,6 +90,7 @@ export const config = {
     "/power/:path*",
     "/region/:path*",
     "/voltage/:path*",
+    "/dailydelete/:path*",
     "/alldocument/:path*",
     "/dispatch/:path*",
     "/declaration/:path*",

@@ -27,6 +27,8 @@ type Power = {
   name: string;
   unit: number;
   abbreviation: string;
+  bossAcknow: boolean;
+  phone: string;
   isActive: string;
   address: string;
   installCapacity: string;
@@ -138,10 +140,42 @@ export default function CompanyTable() {
     }
   };
 
+  const handleStatusChange = async (id: number, currentStatus: boolean) => {
+    const newStatus = currentStatus === true ? false : true;
+    try {
+      await axiosInstance.put(
+        `/powers/updatebossacknow/${id}?bossacknow=${newStatus}`,
+      );
+      await fetchData();
+      toast.success("update status successfully!");
+    } catch {
+      toast.error("Failed to update status");
+    }
+  };
+
   const columns: ColumnDef<Power>[] = [
     {
       header: "No",
       cell: ({ row }) => row.index + 1,
+    },
+    {
+      accessorKey: "bossAcknow",
+      header: "Boss Acknow",
+      cell: ({ row }) => {
+        const p = row.original;
+
+        return (
+          <label className="relative inline-flex cursor-pointer items-center">
+            <input
+              type="checkbox"
+              className="peer sr-only"
+              checked={p.bossAcknow === true}
+              onChange={() => handleStatusChange(p.id, p.bossAcknow)}
+            />
+            <div className="peer h-6 w-11 rounded-full bg-gray-200 peer-checked:bg-green-500 peer-focus:ring-2 peer-focus:ring-green-300 peer-focus:outline-none after:absolute after:top-0.5 after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white dark:border-gray-600 dark:bg-gray-700"></div>
+          </label>
+        );
+      },
     },
     {
       accessorKey: "company.name",
@@ -307,7 +341,7 @@ export default function CompanyTable() {
                       <th
                         key={header.id}
                         onClick={header.column.getToggleSortingHandler()}
-                        className="cursor-pointer px-5 py-4 text-left whitespace-nowrap select-none"
+                        className="cursor-pointer px-4 py-3 text-left whitespace-nowrap select-none"
                       >
                         {flexRender(
                           header.column.columnDef.header,

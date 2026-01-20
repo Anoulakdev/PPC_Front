@@ -193,7 +193,6 @@ function generatePDF(data: any[]) {
             border-collapse: collapse;
             margin-top: 5px;
             font-size: 5.5pt;
-            table-layout: fixed;
           }
           
           th, td { 

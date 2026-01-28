@@ -10,7 +10,7 @@ import FileInput from "../form/input/FileInput";
 import { ChevronDownIcon } from "@/icons";
 import Image from "next/image";
 import axiosInstance from "@/utils/axiosInstance";
-import DatePickerOne from "@/components/form/date-pickerone";
+import DatePickerEdit from "../form/date-pickeredit";
 import moment from "moment";
 
 interface EditPowerProps {
@@ -189,10 +189,7 @@ export default function EditPower({
       formData.append("totalStorageDead", data.totalStorageDead);
       formData.append("totalActiveFull", data.totalActiveFull);
       formData.append("totalActiveDead", data.totalActiveDead);
-      formData.append(
-        "codDate",
-        moment(data.codDate, "DD-MM-YYYY").format("YYYY-MM-DD"),
-      );
+      formData.append("codDate", data.codDate);
       if (uploadedImage) formData.append("powerimg", uploadedImage);
 
       await axiosInstance.put(`/powers/${id}`, formData, {
@@ -334,14 +331,22 @@ export default function EditPower({
                 />
               </div>
               <div>
-                <DatePickerOne
+                <DatePickerEdit
                   id="codDate"
+                  name="codDate"
                   label="COD Date"
                   placeholder="Select Date"
                   defaultDate={data.codDate || ""}
-                  onChange={(date, formatted) =>
+                  onChange={(dates) =>
                     setData((prev) =>
-                      prev ? { ...prev, codDate: formatted } : null,
+                      prev
+                        ? {
+                            ...prev,
+                            codDate: moment(dates[0], "DD-MM-YYYY").format(
+                              "YYYY-MM-DD",
+                            ),
+                          }
+                        : null,
                     )
                   }
                 />

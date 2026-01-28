@@ -418,7 +418,7 @@ function generatePage(item: any) {
         </tr>
         <tr>
             <td>${formatNumber(item.dayReportCurrent?.activeStorageaverage)}</td>
-            <td>m³/s</td>
+            <td>%</td>
         </tr>
 
         <tr>

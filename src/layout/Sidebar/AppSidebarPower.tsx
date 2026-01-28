@@ -14,6 +14,8 @@ import {
   ReportIcon,
   PaperPlaneIcon,
   PeopleIcon,
+  Event,
+  Maintenance,
 } from "../../icons/index";
 // import SidebarWidget from "./SidebarWidget";
 
@@ -71,6 +73,16 @@ const navItems: NavItem[] = [
     icon: <PaperPlaneIcon />,
     name: "Daily Report",
     path: "/declaration/createreport",
+  },
+  {
+    icon: <Event />,
+    name: "Event Report",
+    path: "/eventreport",
+  },
+  {
+    icon: <Maintenance />,
+    name: "Maintenance Plan",
+    path: "/maintenance",
   },
   {
     icon: <PeopleIcon />,

@@ -1,6 +1,8 @@
 import React from "react";
 
 interface TextareaProps {
+  name?: string;
+  id?: string;
   placeholder?: string; // Placeholder text
   rows?: number; // Number of rows
   value?: string; // Current value
@@ -9,9 +11,12 @@ interface TextareaProps {
   disabled?: boolean; // Disabled state
   error?: boolean; // Error state
   hint?: string; // Hint text to display
+  required?: boolean; // Required field
 }
 
 const TextArea: React.FC<TextareaProps> = ({
+  name,
+  id,
   placeholder = "Enter your message", // Default placeholder
   rows = 3, // Default number of rows
   value = "", // Default value
@@ -20,6 +25,7 @@ const TextArea: React.FC<TextareaProps> = ({
   disabled = false, // Disabled state
   error = false, // Error state
   hint = "", // Default hint text
+  required = false, // Required field
 }) => {
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (onChange) {
@@ -32,19 +38,22 @@ const TextArea: React.FC<TextareaProps> = ({
   if (disabled) {
     textareaClasses += ` bg-gray-100 opacity-50 text-gray-500 border-gray-300 cursor-not-allowed dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700`;
   } else if (error) {
-    textareaClasses += ` bg-transparent text-gray-400 border-gray-300 focus:border-error-300 focus:ring-3 focus:ring-error-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-error-800`;
+    textareaClasses += ` bg-transparent text-black dark:text-white border-gray-300 focus:border-error-300 focus:ring-3 focus:ring-error-500/10 dark:border-gray-700 dark:bg-gray-900 dark:focus:border-error-800`;
   } else {
-    textareaClasses += ` bg-transparent text-gray-400 border-gray-300 focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800`;
+    textareaClasses += ` bg-transparent text-black dark:text-white border-gray-300 focus:border-brand-300 focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:focus:border-brand-800`;
   }
 
   return (
     <div className="relative">
       <textarea
+        name={name}
+        id={id}
         placeholder={placeholder}
         rows={rows}
         value={value}
         onChange={handleChange}
         disabled={disabled}
+        required={required}
         className={textareaClasses}
       />
       {hint && (

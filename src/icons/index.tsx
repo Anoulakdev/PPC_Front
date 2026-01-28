@@ -54,6 +54,8 @@ import BellIcon from "./bell.svg";
 import BuildingIcon from "./building.svg";
 import PeopleIcon from "./people.svg";
 import ReportIcon from "./report.svg";
+import Event from "./calendar-range.svg";
+import Maintenance from "./gear.svg";
 
 export {
   DownloadIcon,
@@ -112,4 +114,6 @@ export {
   BuildingIcon,
   PeopleIcon,
   ReportIcon,
+  Event,
+  Maintenance,
 };

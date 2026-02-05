@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
@@ -341,9 +342,9 @@ export default function YearTable() {
             <button
               onClick={exportToPDF}
               disabled={loading || data.length === 0}
-              className={`rounded-md bg-red-500 px-4 py-2 text-lg text-white hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-red-500`}
+              // className={`rounded-md bg-red-500 px-4 py-2 text-lg text-white hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-red-500`}
             >
-              PDF
+              <img width={45} height={45} src="/pdf.png" alt="PDF" />
             </button>
           </div>
         </div>

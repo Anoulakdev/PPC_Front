@@ -27,6 +27,7 @@ import Label from "../form/Label";
 import SelectDate from "@/components/form/SelectDate";
 import { getLocalStorage } from "@/utils/storage";
 import { getCurrentWeek, getWeeksInYear } from "@/utils/weeksInYear";
+import { getYearOptions } from "@/utils/yearOptions";
 
 type UserAcKnow = {
   firstname: string;
@@ -152,11 +153,7 @@ export default function WeekTable() {
     label: name,
   }));
 
-  const currentYear = new Date().getFullYear();
-  const yearOptions = Array.from({ length: 7 }, (_, i) => {
-    const year = currentYear - 5 + i;
-    return { value: year.toString(), label: year.toString() };
-  });
+  const yearOptions = getYearOptions();
 
   const weekOptions = (() => {
     const year = parseInt(selectedYear, 10);

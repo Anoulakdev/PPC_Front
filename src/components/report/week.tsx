@@ -24,6 +24,7 @@ import { getCurrentWeek, getWeeksInYear } from "@/utils/weeksInYear";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import moment from "moment";
+import { getYearOptions } from "@/utils/yearOptions";
 
 type UserAcKnow = {
   firstname: string;
@@ -148,11 +149,7 @@ export default function WeekTable() {
     label: name,
   }));
 
-  const currentYear = new Date().getFullYear();
-  const yearOptions = Array.from({ length: 7 }, (_, i) => {
-    const year = currentYear - 5 + i;
-    return { value: year.toString(), label: year.toString() };
-  });
+  const yearOptions = getYearOptions();
 
   const weekOptions = (() => {
     const year = parseInt(selectedYear, 10);

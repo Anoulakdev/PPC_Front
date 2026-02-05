@@ -20,6 +20,7 @@ import { getLocalStorage } from "@/utils/storage";
 import axiosInstance from "@/utils/axiosInstance";
 import { getCurrentWeek, getWeeksInYear } from "@/utils/weeksInYear";
 import SelectDate from "@/components/form/SelectDate";
+import { getYearOptions } from "@/utils/yearOptions";
 
 ChartJS.register(
   LineElement,
@@ -153,11 +154,7 @@ export default function TotalChart() {
     label: name,
   }));
 
-  const currentYear = new Date().getFullYear();
-  const yearOptions = Array.from({ length: 7 }, (_, i) => {
-    const year = currentYear - 5 + i;
-    return { value: year.toString(), label: year.toString() };
-  });
+  const yearOptions = getYearOptions();
 
   const weekOptions = (() => {
     const year = parseInt(selectedYear, 10);

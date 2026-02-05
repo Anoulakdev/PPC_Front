@@ -13,7 +13,7 @@ const steps: Step[] = [
   {
     number: 2,
     title: "Declaration",
-    subtitle: "Daily Availability Declaration",
+    subtitle: "Monthly Availability Declaration",
   },
 ];
 

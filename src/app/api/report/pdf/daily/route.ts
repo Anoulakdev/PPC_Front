@@ -210,7 +210,7 @@ function generatePDF(data: any[]) {
           .two-column {
             display: flex;
             justify-content: space-between;
-            margin-top: 5px;
+
             gap: 5px;
           }
           
@@ -221,23 +221,25 @@ function generatePDF(data: any[]) {
           .signature-section {
             display: flex;
             justify-content: space-between;
+            align-items: flex-start;
             margin-top: 25px;
-            font-size: 8.5pt;
+            font-size: 9pt;
+            gap: 50px;
           }
-          
+
           .signature-box {
-            width: 48%;
+            width: 45%;
+            text-align: center;
           }
-          
+
           .signature-box strong {
             display: block;
             margin-bottom: 3px;
             text-decoration: underline;
           }
-          
+
           .signature-line {
             margin-top: 20px;
-            padding-top: 5px;
           }
           
           .total-row {
@@ -457,11 +459,14 @@ function generatePage(item: any) {
 
       <!-- Signatures -->
             <div class="signature-section">
+            <div class="signature-box">
+                      
+                    </div>
               <div class="signature-box">
                 <strong>Issued by ${item.power?.name || "-"}</strong>
                 <div class="signature-line">
                   <div>Name: ${item.dayReportHistory?.createdByUser ? `${item.dayReportHistory?.createdByUser.firstname} ${item.dayReportHistory?.createdByUser.lastname}` : "_______________________"}</div>
-                  <div>Date: ${item.dayReportHistory?.createdAt ? moment(item.dayReportHistory?.createdAt).format("DD/MM/YYYY HH:mm:ss") : "_____________"}</div>
+                  <div>Date: ${item.dayReportHistory?.createdAt ? moment(item.dayReportHistory?.createdAt).format("DD/MM/YYYY HH:mm:ss") : "_______________________"}</div>
                 </div>
               </div>
               

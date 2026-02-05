@@ -19,6 +19,7 @@ import Select from "@/components/form/Select";
 import { getLocalStorage } from "@/utils/storage";
 import axiosInstance from "@/utils/axiosInstance";
 import SelectDate from "../../form/SelectDate";
+import { getYearOptions } from "@/utils/yearOptions";
 
 ChartJS.register(
   LineElement,
@@ -152,11 +153,7 @@ export default function TotalChart() {
     label: name,
   }));
 
-  const currentYear = new Date().getFullYear();
-  const yearOptions = Array.from({ length: 7 }, (_, i) => {
-    const year = currentYear - 5 + i;
-    return { value: year.toString(), label: year.toString() };
-  });
+  const yearOptions = getYearOptions();
 
   return (
     <>

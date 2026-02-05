@@ -210,7 +210,7 @@ function generatePDF(data: any[]) {
           .two-column {
             display: flex;
             justify-content: space-between;
-            margin-top: 5px;
+            
             gap: 5px;
           }
           
@@ -221,23 +221,25 @@ function generatePDF(data: any[]) {
           .signature-section {
             display: flex;
             justify-content: space-between;
+            align-items: flex-start;
             margin-top: 25px;
-            font-size: 8.5pt;
+            font-size: 9pt;
+            gap: 50px;
           }
-          
+
           .signature-box {
-            width: 48%;
+            width: 45%;
+            text-align: center;
           }
-          
+
           .signature-box strong {
             display: block;
             margin-bottom: 3px;
             text-decoration: underline;
           }
-          
+
           .signature-line {
             margin-top: 20px;
-            padding-top: 5px;
           }
           
           .total-row {
@@ -486,7 +488,7 @@ function generatePage(item: any) {
           <strong>Issued by ${item.power?.name || "-"}</strong>
           <div class="signature-line">
             <div>Name: ${item.decAcknowUser ? `${item.decAcknowUser.firstname} ${item.decAcknowUser.lastname}` : "_______________________"}</div>
-            <div>Date: ${item.decAcknowAt ? moment(item.decAcknowAt).format("DD/MM/YYYY HH:mm:ss") : "_____________"}</div>
+            <div>Date: ${item.decAcknowAt ? moment(item.decAcknowAt).format("DD/MM/YYYY HH:mm:ss") : "_______________________"}</div>
           </div>
         </div>
         
@@ -494,7 +496,7 @@ function generatePage(item: any) {
           <strong>Acknowledged by PCD</strong>
           <div class="signature-line">
             <div>Name: ${item.disAcknowUser ? `${item.disAcknowUser.firstname} ${item.disAcknowUser.lastname}` : "_______________________"}</div>
-            <div>Date: ${item.disAcknowAt ? moment(item.disAcknowAt).format("DD/MM/YYYY HH:mm:ss") : "_____________"}</div>
+            <div>Date: ${item.disAcknowAt ? moment(item.disAcknowAt).format("DD/MM/YYYY HH:mm:ss") : "_______________________"}</div>
           </div>
         </div>
       </div>

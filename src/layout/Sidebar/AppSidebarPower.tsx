@@ -49,6 +49,7 @@ const navItems: NavItem[] = [
       { name: "Daily", path: "/alldocument/power/day", pro: false },
       { name: "Weekly", path: "/alldocument/power/week", pro: false },
       { name: "Monthly", path: "/alldocument/power/month", pro: false },
+      { name: "Yearly", path: "/alldocument/power/year", pro: false },
     ],
   },
   {
@@ -58,6 +59,7 @@ const navItems: NavItem[] = [
       { name: "Daily (DAD)", path: "/declaration/day", pro: false },
       { name: "Weekly (WAD)", path: "/declaration/week", pro: false },
       { name: "Monthly (MAD)", path: "/declaration/month", pro: false },
+      { name: "Yearly (YAD)", path: "/declaration/year", pro: false },
     ],
   },
   {
@@ -67,6 +69,7 @@ const navItems: NavItem[] = [
       { name: "Daily", path: "/report/day", pro: false },
       { name: "Weekly", path: "/report/week", pro: false },
       { name: "Monthly", path: "/report/month", pro: false },
+      { name: "Yearly", path: "/report/year", pro: false },
     ],
   },
   {

@@ -89,6 +89,7 @@ export default function LoginPage() {
       removeLocalStorage("day-filter-page");
       removeLocalStorage("week-filter-page");
       removeLocalStorage("month-filter-page");
+      removeLocalStorage("year-filter-page");
       removeLocalStorage("dayreport-filter-page");
 
       showAlert("success", "Login Success");

@@ -25,6 +25,7 @@ import Select from "@/components/form/Select";
 import Label from "../form/Label";
 import SelectDate from "@/components/form/SelectDate";
 import { getLocalStorage } from "@/utils/storage";
+import { getYearOptions } from "@/utils/yearOptions";
 
 type UserAcKnow = {
   firstname: string;
@@ -150,11 +151,7 @@ export default function MonthTable() {
     label: name,
   }));
 
-  const currentYear = new Date().getFullYear();
-  const yearOptions = Array.from({ length: 7 }, (_, i) => {
-    const year = currentYear - 5 + i;
-    return { value: year.toString(), label: year.toString() };
-  });
+  const yearOptions = getYearOptions();
 
   const monthOptions = Array.from({ length: 12 }, (_, i) => {
     const m = (i + 1).toString().padStart(2, "0");

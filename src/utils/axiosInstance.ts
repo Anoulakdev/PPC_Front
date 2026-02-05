@@ -34,10 +34,12 @@ export const setupInterceptors = (router: any) => {
           removeLocalStorage("day-power-storage");
           removeLocalStorage("week-power-storage");
           removeLocalStorage("month-power-storage");
+          removeLocalStorage("year-power-storage");
           removeLocalStorage("create-report-storage");
           removeLocalStorage("day-filter-page");
           removeLocalStorage("week-filter-page");
           removeLocalStorage("month-filter-page");
+          removeLocalStorage("year-filter-page");
           removeLocalStorage("dayreport-filter-page");
 
           // ลบ token จาก cookie

@@ -49,6 +49,7 @@ const navItems: NavItem[] = [
       { name: "Daily", path: "/alldocument/edl/day", pro: false },
       { name: "Weekly", path: "/alldocument/edl/week", pro: false },
       { name: "Monthly", path: "/alldocument/edl/month", pro: false },
+      { name: "Yearly", path: "/alldocument/edl/year", pro: false },
     ],
   },
   {
@@ -58,6 +59,7 @@ const navItems: NavItem[] = [
       { name: "Daily (DD)", path: "/dispatch/day", pro: false },
       { name: "Weekly (WD)", path: "/dispatch/week", pro: false },
       { name: "Monthly (MD)", path: "/dispatch/month", pro: false },
+      { name: "Yearly (YD)", path: "/dispatch/year", pro: false },
     ],
   },
   {
@@ -67,6 +69,7 @@ const navItems: NavItem[] = [
       { name: "Daily", path: "/report/day", pro: false },
       { name: "Weekly", path: "/report/week", pro: false },
       { name: "Monthly", path: "/report/month", pro: false },
+      { name: "Yearly", path: "/report/year", pro: false },
     ],
   },
   {

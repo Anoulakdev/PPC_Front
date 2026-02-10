@@ -12,6 +12,35 @@ import { useRouter } from "next/navigation";
 import { CheckCircleIcon, XCircleIcon } from "@heroicons/react/24/solid";
 import { getLocalStorage } from "@/utils/storage";
 import { EventSourcePolyfill } from "event-source-polyfill";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+
+const hours = [
+  "00:00-01:00",
+  "01:00-02:00",
+  "02:00-03:00",
+  "03:00-04:00",
+  "04:00-05:00",
+  "05:00-06:00",
+  "06:00-07:00",
+  "07:00-08:00",
+  "08:00-09:00",
+  "09:00-10:00",
+  "10:00-11:00",
+  "11:00-12:00",
+  "12:00-13:00",
+  "13:00-14:00",
+  "14:00-15:00",
+  "15:00-16:00",
+  "16:00-17:00",
+  "17:00-18:00",
+  "18:00-19:00",
+  "19:00-20:00",
+  "20:00-21:00",
+  "21:00-22:00",
+  "22:00-23:00",
+  "23:00-00:00",
+];
 
 interface ApiResponse {
   companyId: number;
@@ -31,14 +60,19 @@ interface PowerItem {
   power: {
     id: number;
     name: string;
+    installCapacity: string;
     company: {
       id: number;
       name: string;
     };
   };
+  powerOriginal: {
+    totalPower: string;
+    combinedHourlyOriginal: number[];
+  };
   powerCurrent: {
     totalPower: string;
-    combinedHourly: number[];
+    combinedHourlyCurrent: number[];
   };
 }
 
@@ -143,6 +177,84 @@ export default function EnergyTablePage() {
     router.push("/");
   };
 
+  const exportToExcel = () => {
+    if (data) {
+      const worksheet1 = XLSX.utils.json_to_sheet(
+        data.map((item, index) => {
+          const hourlyDataOriginal =
+            item.items?.[0]?.powerOriginal?.combinedHourlyOriginal ?? [];
+
+          const row: Record<string, any> = {
+            No: index + 1,
+            Company: item.companyName,
+            Power_Plant: item.items?.[0]?.power?.name ?? "",
+            Install_Capacity_MW: parseFloat(
+              item.items?.[0]?.power?.installCapacity ?? "0",
+            ),
+            Total_Energy_MWh: parseFloat(
+              item.items?.[0]?.powerOriginal?.totalPower ?? "0",
+            ),
+          };
+
+          // เพิ่มคอลัมน์ชั่วโมงทีหลัง
+          hours.forEach((hour, i) => {
+            row[hour] = hourlyDataOriginal[i] ?? "";
+          });
+
+          return row;
+        }),
+      );
+
+      const worksheet2 = XLSX.utils.json_to_sheet(
+        data.map((item, index) => {
+          const hourlyDataCurrent =
+            item.items?.[0]?.powerCurrent?.combinedHourlyCurrent ?? [];
+
+          const row: Record<string, any> = {
+            No: index + 1,
+            Company: item.companyName,
+            Power_Plant: item.items?.[0]?.power?.name ?? "",
+            Install_Capacity_MW: parseFloat(
+              item.items?.[0]?.power?.installCapacity ?? "0",
+            ),
+            Total_Energy_MWh: parseFloat(
+              item.items?.[0]?.powerCurrent?.totalPower ?? "0",
+            ),
+          };
+
+          // เพิ่มคอลัมน์ชั่วโมงทีหลัง
+          hours.forEach((hour, i) => {
+            row[hour] = hourlyDataCurrent[i] ?? "";
+          });
+
+          row["STATUS_DAD"] = item.items?.[0]?.decAcknow
+            ? `${item.items?.[0]?.decAcknowUser?.firstname} ${item.items?.[0]?.decAcknowUser?.lastname}`
+            : "Not Acknowledge Yet";
+          row["STATUS_DD"] = item.items?.[0]?.disAcknow
+            ? `${item.items?.[0]?.disAcknowUser?.firstname} ${item.items?.[0]?.disAcknowUser?.lastname}`
+            : "Not Acknowledge Yet";
+
+          return row;
+        }),
+      );
+
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet1, "Daily Declaration");
+      XLSX.utils.book_append_sheet(workbook, worksheet2, "Daily Dispatch");
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
+      const blob = new Blob([excelBuffer], {
+        type: "application/octet-stream",
+      });
+      saveAs(
+        blob,
+        `${moment(selectedDate).format("DDMMYYYY")}_${moment().format("DDMMYYYY_HHmmss")}.xlsx`,
+      );
+    }
+  };
+
   return (
     <div className="space-y-3 p-3">
       {/* Date Filter Section */}
@@ -182,26 +294,49 @@ export default function EnergyTablePage() {
             </div>
           </div>
 
-          {/* Logout Button */}
-          <button
-            onClick={handleLogout}
-            className="flex items-center justify-center gap-2 rounded-lg bg-gradient-to-br from-red-500 to-pink-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:from-red-600 hover:to-pink-700 hover:shadow-lg active:scale-95 md:w-auto"
-          >
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            {/* Excel Button */}
+            <button
+              onClick={exportToExcel}
+              disabled={loading || data.length === 0}
+              className="flex items-center justify-center gap-2 rounded-lg bg-gradient-to-br from-emerald-500 to-green-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:from-emerald-600 hover:to-green-700 hover:shadow-lg active:scale-95 md:w-auto"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-              />
-            </svg>
-            <span>Logout</span>
-          </button>
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 4v16m0 0h16m-16 0l6-6m0 0l6 6"
+                />
+              </svg>
+              <span>Excel</span>
+            </button>
+            {/* Logout Button */}
+            <button
+              onClick={handleLogout}
+              className="flex items-center justify-center gap-2 rounded-lg bg-gradient-to-br from-red-500 to-pink-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:from-red-600 hover:to-pink-700 hover:shadow-lg active:scale-95 md:w-auto"
+            >
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                />
+              </svg>
+              <span>Logout</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -232,20 +367,28 @@ export default function EnergyTablePage() {
         <table className="min-w-full border-collapse">
           <thead>
             <tr className="bg-gradient-to-r from-blue-700 to-teal-600 text-xs text-white">
-              <th className="border px-3 py-3 whitespace-nowrap">
+              <th className="border px-2 py-2 whitespace-nowrap">
                 Power Plant
               </th>
-              <th className="border px-3 py-3 whitespace-nowrap">Total (MW)</th>
 
+              <th className="border px-2 py-2 break-words whitespace-normal">
+                Install Capacity (MW)
+              </th>
+
+              <th className="border px-2 py-2 break-words whitespace-normal">
+                Total Energy (MWh)
+              </th>
               {hourLabels.map((h, i) => (
-                <th key={i} className="border px-3 py-3">
+                <th key={i} className="border px-2 py-2">
                   {h}
                 </th>
               ))}
-              <th className="border px-3 py-3 whitespace-nowrap">
-                STATUS(DAD)
+              <th className="border px-2 py-2 break-words whitespace-normal">
+                STATUS (DAD)
               </th>
-              <th className="border px-3 py-3 whitespace-nowrap">STATUS(DD)</th>
+              <th className="border px-2 py-2 break-words whitespace-normal">
+                STATUS (DD)
+              </th>
             </tr>
           </thead>
 
@@ -253,7 +396,7 @@ export default function EnergyTablePage() {
             {loading && (
               <tr>
                 <td
-                  colSpan={28}
+                  colSpan={29}
                   className="p-6 text-center font-semibold text-blue-600"
                 >
                   Loading data...
@@ -266,7 +409,7 @@ export default function EnergyTablePage() {
                 <Fragment key={`company-${company.companyId}`}>
                   {/* ▼ Company Row */}
                   <tr className="bg-gray-200 font-bold text-blue-700">
-                    <td colSpan={28} className="px-3 py-2">
+                    <td colSpan={29} className="px-2 py-2">
                       {company.companyName}
                     </td>
                   </tr>
@@ -277,23 +420,29 @@ export default function EnergyTablePage() {
                       key={item.id}
                       className="transition even:bg-gray-50 hover:bg-blue-50"
                     >
-                      <td className="border px-3 py-2 font-medium whitespace-nowrap">
+                      <td className="border px-2 py-2 font-medium whitespace-nowrap">
                         {item.power.name}
                       </td>
 
-                      <td className="border px-3 py-2 text-center font-bold text-green-700">
+                      <td className="border px-2 py-2 text-center font-bold text-green-700">
+                        {new Intl.NumberFormat("lo-LA").format(
+                          Number(item.power.installCapacity),
+                        )}
+                      </td>
+
+                      <td className="border px-2 py-2 text-center font-bold text-green-700">
                         {new Intl.NumberFormat("lo-LA").format(
                           Number(item.powerCurrent.totalPower),
                         )}
                       </td>
 
-                      {item.powerCurrent.combinedHourly.map((h, i) => (
-                        <td key={i} className="border px-3 py-2 text-center">
+                      {item.powerCurrent.combinedHourlyCurrent.map((h, i) => (
+                        <td key={i} className="border px-2 py-2 text-center">
                           {h}
                         </td>
                       ))}
 
-                      <td className="border px-3 py-2 text-center">
+                      <td className="border px-2 py-2 text-center">
                         <div className="group relative inline-block">
                           {item.decAcknow ? (
                             <CheckCircleIcon className="mx-auto h-5 w-5 text-green-700" />
@@ -302,7 +451,7 @@ export default function EnergyTablePage() {
                           )}
 
                           {/* Tooltip */}
-                          <div className="absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 rounded bg-gray-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                          <div className="absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 rounded bg-gray-800 px-1 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
                             {item.decAcknowUser
                               ? `${item.decAcknowUser.firstname ?? ""} ${item.decAcknowUser.lastname ?? ""}`.trim()
                               : "Not Acknowledge Yet"}
@@ -310,7 +459,7 @@ export default function EnergyTablePage() {
                         </div>
                       </td>
 
-                      <td className="border px-3 py-2 text-center">
+                      <td className="border px-2 py-2 text-center">
                         <div className="group relative inline-block">
                           {item.disAcknow ? (
                             <CheckCircleIcon className="mx-auto h-5 w-5 text-green-700" />
@@ -319,7 +468,7 @@ export default function EnergyTablePage() {
                           )}
 
                           {/* Tooltip */}
-                          <div className="absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 rounded bg-gray-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                          <div className="absolute bottom-full left-0 z-10 mb-2 -translate-x-1/2 rounded bg-gray-800 px-1 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
                             {item.disAcknowUser
                               ? `${item.disAcknowUser.firstname ?? ""} ${item.disAcknowUser.lastname ?? ""}`.trim()
                               : "Not Acknowledge Yet"}
@@ -333,7 +482,7 @@ export default function EnergyTablePage() {
 
             {!loading && data.length === 0 && (
               <tr>
-                <td colSpan={28} className="p-6 text-center text-gray-400">
+                <td colSpan={29} className="p-6 text-center text-gray-400">
                   ❌ No Data
                 </td>
               </tr>

@@ -40,6 +40,19 @@ export const Step3 = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
+  const columnLabels = (() => {
+    if (formData.fuelId === 3) {
+      return ["Solar", "Battery"];
+    }
+
+    if (formData.fuelId === 2) {
+      return ["Unit 1", "Unit 2", "Unit 3", "Surplus"];
+    }
+
+    const totalUnit = formData.unit ?? 1;
+    return Array.from({ length: totalUnit }, (_, i) => `Unit-${i + 1}`);
+  })();
+
   // ใช้ useCallback เพื่อป้องกัน infinite loop
   const initializeTurbineData = useCallback(() => {
     const turbineData = Array.from({ length: unit }, (_, tIdx) => ({
@@ -215,13 +228,13 @@ export const Step3 = () => {
               <th className="border p-2 text-center whitespace-nowrap">
                 Time Of Day (Hrs)
               </th>
-              {(formData.turbineData || []).map((t, tIdx) => (
+              {columnLabels.map((label, tIdx) => (
                 <th
-                  key={t.turbine}
+                  key={label}
                   className="w-[110px] border p-2 text-center whitespace-nowrap"
                 >
                   <div className="flex flex-col items-center">
-                    <span>Unit-{t.turbine} (MW)</span>
+                    <span>{label} (MW)</span>
                     <textarea
                       onPaste={(e) => handlePaste(e, tIdx)}
                       placeholder="Paste 24 values"

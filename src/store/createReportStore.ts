@@ -11,6 +11,7 @@ type FormData = {
   powerDate: string | null;
   totalPower: number | null;
   totalUnit?: number | null;
+  fuelId?: number | null;
   turbineData: TurbineData[];
   remarks?: string[] | null;
   activeStorageamount: string | number | null;

@@ -16,6 +16,7 @@ type Power = {
   name: string;
   abbreviation: string;
   unit: number;
+  fuelId: number;
 };
 
 type User = {
@@ -25,7 +26,13 @@ type User = {
 export const Step1 = () => {
   const { formData, updateFormData, nextStep } = useDayPowerStore();
   const [powerOptions, setPowerOptions] = useState<
-    { value: string; label: string; abbreviation: string; unit: string }[]
+    {
+      value: string;
+      label: string;
+      abbreviation: string;
+      unit: string;
+      fuelId: number;
+    }[]
   >([]);
   const [isChecking, setIsChecking] = useState(false);
   const [isValidDate, setIsValidDate] = useState(false);
@@ -89,6 +96,7 @@ export const Step1 = () => {
           label: `${p.power.name}`,
           abbreviation: p.power.abbreviation,
           unit: p.power.unit.toString(),
+          fuelId: p.power.fuelId,
         }));
 
         setPowerOptions(options);
@@ -99,23 +107,19 @@ export const Step1 = () => {
   }, []);
 
   useEffect(() => {
-    if (formData.unit) {
-      const currentLength = formData.machinesAvailability?.length || 0;
+    if (formData.unit && !formData.machinesAvailability?.length) {
+      const updatedMachines = Array.from(
+        { length: formData.unit },
+        (_, idx) => ({
+          turbine: idx + 1,
+          maxs: 0,
+          mins: 0,
+        }),
+      );
 
-      if (currentLength !== formData.unit) {
-        const updatedMachines = Array.from(
-          { length: formData.unit },
-          (_, idx) => ({
-            turbine: idx + 1,
-            maxs: 0,
-            mins: 0,
-          }),
-        );
-
-        updateFormData({ machinesAvailability: updatedMachines });
-      }
+      updateFormData({ machinesAvailability: updatedMachines });
     }
-  }, [formData.machinesAvailability?.length, formData.unit, updateFormData]);
+  }, [formData.unit]);
 
   // 👉 Check powerId + powerDate with API
   useEffect(() => {
@@ -187,10 +191,18 @@ export const Step1 = () => {
                   const selected = powerOptions.find(
                     (opt) => opt.value === value,
                   );
+
+                  let finalUnit = selected ? parseInt(selected.unit) : 1;
+
+                  // 👇 override ตาม fuel
+                  if (selected?.fuelId === 2) finalUnit = 4;
+                  if (selected?.fuelId === 3) finalUnit = 2;
+
                   updateFormData({
                     powerId: parseInt(value),
                     abbreviation: selected?.abbreviation || null,
-                    unit: selected ? parseInt(selected.unit) : null,
+                    unit: finalUnit,
+                    fuelId: selected?.fuelId || null,
                   });
                 }}
                 required

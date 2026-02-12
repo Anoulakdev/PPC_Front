@@ -85,6 +85,7 @@ export default function DayRevise() {
           id: rawData.id,
           powerId: rawData.powerId,
           powerDate: rawData.powerDate,
+          fuelId: rawData.power.fuelId,
           // water section
           activeStorageamount: current?.activeStorageamount ?? 0,
           activeStorageaverage: current?.activeStorageaverage ?? 0,
@@ -532,461 +533,513 @@ export default function DayRevise() {
             </table>
           </div>
 
-          <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-            <div>
-              <h2 className="text-sm font-bold">* InFlow</h2>
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+          {data?.fuelId === 1 ? (
+            <>
+              <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 <div>
-                  <Label>Amount (m³)</Label>
-                  <Input
-                    type="number"
-                    name="inflowamount"
-                    placeholder="0.00"
-                    value={data?.inflowamount ?? ""}
-                    onChange={(e) => {
-                      const raw = parseFloat(e.target.value);
+                  <h2 className="text-sm font-bold">* InFlow</h2>
+                  <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                    <div>
+                      <Label>Amount (m³)</Label>
+                      <Input
+                        type="number"
+                        name="inflowamount"
+                        placeholder="0.00"
+                        value={data?.inflowamount ?? ""}
+                        onChange={(e) => {
+                          const raw = parseFloat(e.target.value);
 
-                      if (e.target.value === "") {
-                        // ถ้าผู้ใช้ลบจนว่าง → เคลียร์ทั้งคู่และให้ป้อนได้ทั้งสองช่อง
-                        setData((prev: any) => ({
-                          ...prev,
-                          inflowamount: "",
-                          inflowaverage: "",
-                        }));
-                        setEditingInflow(null);
-                      } else {
-                        setData((prev: any) => ({
-                          ...prev,
-                          inflowamount: isNaN(raw)
-                            ? ""
-                            : Number(raw.toFixed(2)),
-                        }));
-                        setEditingInflow("amount");
-                      }
-                    }}
-                    readOnly={editingInflow === "average"}
-                    required
-                  />
+                          if (e.target.value === "") {
+                            // ถ้าผู้ใช้ลบจนว่าง → เคลียร์ทั้งคู่และให้ป้อนได้ทั้งสองช่อง
+                            setData((prev: any) => ({
+                              ...prev,
+                              inflowamount: "",
+                              inflowaverage: "",
+                            }));
+                            setEditingInflow(null);
+                          } else {
+                            setData((prev: any) => ({
+                              ...prev,
+                              inflowamount: isNaN(raw)
+                                ? ""
+                                : Number(raw.toFixed(2)),
+                            }));
+                            setEditingInflow("amount");
+                          }
+                        }}
+                        readOnly={editingInflow === "average"}
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Average (m³/s)</Label>
+                      <Input
+                        type="number"
+                        name="inflowaverage"
+                        placeholder="0.00"
+                        value={data?.inflowaverage ?? ""}
+                        onChange={(e) => {
+                          const raw = parseFloat(e.target.value);
+
+                          if (e.target.value === "") {
+                            // ถ้าผู้ใช้ลบจนว่าง → เคลียร์ทั้งคู่และให้ป้อนได้ทั้งสองช่อง
+                            setData((prev: any) => ({
+                              ...prev,
+                              inflowamount: "",
+                              inflowaverage: "",
+                            }));
+                            setEditingInflow(null);
+                          } else {
+                            setData((prev: any) => ({
+                              ...prev,
+                              inflowaverage: isNaN(raw)
+                                ? ""
+                                : Number(raw.toFixed(2)),
+                            }));
+                            setEditingInflow("average");
+                          }
+                        }}
+                        readOnly={editingInflow === "amount"}
+                        required
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div>
-                  <Label>Average (m³/s)</Label>
-                  <Input
-                    type="number"
-                    name="inflowaverage"
-                    placeholder="0.00"
-                    value={data?.inflowaverage ?? ""}
-                    onChange={(e) => {
-                      const raw = parseFloat(e.target.value);
+                  <h2 className="text-sm font-bold">* Turbine Dischard</h2>
+                  <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                    <div>
+                      <Label>Amount (m³)</Label>
+                      <Input
+                        type="number"
+                        name="tdAmount"
+                        placeholder="0.00"
+                        value={data?.tdAmount ?? ""}
+                        onChange={(e) => {
+                          const raw = parseFloat(e.target.value);
 
-                      if (e.target.value === "") {
-                        // ถ้าผู้ใช้ลบจนว่าง → เคลียร์ทั้งคู่และให้ป้อนได้ทั้งสองช่อง
-                        setData((prev: any) => ({
-                          ...prev,
-                          inflowamount: "",
-                          inflowaverage: "",
-                        }));
-                        setEditingInflow(null);
-                      } else {
-                        setData((prev: any) => ({
-                          ...prev,
-                          inflowaverage: isNaN(raw)
-                            ? ""
-                            : Number(raw.toFixed(2)),
-                        }));
-                        setEditingInflow("average");
-                      }
-                    }}
-                    readOnly={editingInflow === "amount"}
-                    required
-                  />
-                </div>
-              </div>
-            </div>
+                          if (e.target.value === "") {
+                            // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
+                            setData((prev: any) => ({
+                              ...prev,
+                              tdAmount: "",
+                              tdAverage: "",
+                            }));
+                            setEditingTD(null);
+                          } else {
+                            setData((prev: any) => ({
+                              ...prev,
+                              tdAmount: isNaN(raw)
+                                ? ""
+                                : Number(raw.toFixed(2)),
+                            }));
+                            setEditingTD("amount");
+                          }
+                        }}
+                        readOnly={editingTD === "average"}
+                        required
+                      />
+                    </div>
 
-            <div>
-              <h2 className="text-sm font-bold">* Turbine Dischard</h2>
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                <div>
-                  <Label>Amount (m³)</Label>
-                  <Input
-                    type="number"
-                    name="tdAmount"
-                    placeholder="0.00"
-                    value={data?.tdAmount ?? ""}
-                    onChange={(e) => {
-                      const raw = parseFloat(e.target.value);
+                    <div>
+                      <Label>Average (m³/s)</Label>
+                      <Input
+                        type="number"
+                        name="tdAverage"
+                        placeholder="0.00"
+                        value={data?.tdAverage ?? ""}
+                        onChange={(e) => {
+                          const raw = parseFloat(e.target.value);
 
-                      if (e.target.value === "") {
-                        // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
-                        setData((prev: any) => ({
-                          ...prev,
-                          tdAmount: "",
-                          tdAverage: "",
-                        }));
-                        setEditingTD(null);
-                      } else {
-                        setData((prev: any) => ({
-                          ...prev,
-                          tdAmount: isNaN(raw) ? "" : Number(raw.toFixed(2)),
-                        }));
-                        setEditingTD("amount");
-                      }
-                    }}
-                    readOnly={editingTD === "average"}
-                    required
-                  />
-                </div>
-
-                <div>
-                  <Label>Average (m³/s)</Label>
-                  <Input
-                    type="number"
-                    name="tdAverage"
-                    placeholder="0.00"
-                    value={data?.tdAverage ?? ""}
-                    onChange={(e) => {
-                      const raw = parseFloat(e.target.value);
-
-                      if (e.target.value === "") {
-                        // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
-                        setData((prev: any) => ({
-                          ...prev,
-                          tdAmount: "",
-                          tdAverage: "",
-                        }));
-                        setEditingTD(null);
-                      } else {
-                        setData((prev: any) => ({
-                          ...prev,
-                          tdAverage: isNaN(raw) ? "" : Number(raw.toFixed(2)),
-                        }));
-                        setEditingTD("average");
-                      }
-                    }}
-                    readOnly={editingTD === "amount"}
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-            <div>
-              <h2 className="text-sm font-bold">* Spill Way</h2>
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                <div>
-                  <Label>Amount (m³)</Label>
-                  <Input
-                    type="number"
-                    name="spillwayamount"
-                    placeholder="0.00"
-                    value={data?.spillwayamount ?? ""}
-                    onChange={(e) => {
-                      const raw = parseFloat(e.target.value);
-
-                      if (e.target.value === "") {
-                        // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
-                        setData((prev: any) => ({
-                          ...prev,
-                          spillwayamount: "",
-                          spillwayaverage: "",
-                        }));
-                        setEditingSW(null);
-                      } else {
-                        setData((prev: any) => ({
-                          ...prev,
-                          spillwayamount: isNaN(raw)
-                            ? ""
-                            : Number(raw.toFixed(2)),
-                        }));
-                        setEditingSW("amount");
-                      }
-                    }}
-                    readOnly={editingSW === "average"}
-                    required
-                  />
-                </div>
-
-                <div>
-                  <Label>Average (m³/s)</Label>
-                  <Input
-                    type="number"
-                    name="spillwayaverage"
-                    placeholder="0.00"
-                    value={data?.spillwayaverage ?? ""}
-                    onChange={(e) => {
-                      const raw = parseFloat(e.target.value);
-
-                      if (e.target.value === "") {
-                        // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
-
-                        setData((prev: any) => ({
-                          ...prev,
-                          spillwayamount: "",
-                          spillwayaverage: "",
-                        }));
-                        setEditingSW(null);
-                      } else {
-                        setData((prev: any) => ({
-                          ...prev,
-                          spillwayaverage: isNaN(raw)
-                            ? ""
-                            : Number(raw.toFixed(2)),
-                        }));
-                        setEditingSW("average");
-                      }
-                    }}
-                    readOnly={editingSW === "amount"}
-                    required
-                  />
+                          if (e.target.value === "") {
+                            // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
+                            setData((prev: any) => ({
+                              ...prev,
+                              tdAmount: "",
+                              tdAverage: "",
+                            }));
+                            setEditingTD(null);
+                          } else {
+                            setData((prev: any) => ({
+                              ...prev,
+                              tdAverage: isNaN(raw)
+                                ? ""
+                                : Number(raw.toFixed(2)),
+                            }));
+                            setEditingTD("average");
+                          }
+                        }}
+                        readOnly={editingTD === "amount"}
+                        required
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div>
-              <h2 className="text-sm font-bold">* Other Water Released</h2>
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+              <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 <div>
-                  <Label>Amount (m³)</Label>
-                  <Input
-                    type="number"
-                    name="owramount"
-                    placeholder="0.00"
-                    value={data?.owramount ?? ""}
-                    onChange={(e) => {
-                      const raw = parseFloat(e.target.value);
+                  <h2 className="text-sm font-bold">* Spill Way</h2>
+                  <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                    <div>
+                      <Label>Amount (m³)</Label>
+                      <Input
+                        type="number"
+                        name="spillwayamount"
+                        placeholder="0.00"
+                        value={data?.spillwayamount ?? ""}
+                        onChange={(e) => {
+                          const raw = parseFloat(e.target.value);
 
-                      if (e.target.value === "") {
-                        // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
+                          if (e.target.value === "") {
+                            // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
+                            setData((prev: any) => ({
+                              ...prev,
+                              spillwayamount: "",
+                              spillwayaverage: "",
+                            }));
+                            setEditingSW(null);
+                          } else {
+                            setData((prev: any) => ({
+                              ...prev,
+                              spillwayamount: isNaN(raw)
+                                ? ""
+                                : Number(raw.toFixed(2)),
+                            }));
+                            setEditingSW("amount");
+                          }
+                        }}
+                        readOnly={editingSW === "average"}
+                        required
+                      />
+                    </div>
 
-                        setData((prev: any) => ({
-                          ...prev,
-                          owramount: "",
-                          owraverage: "",
-                        }));
-                        setEditingOWR(null);
-                      } else {
-                        setData((prev: any) => ({
-                          ...prev,
-                          owramount: isNaN(raw) ? "" : Number(raw.toFixed(2)),
-                        }));
-                        setEditingOWR("amount");
-                      }
-                    }}
-                    readOnly={editingOWR === "average"}
-                    required
-                  />
+                    <div>
+                      <Label>Average (m³/s)</Label>
+                      <Input
+                        type="number"
+                        name="spillwayaverage"
+                        placeholder="0.00"
+                        value={data?.spillwayaverage ?? ""}
+                        onChange={(e) => {
+                          const raw = parseFloat(e.target.value);
+
+                          if (e.target.value === "") {
+                            // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
+
+                            setData((prev: any) => ({
+                              ...prev,
+                              spillwayamount: "",
+                              spillwayaverage: "",
+                            }));
+                            setEditingSW(null);
+                          } else {
+                            setData((prev: any) => ({
+                              ...prev,
+                              spillwayaverage: isNaN(raw)
+                                ? ""
+                                : Number(raw.toFixed(2)),
+                            }));
+                            setEditingSW("average");
+                          }
+                        }}
+                        readOnly={editingSW === "amount"}
+                        required
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div>
-                  <Label>Average (m³/s)</Label>
-                  <Input
-                    type="number"
-                    name="owraverage"
-                    placeholder="0.00"
-                    value={data?.owraverage ?? ""}
-                    onChange={(e) => {
-                      const raw = parseFloat(e.target.value);
+                  <h2 className="text-sm font-bold">* Other Water Released</h2>
+                  <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                    <div>
+                      <Label>Amount (m³)</Label>
+                      <Input
+                        type="number"
+                        name="owramount"
+                        placeholder="0.00"
+                        value={data?.owramount ?? ""}
+                        onChange={(e) => {
+                          const raw = parseFloat(e.target.value);
 
-                      if (e.target.value === "") {
-                        // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
-                        setData((prev: any) => ({
-                          ...prev,
-                          owramount: "",
-                          owraverage: "",
-                        }));
-                        setEditingOWR(null);
-                      } else {
-                        setData((prev: any) => ({
-                          ...prev,
-                          owraverage: isNaN(raw) ? "" : Number(raw.toFixed(2)),
-                        }));
-                        setEditingOWR("average");
-                      }
-                    }}
-                    readOnly={editingOWR === "amount"}
-                    required
-                  />
+                          if (e.target.value === "") {
+                            // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
+
+                            setData((prev: any) => ({
+                              ...prev,
+                              owramount: "",
+                              owraverage: "",
+                            }));
+                            setEditingOWR(null);
+                          } else {
+                            setData((prev: any) => ({
+                              ...prev,
+                              owramount: isNaN(raw)
+                                ? ""
+                                : Number(raw.toFixed(2)),
+                            }));
+                            setEditingOWR("amount");
+                          }
+                        }}
+                        readOnly={editingOWR === "average"}
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Average (m³/s)</Label>
+                      <Input
+                        type="number"
+                        name="owraverage"
+                        placeholder="0.00"
+                        value={data?.owraverage ?? ""}
+                        onChange={(e) => {
+                          const raw = parseFloat(e.target.value);
+
+                          if (e.target.value === "") {
+                            // ถ้าลบจนว่าง → เคลียร์ทั้งคู่
+                            setData((prev: any) => ({
+                              ...prev,
+                              owramount: "",
+                              owraverage: "",
+                            }));
+                            setEditingOWR(null);
+                          } else {
+                            setData((prev: any) => ({
+                              ...prev,
+                              owraverage: isNaN(raw)
+                                ? ""
+                                : Number(raw.toFixed(2)),
+                            }));
+                            setEditingOWR("average");
+                          }
+                        }}
+                        readOnly={editingOWR === "amount"}
+                        required
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          <div className="mt-4 grid grid-cols-1 gap-x-3 gap-y-5 lg:grid-cols-7">
-            <div>
-              <Label>Rain fall (mm)</Label>
-              <Input
-                type="number"
-                name="rainFall"
-                placeholder="0.00"
-                value={data?.rainFall ?? ""}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div>
-              <Label>power Generation (kWh)</Label>
-              <Input
-                type="number"
-                name="powerGeneration"
-                placeholder="0.00"
-                value={data?.powerGeneration ?? ""}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div>
-              <Label>Net Energy Import (kWh)</Label>
-              <Input
-                type="number"
-                name="netEnergyImport"
-                placeholder="0.00"
-                value={data?.netEnergyImport ?? ""}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div>
-              <Label>Net Energy Output (kWh)</Label>
-              <Input
-                type="number"
-                name="netEnergyOutput"
-                placeholder="0.00"
-                value={data?.netEnergyOutput ?? ""}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div>
-              <Label>Water Rate (m³/kWh)</Label>
-              <Input
-                type="number"
-                disabled
-                name="waterRate"
-                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data?.waterRate ?? 0}
-              />
-            </div>
-            <div>
-              <Label>Total Outflow (m³)</Label>
-              <Input
-                type="number"
-                disabled
-                name="totalOutflow"
-                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data?.totalOutflow ?? 0}
-              />
-            </div>
-            <div>
-              <Label>Average Outflow (m³/s)</Label>
-              <Input
-                type="number"
-                disabled
-                name="averageOutflow"
-                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data?.averageOutflow ?? 0}
-              />
-            </div>
-          </div>
-
-          <div className="my-3 text-3xl font-bold">
-            # <span className="underline">Data Today</span>{" "}
-            <span className="text-red-700"> ({nextDay})</span>
-          </div>
-
-          <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-            <div>
-              <h2 className="text-sm font-bold">* Active Storage</h2>
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+              <div className="mt-4 grid grid-cols-1 gap-x-3 gap-y-5 lg:grid-cols-7">
                 <div>
-                  <Label>Amount (m³)</Label>
+                  <Label>Rain fall (mm)</Label>
                   <Input
                     type="number"
-                    name="activeStorageamount"
+                    name="rainFall"
                     placeholder="0.00"
-                    value={data?.activeStorageamount || ""}
+                    value={data?.rainFall ?? ""}
                     onChange={handleChange}
                     required
                   />
                 </div>
 
                 <div>
-                  <Label>Percent (%)</Label>
+                  <Label>power Generation (kWh)</Label>
+                  <Input
+                    type="number"
+                    name="powerGeneration"
+                    placeholder="0.00"
+                    value={data?.powerGeneration ?? ""}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label>Net Energy Import (kWh)</Label>
+                  <Input
+                    type="number"
+                    name="netEnergyImport"
+                    placeholder="0.00"
+                    value={data?.netEnergyImport ?? ""}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label>Net Energy Output (kWh)</Label>
+                  <Input
+                    type="number"
+                    name="netEnergyOutput"
+                    placeholder="0.00"
+                    value={data?.netEnergyOutput ?? ""}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label>Water Rate (m³/kWh)</Label>
                   <Input
                     type="number"
                     disabled
-                    name="activeStorageaverage"
+                    name="waterRate"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={data?.activeStorageaverage ?? 0}
+                    value={data?.waterRate ?? 0}
+                  />
+                </div>
+                <div>
+                  <Label>Total Outflow (m³)</Label>
+                  <Input
+                    type="number"
+                    disabled
+                    name="totalOutflow"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={data?.totalOutflow ?? 0}
+                  />
+                </div>
+                <div>
+                  <Label>Average Outflow (m³/s)</Label>
+                  <Input
+                    type="number"
+                    disabled
+                    name="averageOutflow"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={data?.averageOutflow ?? 0}
                   />
                 </div>
               </div>
-            </div>
-          </div>
 
-          <div className="mt-4 grid grid-cols-1 gap-x-4 gap-y-5 lg:grid-cols-5">
-            <div>
-              <Label>Water Level at 00:00 (masl)</Label>
-              <Input
-                type="number"
-                name="waterLevel"
-                placeholder="0.00"
-                value={data?.waterLevel ?? ""}
-                onChange={handleChange}
-                required
-              />
-            </div>
+              <div className="my-3 text-3xl font-bold">
+                # <span className="underline">Data Today</span>{" "}
+                <span className="text-red-700"> ({nextDay})</span>
+              </div>
 
-            <div>
-              <Label>Diff with Yesterday (m)</Label>
-              <Input
-                type="number"
-                disabled
-                name="dwy"
-                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data?.dwy ?? 0}
-              />
-            </div>
+              <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                <div>
+                  <h2 className="text-sm font-bold">* Active Storage</h2>
+                  <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                    <div>
+                      <Label>Amount (m³)</Label>
+                      <Input
+                        type="number"
+                        name="activeStorageamount"
+                        placeholder="0.00"
+                        value={data?.activeStorageamount || ""}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
 
-            <div>
-              <Label>Diff with Full (m)</Label>
-              <Input
-                type="number"
-                disabled
-                name="dwf"
-                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data?.dwf ?? 0}
-              />
-            </div>
+                    <div>
+                      <Label>Percent (%)</Label>
+                      <Input
+                        type="number"
+                        disabled
+                        name="activeStorageaverage"
+                        className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                        value={data?.activeStorageaverage ?? 0}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-            <div>
-              <Label>Diff with Min (m)</Label>
-              <Input
-                type="number"
-                disabled
-                name="dwm"
-                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data?.dwm ?? 0}
-              />
-            </div>
+              <div className="mt-4 grid grid-cols-1 gap-x-4 gap-y-5 lg:grid-cols-5">
+                <div>
+                  <Label>Water Level at 00:00 (masl)</Label>
+                  <Input
+                    type="number"
+                    name="waterLevel"
+                    placeholder="0.00"
+                    value={data?.waterLevel ?? ""}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
 
-            <div>
-              <Label>Potential Water Storage (m³)</Label>
-              <Input
-                type="number"
-                disabled
-                name="pws"
-                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={data?.pws ?? 0}
-              />
-            </div>
-          </div>
+                <div>
+                  <Label>Diff with Yesterday (m)</Label>
+                  <Input
+                    type="number"
+                    disabled
+                    name="dwy"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={data?.dwy ?? 0}
+                  />
+                </div>
+
+                <div>
+                  <Label>Diff with Full (m)</Label>
+                  <Input
+                    type="number"
+                    disabled
+                    name="dwf"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={data?.dwf ?? 0}
+                  />
+                </div>
+
+                <div>
+                  <Label>Diff with Min (m)</Label>
+                  <Input
+                    type="number"
+                    disabled
+                    name="dwm"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={data?.dwm ?? 0}
+                  />
+                </div>
+
+                <div>
+                  <Label>Potential Water Storage (m³)</Label>
+                  <Input
+                    type="number"
+                    disabled
+                    name="pws"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={data?.pws ?? 0}
+                  />
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="mt-4 grid grid-cols-1 gap-x-3 gap-y-5 lg:grid-cols-3">
+                <div>
+                  <Label>power Generation (kWh)</Label>
+                  <Input
+                    type="number"
+                    name="powerGeneration"
+                    placeholder="0.00"
+                    value={data?.powerGeneration ?? ""}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label>Net Energy Import (kWh)</Label>
+                  <Input
+                    type="number"
+                    name="netEnergyImport"
+                    placeholder="0.00"
+                    value={data?.netEnergyImport ?? ""}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label>Net Energy Output (kWh)</Label>
+                  <Input
+                    type="number"
+                    name="netEnergyOutput"
+                    placeholder="0.00"
+                    value={data?.netEnergyOutput ?? ""}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+              </div>
+            </>
+          )}
 
           <button
             onClick={handleRevise}

@@ -39,6 +39,18 @@ export const Step2 = () => {
   const { formData, updateFormData, nextStep, prevStep } = useDayPowerStore();
   const unit = formData.unit || 1;
 
+  const fuelHeaderMap: Record<number, string[]> = {
+    3: ["Solar", "Battery"],
+    2: ["Unit 1", "Unit 2", "Unit 3", "Surplus"],
+  };
+
+  const unitHeaders = useMemo(() => {
+    return (
+      fuelHeaderMap[formData.fuelId ?? 0] ??
+      Array.from({ length: unit }, (_, i) => `Unit-${i + 1}`)
+    );
+  }, [formData.fuelId, unit]);
+
   const [maxs, setMaxs] = useState<number[]>(Array(unit).fill(0));
   const [mins, setMins] = useState<number[]>(Array(unit).fill(0));
 
@@ -77,6 +89,18 @@ export const Step2 = () => {
     updateFormData({ machinesAvailability }); // save to global state
     nextStep();
   };
+
+  useEffect(() => {
+    setMaxs((prev) => {
+      if (prev.length === unit) return prev;
+      return Array.from({ length: unit }, (_, i) => prev[i] ?? 0);
+    });
+
+    setMins((prev) => {
+      if (prev.length === unit) return prev;
+      return Array.from({ length: unit }, (_, i) => prev[i] ?? 0);
+    });
+  }, [unit]);
 
   const handleMax = (index: number, value: string) => {
     const updated = [...maxs];
@@ -294,9 +318,9 @@ export const Step2 = () => {
           <thead>
             <tr className="border-b">
               <th className="px-4 py-3 text-left font-bold"></th>
-              {Array.from({ length: unit }).map((_, index) => (
+              {unitHeaders.map((label, index) => (
                 <th key={index} className="w-[130px] px-4 py-3 text-center">
-                  Unit-{index + 1} (MW)
+                  {label} (MW)
                 </th>
               ))}
             </tr>
@@ -343,7 +367,7 @@ export const Step2 = () => {
       </div>
       <hr />
 
-      {data?.fuelId === 1 && (
+      {formData.fuelId === 1 && (
         <>
           <h2 className="text-sm font-bold">2. Reservoir Situation (00:00)</h2>
 

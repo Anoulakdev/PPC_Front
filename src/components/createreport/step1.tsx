@@ -15,6 +15,7 @@ type Power = {
   id: number;
   name: string;
   totalUnit: number;
+  fuelId: number;
 };
 
 type User = {
@@ -23,24 +24,24 @@ type User = {
 
 export const Step1 = () => {
   const { formData, updateFormData, nextStep } = useCreateReportStore();
-  const [powerOptions, setPowerOptions] = useState<
-    { value: string; label: string }[]
-  >([]);
+  const [powerOptions, setPowerOptions] = useState<{ value: string; label: string }[]>([]);
   const [isChecking, setIsChecking] = useState(false);
-  const [isValidDate, setIsValidDate] = useState(false);
+  const [canProceed, setCanProceed] = useState(false);
+  const [userPowers, setUserPowers] = useState<Power[]>([]);
 
+  // Load user powers from localStorage
   useEffect(() => {
     const userStr = localStorage.getItem("user");
     if (userStr) {
       try {
         const user: User = JSON.parse(userStr);
-        const powers = user.powers || [];
+        const powers = user.powers.map(p => p.power);
+        setUserPowers(powers);
 
         const options = powers.map((p) => ({
-          value: p.power.id.toString(),
-          label: `${p.power.name}`,
+          value: p.id.toString(),
+          label: p.name,
         }));
-
         setPowerOptions(options);
       } catch (error) {
         console.error("Invalid user format in localStorage");
@@ -48,54 +49,50 @@ export const Step1 = () => {
     }
   }, []);
 
-  // 👉 Check powerId + powerDate with API
+  // Check powerId + powerDate via API
   useEffect(() => {
-    const { powerId, powerDate } = formData;
+    const checkPowerDate = async () => {
+      const { powerId, powerDate } = formData;
 
-    if (powerId && powerDate) {
-      const formattedDate = moment(powerDate, "DD-MM-YYYY").format(
-        "YYYY-MM-DD",
-      );
+      if (!powerId || !powerDate) {
+        setCanProceed(false);
+        return;
+      }
 
+      // Parse date safely
+      const formattedDate = moment(powerDate).format("YYYY-MM-DD");
       if (!moment(formattedDate, "YYYY-MM-DD", true).isValid()) {
-        setIsValidDate(true); // enable next ถ้า date ไม่ถูก format
+        setCanProceed(false);
         return;
       }
 
       setIsChecking(true);
-      axiosInstance
-        .get(`/dayreports/checkpowerdate`, {
+      try {
+        const res = await axiosInstance.get(`/dayreports/checkpowerdate`, {
           params: { powerId, powerDate: formattedDate },
-        })
-        .then((res) => {
-          const data = res.data;
-
-          if (Array.isArray(data)) {
-            setIsValidDate(data.length === 0);
-          } else if (
-            data &&
-            typeof data === "object" &&
-            Object.keys(data).length > 0
-          ) {
-            setIsValidDate(false);
-          } else {
-            setIsValidDate(true);
-          }
-        })
-        .catch(() => {
-          setIsValidDate(true); // enable next กรณี error
-        })
-        .finally(() => {
-          setIsChecking(false);
         });
-    } else {
-      setIsValidDate(true); // enable next ถ้าไม่มีข้อมูล
-    }
+
+        const data = res.data;
+        if (Array.isArray(data)) {
+          setCanProceed(data.length === 0); // true if no existing report
+        } else if (data && typeof data === "object" && Object.keys(data).length > 0) {
+          setCanProceed(false);
+        } else {
+          setCanProceed(true);
+        }
+      } catch (err) {
+        setCanProceed(true); // allow next if error
+      } finally {
+        setIsChecking(false);
+      }
+    };
+
+    checkPowerDate();
   }, [formData.powerId, formData.powerDate]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.powerId && formData.powerDate && isValidDate) {
+    if (formData.powerId && formData.powerDate && canProceed) {
       nextStep();
     } else {
       alert("ข้อมูลไม่ถูกต้อง หรือยังไม่ได้ตรวจสอบ");
@@ -115,13 +112,14 @@ export const Step1 = () => {
                 value={formData.powerId?.toString() || ""}
                 options={powerOptions}
                 onChange={(value) => {
-                  const selected = powerOptions.find(
-                    (opt) => opt.value === value,
-                  );
-                  updateFormData({
-                    powerId: parseInt(value),
-                    totalUnit: 1,
-                  });
+                  const selected = userPowers.find((p) => p.id.toString() === value);
+                  if (selected) {
+                    updateFormData({
+                      powerId: selected.id,
+                      totalUnit: selected.totalUnit,
+                      fuelId: selected.fuelId,
+                    });
+                  }
                 }}
                 required
               />
@@ -151,7 +149,7 @@ export const Step1 = () => {
         <button
           type="submit"
           className="rounded bg-blue-500 px-4 py-2 text-white transition hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
-          disabled={!isValidDate || isChecking}
+          disabled={!canProceed || isChecking}
         >
           {isChecking ? "Checking..." : "Next"}
         </button>

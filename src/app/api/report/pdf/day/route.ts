@@ -260,6 +260,18 @@ function generatePage(item: any) {
   const powerOriginal = item.powerOriginal;
   const powerCurrent = item.powerCurrent;
 
+  const machineNames: Record<number, string[]> = {
+    3: ["Solar (MW)", "Battery (MW)"],
+    2: ["Unit 1", "Unit 2", "Unit 3", "Surplus"],
+  };
+
+  const headerNames =
+    machineNames[item.power?.fuelId || 0] ??
+    powerOriginal?.machinesAvailability?.map(
+      (m: any) => `Unit ${m.turbine} (MW)`,
+    ) ??
+    [];
+
   return `
     <div class="page">
       <!-- Header -->
@@ -281,6 +293,9 @@ function generatePage(item: any) {
         </div>
       </div>
       
+      ${
+        item.power?.fuelId === 1
+          ? `
     <!-- Reservoir Situation & Daily Water Discharge Plan (Two Column) -->
     <div class="two-column">
     <!-- Left Column: Reservoir Situation -->
@@ -350,17 +365,16 @@ function generatePage(item: any) {
         </table>
     </div>
     </div>
+    `
+          : ""
+      }
       
       <!-- Machines Availability -->
       <div class="section-title">Machines Availability</div>
       <table>
         <tr>
           <th>Units</th>
-          ${
-            powerOriginal?.machinesAvailability
-              ?.map((m: any) => `<th>Unit ${m.turbine} (MW)</th>`)
-              .join("") ?? ""
-          }
+          ${headerNames.map((name) => `<th>${name}</th>`).join("")}
         </tr>
         <tr>
           <td>Max</td>
@@ -391,11 +405,7 @@ function generatePage(item: any) {
               : `<tr>`
           }
               <th style="width: 30%;">Time</th>
-              ${
-                powerOriginal?.originalTurbines
-                  ?.map((t: any) => `<th>Unit${t.turbine}</th>`)
-                  .join("") ?? ""
-              }
+              ${headerNames.map((name) => `<th>${name}</th>`).join("")}
               <th>Total</th>
               <th style="width: 15%;">Remark</th>
             </tr>
@@ -432,11 +442,7 @@ function generatePage(item: any) {
                 : `<tr>`
             }
               <th style="width: 30%;">Time</th>
-              ${
-                powerCurrent?.currentTurbines
-                  ?.map((t: any) => `<th>Unit${t.turbine}</th>`)
-                  .join("") ?? ""
-              }
+              ${headerNames.map((name) => `<th>${name}</th>`).join("")}
               <th>Total</th>
               <th style="width: 15%;">Remark</th>
             </tr>

@@ -151,44 +151,18 @@ export default function DayAction() {
     fetchData();
   }, [id, router]);
 
-  // const totalDischarge = useMemo(() => {
-  //   const tdAmount =
-  //     parseFloat(
-  //       (data?.powerCurrent?.turbineDischargeamount ?? "").toString(),
-  //     ) || 0;
-  //   const tdAverage =
-  //     parseFloat(
-  //       (data?.powerCurrent?.turbineDischargeaverage ?? "").toString(),
-  //     ) || 0;
-  //   const sdAmount =
-  //     parseFloat(
-  //       (data?.powerCurrent?.spillwayDischargeamount ?? "").toString(),
-  //     ) || 0;
-  //   const sdAverage =
-  //     parseFloat(
-  //       (data?.powerCurrent?.spillwayDischargeaverage ?? "").toString(),
-  //     ) || 0;
-  //   const edAmount =
-  //     parseFloat(
-  //       (data?.powerCurrent?.ecologicalDischargeamount ?? "").toString(),
-  //     ) || 0;
-  //   const edAverage =
-  //     parseFloat(
-  //       (data?.powerCurrent?.ecologicalDischargeaverage ?? "").toString(),
-  //     ) || 0;
+  const columnLabels = (() => {
+    if (data?.power?.fuelId === 3) {
+      return ["Solar", "Battery"];
+    }
 
-  //   return {
-  //     amount: tdAmount + sdAmount + edAmount,
-  //     average: tdAverage + sdAverage + edAverage,
-  //   };
-  // }, [
-  //   data?.powerCurrent?.turbineDischargeamount,
-  //   data?.powerCurrent?.turbineDischargeaverage,
-  //   data?.powerCurrent?.spillwayDischargeamount,
-  //   data?.powerCurrent?.spillwayDischargeaverage,
-  //   data?.powerCurrent?.ecologicalDischargeamount,
-  //   data?.powerCurrent?.ecologicalDischargeaverage,
-  // ]);
+    if (data?.power?.fuelId === 2) {
+      return ["Unit 1", "Unit 2", "Unit 3", "Surplus"];
+    }
+
+    const totalUnit = data?.powerCurrent?.totalUnit ?? 1;
+    return Array.from({ length: totalUnit }, (_, i) => `Unit-${i + 1}`);
+  })();
 
   // แปลง powerDate เป็น Date
   const isReviseDisabled = useMemo(() => {
@@ -295,12 +269,12 @@ export default function DayAction() {
                         <th className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700">
                           Time Of Day (Hrs)
                         </th>
-                        {data.powerOriginal?.originalTurbines.map((turbine) => (
+                        {columnLabels.map((label, idx) => (
                           <th
-                            key={`header-${turbine.turbine}`}
+                            key={`declaration-header-${idx}`}
                             className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700"
                           >
-                            Unit {turbine.turbine} (MW)
+                            {label} (MW)
                           </th>
                         ))}
                         <th className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700">
@@ -412,12 +386,12 @@ export default function DayAction() {
                         <th className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700">
                           Time Of Day (Hrs)
                         </th>
-                        {data.powerCurrent?.currentTurbines.map((turbine) => (
+                        {columnLabels.map((label, idx) => (
                           <th
-                            key={`header-${turbine.turbine}`}
+                            key={`declaration-header-${idx}`}
                             className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700"
                           >
-                            Unit {turbine.turbine} (MW)
+                            {label} (MW)
                           </th>
                         ))}
                         <th className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700">
@@ -782,12 +756,12 @@ export default function DayAction() {
               <thead>
                 <tr className="border-b bg-gray-100 dark:border-gray-700 dark:bg-gray-800">
                   <th className="px-4 py-3 text-left font-bold"></th>
-                  {data?.powerCurrent?.machinesAvailability.map((m) => (
+                  {columnLabels.map((label, idx) => (
                     <th
-                      key={m.turbine}
+                      key={`declaration-header-${idx}`}
                       className="w-[130px] px-4 py-3 text-center whitespace-nowrap"
                     >
-                      Unit-{m.turbine} (MW)
+                      {label} (MW)
                     </th>
                   ))}
                 </tr>

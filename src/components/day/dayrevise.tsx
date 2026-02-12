@@ -425,6 +425,19 @@ export default function DayRevise() {
 
   // ------------------------------------------------------------
 
+  const columnLabels = (() => {
+    if (data?.power?.fuelId === 3) {
+      return ["Solar", "Battery"];
+    }
+
+    if (data?.power?.fuelId === 2) {
+      return ["Unit 1", "Unit 2", "Unit 3", "Surplus"];
+    }
+
+    const totalUnit = data?.powerCurrent?.totalUnit ?? 1;
+    return Array.from({ length: totalUnit }, (_, i) => `Unit-${i + 1}`);
+  })();
+
   const handleRevise = async () => {
     try {
       setLoading(true);
@@ -490,13 +503,13 @@ export default function DayRevise() {
                   <th className="border p-2 text-center whitespace-nowrap">
                     Time Of Day (Hrs)
                   </th>
-                  {data?.currentTurbines.map((t: any, tIdx: number) => (
+                  {columnLabels.map((label, tIdx) => (
                     <th
-                      key={t.turbine}
+                      key={tIdx}
                       className="w-[110px] border p-2 text-center whitespace-nowrap"
                     >
                       <div className="flex flex-col items-center">
-                        <span>Unit-{t.turbine} (MW)</span>
+                        <span>{label} (MW)</span>
                         <textarea
                           onPaste={(e) => handlePaste(e, tIdx)}
                           placeholder="Paste 24 values"
@@ -1008,12 +1021,12 @@ export default function DayRevise() {
               <thead>
                 <tr className="border-b bg-gray-100 dark:border-gray-700 dark:bg-gray-800">
                   <th className="px-4 py-3 text-left font-bold"></th>
-                  {data?.powerCurrent?.machinesAvailability.map((m: any) => (
+                  {columnLabels.map((label, idx) => (
                     <th
-                      key={m.turbine}
+                      key={`declaration-header-${idx}`}
                       className="w-[130px] px-4 py-3 text-center whitespace-nowrap"
                     >
-                      Unit-{m.turbine} (MW)
+                      {label} (MW)
                     </th>
                   ))}
                 </tr>

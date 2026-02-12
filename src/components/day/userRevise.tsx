@@ -55,6 +55,7 @@ type DayReviseData = {
   activeStorageamount?: number | string;
   activeStorageaverage?: number | string;
   machinesAvailability: MachineAvailability[];
+  totalUnit: number;
   remark: string;
   remarks: string[];
   reviseTurbines: ReviseTurbine[];
@@ -105,6 +106,19 @@ export default function UserRevise() {
     fetchData();
   }, [id, router]);
 
+  const columnLabels = (() => {
+    if (data?.dayRevise?.dayPower?.power?.fuelId === 3) {
+      return ["Solar", "Battery"];
+    }
+
+    if (data?.dayRevise?.dayPower?.power?.fuelId === 2) {
+      return ["Unit 1", "Unit 2", "Unit 3", "Surplus"];
+    }
+
+    const totalUnit = data?.totalUnit ?? 1;
+    return Array.from({ length: totalUnit }, (_, i) => `Unit-${i + 1}`);
+  })();
+
   return (
     <div className="rounded-xl bg-white p-6 shadow-lg dark:bg-gray-900 dark:text-gray-100">
       <h1 className="mb-5 text-center text-xl font-bold">
@@ -124,12 +138,12 @@ export default function UserRevise() {
                   <th className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700">
                     Time Of Day (Hrs)
                   </th>
-                  {data?.reviseTurbines.map((turbine) => (
+                  {columnLabels.map((label, idx) => (
                     <th
-                      key={`header-${turbine.turbine}`}
+                      key={`declaration-header-${idx}`}
                       className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700"
                     >
-                      Unit {turbine.turbine} (MW)
+                      {label} (MW)
                     </th>
                   ))}
                   <th className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700">
@@ -477,12 +491,12 @@ export default function UserRevise() {
               <thead>
                 <tr className="border-b bg-gray-100 dark:border-gray-700 dark:bg-gray-800">
                   <th className="px-4 py-3 text-left font-bold"></th>
-                  {data?.machinesAvailability.map((m) => (
+                  {columnLabels.map((label, idx) => (
                     <th
-                      key={m.turbine}
+                      key={`declaration-header-${idx}`}
                       className="w-[130px] px-4 py-3 text-center whitespace-nowrap"
                     >
-                      Unit-{m.turbine} (MW)
+                      {label} (MW)
                     </th>
                   ))}
                 </tr>

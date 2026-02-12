@@ -69,6 +69,13 @@ type DayReportHistory = {
   totalOutflow: string;
   averageOutflow: string;
   powerHistory?: PowerHistory;
+  dayReport: {
+    power: {
+      id: number;
+      name: number;
+      fuelId: number;
+    };
+  };
 };
 
 export default function ReportRevise() {
@@ -194,281 +201,334 @@ export default function ReportRevise() {
             </div>
           </div>
 
-          <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-            <div>
-              <h2 className="text-sm font-bold">* InFlow</h2>
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+          {data.dayReport?.power?.fuelId === 1 ? (
+            <>
+              <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 <div>
-                  <Label>Amount (m³)</Label>
+                  <h2 className="text-sm font-bold">* InFlow</h2>
+                  <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                    <div>
+                      <Label>Amount (m³)</Label>
+                      <Input
+                        type="text"
+                        name="inflowamount"
+                        className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                        value={Number(data.inflowamount).toLocaleString() ?? ""}
+                        disabled
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Average (m³/s)</Label>
+                      <Input
+                        type="text"
+                        name="inflowaverage"
+                        className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                        value={
+                          Number(data.inflowaverage).toLocaleString() ?? ""
+                        }
+                        disabled
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h2 className="text-sm font-bold">* Turbine Dischard</h2>
+                  <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                    <div>
+                      <Label>Amount (m³)</Label>
+                      <Input
+                        type="text"
+                        name="tdAmount"
+                        className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                        value={Number(data.tdAmount).toLocaleString() ?? ""}
+                        disabled
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Average (m³/s)</Label>
+                      <Input
+                        type="text"
+                        name="tdAverage"
+                        className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                        value={Number(data.tdAverage).toLocaleString() ?? ""}
+                        disabled
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                <div>
+                  <h2 className="text-sm font-bold">* Spill Way</h2>
+                  <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                    <div>
+                      <Label>Amount (m³)</Label>
+                      <Input
+                        type="text"
+                        name="spillwayamount"
+                        className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                        value={
+                          Number(data.spillwayamount).toLocaleString() ?? ""
+                        }
+                        disabled
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Average (m³/s)</Label>
+                      <Input
+                        type="text"
+                        name="spillwayaverage"
+                        className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                        value={
+                          Number(data.spillwayaverage).toLocaleString() ?? ""
+                        }
+                        disabled
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h2 className="text-sm font-bold">* Other Water Released</h2>
+                  <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                    <div>
+                      <Label>Amount (m³)</Label>
+                      <Input
+                        type="text"
+                        name="owramount"
+                        className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                        value={Number(data.owramount).toLocaleString() ?? ""}
+                        disabled
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Average (m³/s)</Label>
+                      <Input
+                        type="text"
+                        name="owraverage"
+                        className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                        value={Number(data.owraverage).toLocaleString() ?? ""}
+                        disabled
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 grid grid-cols-1 gap-x-3 gap-y-5 lg:grid-cols-7">
+                <div>
+                  <Label>Rain fall (mm)</Label>
                   <Input
                     type="text"
-                    name="inflowamount"
+                    name="rainFall"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={Number(data.inflowamount).toLocaleString() ?? ""}
+                    value={Number(data.rainFall).toLocaleString() ?? ""}
                     disabled
                   />
                 </div>
 
                 <div>
-                  <Label>Average (m³/s)</Label>
+                  <Label>power Generation (kWh)</Label>
                   <Input
                     type="text"
-                    name="inflowaverage"
+                    name="powerGeneration"
                     className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={Number(data.inflowaverage).toLocaleString() ?? ""}
+                    value={Number(data.powerGeneration).toLocaleString() ?? ""}
+                    disabled
+                  />
+                </div>
+
+                <div>
+                  <Label>Net Energy Import (kWh)</Label>
+                  <Input
+                    type="text"
+                    name="netEnergyImport"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={Number(data.netEnergyImport).toLocaleString() ?? ""}
+                    disabled
+                  />
+                </div>
+
+                <div>
+                  <Label>Net Energy Output (kWh)</Label>
+                  <Input
+                    type="text"
+                    name="netEnergyOutput"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={Number(data.netEnergyOutput).toLocaleString() ?? ""}
+                    disabled
+                  />
+                </div>
+
+                <div>
+                  <Label>Water Rate (m³/kWh)</Label>
+                  <Input
+                    type="text"
+                    disabled
+                    name="waterRate"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={Number(data.waterRate).toLocaleString() ?? 0}
+                  />
+                </div>
+                <div>
+                  <Label>Total Outflow (m³)</Label>
+                  <Input
+                    type="text"
+                    disabled
+                    name="totalOutflow"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={Number(data.totalOutflow).toLocaleString() ?? 0}
+                  />
+                </div>
+                <div>
+                  <Label>Average Outflow (m³/s)</Label>
+                  <Input
+                    type="text"
+                    disabled
+                    name="averageOutflow"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={Number(data.averageOutflow).toLocaleString() ?? 0}
+                  />
+                </div>
+              </div>
+
+              <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                <div>
+                  <h2 className="text-sm font-bold">* Active Storage</h2>
+                  <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+                    <div>
+                      <Label>Amount (m³)</Label>
+                      <Input
+                        type="text"
+                        name="activeStorageamount"
+                        className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                        value={
+                          Number(data.activeStorageamount).toLocaleString() ??
+                          ""
+                        }
+                        disabled
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Percent ( % )</Label>
+                      <Input
+                        type="text"
+                        disabled
+                        name="activeStorageaverage"
+                        className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                        value={
+                          Number(data.activeStorageaverage).toLocaleString() ??
+                          0
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 grid grid-cols-1 gap-x-4 gap-y-5 lg:grid-cols-5">
+                <div>
+                  <Label>Water Level at 00:00 (masl)</Label>
+                  <Input
+                    type="text"
+                    name="waterLevel"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={Number(data.waterLevel).toLocaleString() ?? ""}
+                    disabled
+                  />
+                </div>
+
+                <div>
+                  <Label>Diff with Yesterday (m)</Label>
+                  <Input
+                    type="text"
+                    disabled
+                    name="dwy"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={Number(data.dwy).toLocaleString() ?? 0}
+                  />
+                </div>
+
+                <div>
+                  <Label>Diff with Full (m)</Label>
+                  <Input
+                    type="text"
+                    disabled
+                    name="dwf"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={Number(data.dwf).toLocaleString() ?? 0}
+                  />
+                </div>
+
+                <div>
+                  <Label>Diff with Min (m)</Label>
+                  <Input
+                    type="text"
+                    disabled
+                    name="dwm"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={Number(data.dwm).toLocaleString() ?? 0}
+                  />
+                </div>
+
+                <div>
+                  <Label>Potential Water Storage (m³)</Label>
+                  <Input
+                    type="text"
+                    disabled
+                    name="pws"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    // value={formatValue(formData.pws ?? 0)}
+                    value={Number(data.pws).toLocaleString() ?? 0}
+                  />
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="mt-4 grid grid-cols-1 gap-x-3 gap-y-5 lg:grid-cols-3">
+                <div>
+                  <Label>power Generation (kWh)</Label>
+                  <Input
+                    type="text"
+                    name="powerGeneration"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={Number(data.powerGeneration).toLocaleString() ?? ""}
+                    disabled
+                  />
+                </div>
+
+                <div>
+                  <Label>Net Energy Import (kWh)</Label>
+                  <Input
+                    type="text"
+                    name="netEnergyImport"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={Number(data.netEnergyImport).toLocaleString() ?? ""}
+                    disabled
+                  />
+                </div>
+
+                <div>
+                  <Label>Net Energy Output (kWh)</Label>
+                  <Input
+                    type="text"
+                    name="netEnergyOutput"
+                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
+                    value={Number(data.netEnergyOutput).toLocaleString() ?? ""}
                     disabled
                   />
                 </div>
               </div>
-            </div>
-
-            <div>
-              <h2 className="text-sm font-bold">* Turbine Dischard</h2>
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                <div>
-                  <Label>Amount (m³)</Label>
-                  <Input
-                    type="text"
-                    name="tdAmount"
-                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={Number(data.tdAmount).toLocaleString() ?? ""}
-                    disabled
-                  />
-                </div>
-
-                <div>
-                  <Label>Average (m³/s)</Label>
-                  <Input
-                    type="text"
-                    name="tdAverage"
-                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={Number(data.tdAverage).toLocaleString() ?? ""}
-                    disabled
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-            <div>
-              <h2 className="text-sm font-bold">* Spill Way</h2>
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                <div>
-                  <Label>Amount (m³)</Label>
-                  <Input
-                    type="text"
-                    name="spillwayamount"
-                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={Number(data.spillwayamount).toLocaleString() ?? ""}
-                    disabled
-                  />
-                </div>
-
-                <div>
-                  <Label>Average (m³/s)</Label>
-                  <Input
-                    type="text"
-                    name="spillwayaverage"
-                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={Number(data.spillwayaverage).toLocaleString() ?? ""}
-                    disabled
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h2 className="text-sm font-bold">* Other Water Released</h2>
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                <div>
-                  <Label>Amount (m³)</Label>
-                  <Input
-                    type="text"
-                    name="owramount"
-                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={Number(data.owramount).toLocaleString() ?? ""}
-                    disabled
-                  />
-                </div>
-
-                <div>
-                  <Label>Average (m³/s)</Label>
-                  <Input
-                    type="text"
-                    name="owraverage"
-                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={Number(data.owraverage).toLocaleString() ?? ""}
-                    disabled
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-4 grid grid-cols-1 gap-x-3 gap-y-5 lg:grid-cols-7">
-            <div>
-              <Label>Rain fall (mm)</Label>
-              <Input
-                type="text"
-                name="rainFall"
-                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={Number(data.rainFall).toLocaleString() ?? ""}
-                disabled
-              />
-            </div>
-
-            <div>
-              <Label>power Generation (kWh)</Label>
-              <Input
-                type="text"
-                name="powerGeneration"
-                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={Number(data.powerGeneration).toLocaleString() ?? ""}
-                disabled
-              />
-            </div>
-
-            <div>
-              <Label>Net Energy Import (kWh)</Label>
-              <Input
-                type="text"
-                name="netEnergyImport"
-                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={Number(data.netEnergyImport).toLocaleString() ?? ""}
-                disabled
-              />
-            </div>
-
-            <div>
-              <Label>Net Energy Output (kWh)</Label>
-              <Input
-                type="text"
-                name="netEnergyOutput"
-                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={Number(data.netEnergyOutput).toLocaleString() ?? ""}
-                disabled
-              />
-            </div>
-
-            <div>
-              <Label>Water Rate (m³/kWh)</Label>
-              <Input
-                type="text"
-                disabled
-                name="waterRate"
-                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={Number(data.waterRate).toLocaleString() ?? 0}
-              />
-            </div>
-            <div>
-              <Label>Total Outflow (m³)</Label>
-              <Input
-                type="text"
-                disabled
-                name="totalOutflow"
-                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={Number(data.totalOutflow).toLocaleString() ?? 0}
-              />
-            </div>
-            <div>
-              <Label>Average Outflow (m³/s)</Label>
-              <Input
-                type="text"
-                disabled
-                name="averageOutflow"
-                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={Number(data.averageOutflow).toLocaleString() ?? 0}
-              />
-            </div>
-          </div>
-
-          <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-            <div>
-              <h2 className="text-sm font-bold">* Active Storage</h2>
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                <div>
-                  <Label>Amount (m³)</Label>
-                  <Input
-                    type="text"
-                    name="activeStorageamount"
-                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={Number(data.activeStorageamount).toLocaleString() ?? ""}
-                    disabled
-                  />
-                </div>
-
-                <div>
-                  <Label>Percent ( % )</Label>
-                  <Input
-                    type="text"
-                    disabled
-                    name="activeStorageaverage"
-                    className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                    value={Number(data.activeStorageaverage).toLocaleString() ?? 0}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-4 grid grid-cols-1 gap-x-4 gap-y-5 lg:grid-cols-5">
-            <div>
-              <Label>Water Level at 00:00 (masl)</Label>
-              <Input
-                type="text"
-                name="waterLevel"
-                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={Number(data.waterLevel).toLocaleString() ?? ""}
-                disabled
-              />
-            </div>
-
-            <div>
-              <Label>Diff with Yesterday (m)</Label>
-              <Input
-                type="text"
-                disabled
-                name="dwy"
-                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={Number(data.dwy).toLocaleString() ?? 0}
-              />
-            </div>
-
-            <div>
-              <Label>Diff with Full (m)</Label>
-              <Input
-                type="text"
-                disabled
-                name="dwf"
-                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={Number(data.dwf).toLocaleString() ?? 0}
-              />
-            </div>
-
-            <div>
-              <Label>Diff with Min (m)</Label>
-              <Input
-                type="text"
-                disabled
-                name="dwm"
-                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                value={Number(data.dwm).toLocaleString() ?? 0}
-              />
-            </div>
-
-            <div>
-              <Label>Potential Water Storage (m³)</Label>
-              <Input
-                type="text"
-                disabled
-                name="pws"
-                className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                // value={formatValue(formData.pws ?? 0)}
-                value={Number(data.pws).toLocaleString() ?? 0}
-              />
-            </div>
-          </div>
+            </>
+          )}
         </>
       ) : (
         <div className="text-center text-gray-500"></div>

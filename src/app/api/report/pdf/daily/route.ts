@@ -222,7 +222,7 @@ function generatePDF(data: any[]) {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-top: 25px;
+            margin-top: 50px;
             font-size: 9pt;
             gap: 50px;
           }
@@ -313,6 +313,10 @@ function generatePage(item: any) {
 
         <div class="column">
           <div class="section-title">Data Yesterday: ${moment(item.powerDate).format("DD/MM/YYYY")}</div>
+
+          ${
+            item.power?.fuelId === 1
+              ? `
         <table>
         <tr>
             <th style="width: 50%;">Descriptions</th>
@@ -403,7 +407,42 @@ function generatePage(item: any) {
         </tr>
         
         </table>
+          `
+        : `<table>
+        <tr>
+            <th style="width: 50%;">Descriptions</th>
+            <th style="width: 25%;">Value</th>
+            <th style="width: 25%;">Unit</th>
+        </tr>
 
+        <tr>
+            <td class="left-align" style="width: 60%; border-right: 2px solid #000;">Power Generation:</td>
+            <td style="width: 25%;">${formatNumber(item.dayReportCurrent?.powerGeneration)}</td>
+            <td style="width: 15%;">kWh</td>
+        </tr>
+
+        <tr>
+            <td class="left-align" style="width: 60%; border-right: 2px solid #000;">Net Energy Import:</td>
+            <td style="width: 25%;">${formatNumber(item.dayReportCurrent?.netEnergyImport)}</td>
+            <td style="width: 15%;">kWh</td>
+        </tr>
+
+        <tr>
+            <td class="left-align" style="width: 60%; border-right: 2px solid #000;">Net Energy Output:</td>
+            <td style="width: 25%;">${formatNumber(item.dayReportCurrent?.netEnergyOutput)}</td>
+            <td style="width: 15%;">kWh</td>
+        </tr>
+
+        </table>
+        
+        `
+          }
+
+
+
+        ${
+          item.power?.fuelId === 1
+            ? `
         <div class="section-title">Data Today: ${moment(item.powerDate).add(1, "day").format("DD/MM/YYYY")}</div>
 
         <table>
@@ -453,6 +492,10 @@ function generatePage(item: any) {
             <td style="width: 15%;">m³</td>
         </tr>
         </table>
+
+        `
+            : ""
+        }
 
         </div>
       </div>

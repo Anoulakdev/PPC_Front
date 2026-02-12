@@ -136,6 +136,16 @@ export const Step2 = () => {
     e.preventDefault();
     if (isSubmitting) return;
 
+    // ✅ ตรวจสอบว่ากรอกครบทุกช่อง
+    const isIncomplete = formData.turbineData?.some((t) =>
+      t.hourly.some((h) => h === 0 || h === null || h === undefined),
+    );
+
+    if (isIncomplete) {
+      toast.error("Please add all fill hourly values before submitting.");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const payload = {
@@ -228,7 +238,7 @@ export const Step2 = () => {
                             handleHourlyValidate(tIdx, hIdx, val.toString());
                           }}
                           className="w-full rounded border px-1 py-1 placeholder:text-gray-900 dark:placeholder:text-gray-100"
-                          placeholder="0"
+                          // placeholder="0"
                         />
                       </td>
                     );

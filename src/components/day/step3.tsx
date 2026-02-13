@@ -179,7 +179,7 @@ export const Step3 = () => {
 
     // ✅ ตรวจสอบว่ากรอกครบทุกช่อง
     const isIncomplete = formData.turbineData?.some((t) =>
-      t.hourly.some((h) => h === 0 || h === null || h === undefined),
+      t.hourly.some((h) => h === null || h === undefined),
     );
 
     if (isIncomplete) {

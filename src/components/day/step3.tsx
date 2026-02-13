@@ -311,7 +311,7 @@ export const Step3 = () => {
                             }
                           }}
                           className="w-full rounded border px-1 py-1 placeholder:text-gray-900 dark:placeholder:text-gray-100"
-                          // placeholder="0"
+                          placeholder="0"
                         />
                       </td>
                     );

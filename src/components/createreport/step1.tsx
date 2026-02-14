@@ -24,9 +24,11 @@ type User = {
 
 export const Step1 = () => {
   const { formData, updateFormData, nextStep } = useCreateReportStore();
-  const [powerOptions, setPowerOptions] = useState<{ value: string; label: string }[]>([]);
+  const [powerOptions, setPowerOptions] = useState<
+    { value: string; label: string }[]
+  >([]);
   const [isChecking, setIsChecking] = useState(false);
-  const [canProceed, setCanProceed] = useState(false);
+  const [isValidDate, setIsValidDate] = useState(false);
   const [userPowers, setUserPowers] = useState<Power[]>([]);
 
   // Load user powers from localStorage
@@ -35,7 +37,7 @@ export const Step1 = () => {
     if (userStr) {
       try {
         const user: User = JSON.parse(userStr);
-        const powers = user.powers.map(p => p.power);
+        const powers = user.powers.map((p) => p.power);
         setUserPowers(powers);
 
         const options = powers.map((p) => ({
@@ -51,48 +53,52 @@ export const Step1 = () => {
 
   // Check powerId + powerDate via API
   useEffect(() => {
-    const checkPowerDate = async () => {
-      const { powerId, powerDate } = formData;
+    const { powerId, powerDate } = formData;
 
-      if (!powerId || !powerDate) {
-        setCanProceed(false);
-        return;
-      }
+    if (powerId && powerDate) {
+      const formattedDate = moment(powerDate, "DD-MM-YYYY").format(
+        "YYYY-MM-DD",
+      );
 
-      // Parse date safely
-      const formattedDate = moment(powerDate).format("YYYY-MM-DD");
       if (!moment(formattedDate, "YYYY-MM-DD", true).isValid()) {
-        setCanProceed(false);
+        setIsValidDate(true); // enable next ถ้า date ไม่ถูก format
         return;
       }
 
       setIsChecking(true);
-      try {
-        const res = await axiosInstance.get(`/dayreports/checkpowerdate`, {
+      axiosInstance
+        .get(`/dayreports/checkpowerdate`, {
           params: { powerId, powerDate: formattedDate },
+        })
+        .then((res) => {
+          const data = res.data;
+
+          if (Array.isArray(data)) {
+            setIsValidDate(data.length === 0);
+          } else if (
+            data &&
+            typeof data === "object" &&
+            Object.keys(data).length > 0
+          ) {
+            setIsValidDate(false);
+          } else {
+            setIsValidDate(true);
+          }
+        })
+        .catch(() => {
+          setIsValidDate(true); // enable next กรณี error
+        })
+        .finally(() => {
+          setIsChecking(false);
         });
-
-        const data = res.data;
-        if (Array.isArray(data)) {
-          setCanProceed(data.length === 0); // true if no existing report
-        } else if (data && typeof data === "object" && Object.keys(data).length > 0) {
-          setCanProceed(false);
-        } else {
-          setCanProceed(true);
-        }
-      } catch (err) {
-        setCanProceed(true); // allow next if error
-      } finally {
-        setIsChecking(false);
-      }
-    };
-
-    checkPowerDate();
+    } else {
+      setIsValidDate(true); // enable next ถ้าไม่มีข้อมูล
+    }
   }, [formData.powerId, formData.powerDate]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.powerId && formData.powerDate && canProceed) {
+    if (formData.powerId && formData.powerDate && isValidDate) {
       nextStep();
     } else {
       alert("ข้อมูลไม่ถูกต้อง หรือยังไม่ได้ตรวจสอบ");
@@ -112,7 +118,9 @@ export const Step1 = () => {
                 value={formData.powerId?.toString() || ""}
                 options={powerOptions}
                 onChange={(value) => {
-                  const selected = userPowers.find((p) => p.id.toString() === value);
+                  const selected = userPowers.find(
+                    (p) => p.id.toString() === value,
+                  );
                   if (selected) {
                     updateFormData({
                       powerId: selected.id,
@@ -149,7 +157,7 @@ export const Step1 = () => {
         <button
           type="submit"
           className="rounded bg-blue-500 px-4 py-2 text-white transition hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
-          disabled={!canProceed || isChecking}
+          disabled={!isValidDate || isChecking}
         >
           {isChecking ? "Checking..." : "Next"}
         </button>

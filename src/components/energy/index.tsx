@@ -368,7 +368,7 @@ export default function EnergyTablePage() {
       </div>
 
       {/* ▼ Table */}
-      <div className="overflow-x-auto rounded-xl border bg-white shadow-lg">
+      <div className="max-h-[80vh] overflow-x-auto overflow-y-auto rounded-xl border bg-white shadow-lg md:max-h-[70vh]">
         <table className="min-w-full border-collapse">
           <thead className="sticky top-0 z-20">
             <tr className="bg-gradient-to-r from-blue-700 to-teal-600 text-xs text-white">

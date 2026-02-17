@@ -22,8 +22,8 @@ import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
 import SelectDate from "@/components/form/SelectDate";
 import { getCurrentWeek, getWeeksInYear } from "@/utils/weeksInYear";
-import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
+// import * as XLSX from "xlsx";
+// import { saveAs } from "file-saver";
 import moment from "moment";
 import { getYearOptions } from "@/utils/yearOptions";
 
@@ -310,34 +310,6 @@ export default function WeekTable() {
         return `${firstname} ${lastname}`;
       },
     },
-    // {
-    //   id: "actions",
-    //   header: "Action",
-    //   cell: ({ row }) => (
-    //     <div className="flex gap-2">
-    //       {(user?.roleId === 3 ||
-    //         user?.roleId === 4 ||
-    //         user?.roleId === 5 ||
-    //         user?.roleId === 6) && (
-    //         <div className="group relative inline-block">
-    //           <button
-    //             onClick={() =>
-    //               router.push(
-    //                 `/${user?.roleId === 3 || user?.roleId === 4 ? "dispatch" : "declaration"}/week/weekview/${encryptId(row.original.id)}`,
-    //               )
-    //             }
-    //             className="rounded p-1 text-gray-600 hover:bg-blue-100"
-    //           >
-    //             <EyeIcon className="h-5 w-5" />
-    //           </button>
-    //           <div className="absolute bottom-full left-1/2 z-10 mb-2 w-max -translate-x-1/2 rounded bg-gray-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-    //             View
-    //           </div>
-    //         </div>
-    //       )}
-    //     </div>
-    //   ),
-    // },
   ];
 
   const table = useReactTable({
@@ -352,47 +324,47 @@ export default function WeekTable() {
     getFilteredRowModel: getFilteredRowModel(),
   });
 
-  const exportToExcel = () => {
-    if (data) {
-      const worksheet = XLSX.utils.json_to_sheet(
-        data.map((item, index) => ({
-          No: index + 1,
-          Year: item.sYear,
-          Week: item.sWeek,
-          DateRange: `${moment(item.startDate).format("DD/MM/YYYY")} - ${moment(item.endDate).format("DD/MM/YYYY")}`,
-          Company: item.power?.company?.name ?? "",
-          Declaration: item.power?.name ?? "",
-          WAD_WD: `${item.powerNo} - EDL`,
-          WEEKLY_DECLARATION: parseFloat(
-            item.powerOriginal?.totalPower?.toString() ?? "0",
-          ),
-          WEEKLY_DISPATCH: parseFloat(
-            item.powerCurrent?.totalPower?.toString() ?? "0",
-          ),
-          Document: item.revise === false ? "Original" : "Revise",
-          StatusWAD: item.decAcknowUser?.firstname
-            ? `${item.decAcknowUser.firstname} ${item.decAcknowUser.lastname ?? ""}`.trim()
-            : "Not Acknowlege",
-          StatusWD: item.disAcknowUser?.firstname
-            ? `${item.disAcknowUser.firstname} ${item.disAcknowUser.lastname ?? ""}`.trim()
-            : "Not Acknowlege",
-          CreatedBy: `${item.createdByUser?.firstname ?? ""} ${
-            item.createdByUser?.lastname ?? ""
-          }`.trim(),
-        })),
-      );
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
-      const excelBuffer = XLSX.write(workbook, {
-        bookType: "xlsx",
-        type: "array",
-      });
-      const blob = new Blob([excelBuffer], {
-        type: "application/octet-stream",
-      });
-      saveAs(blob, `Week_Report_${moment().format("DDMMYYYY_HHmmss")}.xlsx`);
-    }
-  };
+  // const exportToExcel = () => {
+  //   if (data) {
+  //     const worksheet = XLSX.utils.json_to_sheet(
+  //       data.map((item, index) => ({
+  //         No: index + 1,
+  //         Year: item.sYear,
+  //         Week: item.sWeek,
+  //         DateRange: `${moment(item.startDate).format("DD/MM/YYYY")} - ${moment(item.endDate).format("DD/MM/YYYY")}`,
+  //         Company: item.power?.company?.name ?? "",
+  //         Declaration: item.power?.name ?? "",
+  //         WAD_WD: `${item.powerNo} - EDL`,
+  //         WEEKLY_DECLARATION: parseFloat(
+  //           item.powerOriginal?.totalPower?.toString() ?? "0",
+  //         ),
+  //         WEEKLY_DISPATCH: parseFloat(
+  //           item.powerCurrent?.totalPower?.toString() ?? "0",
+  //         ),
+  //         Document: item.revise === false ? "Original" : "Revise",
+  //         StatusWAD: item.decAcknowUser?.firstname
+  //           ? `${item.decAcknowUser.firstname} ${item.decAcknowUser.lastname ?? ""}`.trim()
+  //           : "Not Acknowlege",
+  //         StatusWD: item.disAcknowUser?.firstname
+  //           ? `${item.disAcknowUser.firstname} ${item.disAcknowUser.lastname ?? ""}`.trim()
+  //           : "Not Acknowlege",
+  //         CreatedBy: `${item.createdByUser?.firstname ?? ""} ${
+  //           item.createdByUser?.lastname ?? ""
+  //         }`.trim(),
+  //       })),
+  //     );
+  //     const workbook = XLSX.utils.book_new();
+  //     XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
+  //     const excelBuffer = XLSX.write(workbook, {
+  //       bookType: "xlsx",
+  //       type: "array",
+  //     });
+  //     const blob = new Blob([excelBuffer], {
+  //       type: "application/octet-stream",
+  //     });
+  //     saveAs(blob, `Week_Report_${moment().format("DDMMYYYY_HHmmss")}.xlsx`);
+  //   }
+  // };
 
   const exportToPDF = () => {
     const params = new URLSearchParams({
@@ -454,13 +426,13 @@ export default function WeekTable() {
           </div>
 
           <div className="flex gap-2 self-start md:mt-6">
-            <button
+            {/* <button
               onClick={exportToExcel}
               disabled={loading || data.length === 0}
               // className={`rounded-md bg-green-500 px-4 py-2 text-lg text-white hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-green-500`}
             >
               <img width={45} height={45} src="/excel.png" alt="Excel" />
-            </button>
+            </button> */}
 
             <button
               onClick={exportToPDF}

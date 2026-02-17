@@ -22,8 +22,8 @@ import { getLocalStorage } from "@/utils/storage";
 import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
 import DatePickerAll from "@/components/form/date-pickerall";
-import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
+// import * as XLSX from "xlsx";
+// import { saveAs } from "file-saver";
 // import Image from "next/image";
 
 type UserAcKnow = {
@@ -351,61 +351,61 @@ export default function DayTable() {
     getFilteredRowModel: getFilteredRowModel(),
   });
 
-  const exportToExcel = () => {
-    if (data) {
-      const worksheet = XLSX.utils.json_to_sheet(
-        data.map((item, index) => ({
-          No: index + 1,
-          Company: item.power?.company?.name ?? "",
-          Declaration: item.power?.name ?? "",
-          DAD_DD: `${item.powerNo} - EDL`,
-          DAILY_DECLARATION: parseFloat(
-            item.powerOriginal?.totalPower?.toString() ?? "0",
-          ),
-          DAILY_DISPATCH: parseFloat(
-            item.powerCurrent?.totalPower?.toString() ?? "0",
-          ),
-          Document: item.revise === false ? "Original" : "Revise",
-          StatusDAD: item.decAcknowUser?.firstname
-            ? `${item.decAcknowUser.firstname} ${item.decAcknowUser.lastname ?? ""}`.trim()
-            : "Not Acknowlege",
-          StatusDD: item.disAcknowUser?.firstname
-            ? `${item.disAcknowUser.firstname} ${item.disAcknowUser.lastname ?? ""}`.trim()
-            : "Not Acknowlege",
-          Date: moment(item.powerDate).format("DD/MM/YYYY"),
-          CreatedBy: `${item.createdByUser?.firstname ?? ""} ${
-            item.createdByUser?.lastname ?? ""
-          }`.trim(),
-          upstreamLevel: item.powerCurrent?.upstreamLevel,
-          downstreamLevel: item.powerCurrent?.downstreamLevel,
-          totalStorageamount: item.powerCurrent?.totalStorageamount,
-          totalStorageaverage: item.powerCurrent?.totalStorageaverage,
-          activeStorageamount: item.powerCurrent?.activeStorageamount,
-          activeStorageaverage: item.powerCurrent?.activeStorageaverage,
-          turbineDischargeamount: item.powerCurrent?.turbineDischargeamount,
-          turbineDischargeaverage: item.powerCurrent?.turbineDischargeaverage,
-          spillwayDischargeamount: item.powerCurrent?.spillwayDischargeamount,
-          spillwayDischargeaverage: item.powerCurrent?.spillwayDischargeaverage,
-          ecologicalDischargeamount:
-            item.powerCurrent?.ecologicalDischargeamount,
-          ecologicalDischargeaverage:
-            item.powerCurrent?.ecologicalDischargeaverage,
-          totalDischargeamount: item.powerCurrent?.totalDischargeamount,
-          totalDischargeaverage: item.powerCurrent?.totalDischargeaverage,
-        })),
-      );
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
-      const excelBuffer = XLSX.write(workbook, {
-        bookType: "xlsx",
-        type: "array",
-      });
-      const blob = new Blob([excelBuffer], {
-        type: "application/octet-stream",
-      });
-      saveAs(blob, `Daily_Report_${moment().format("DDMMYYYY_HHmmss")}.xlsx`);
-    }
-  };
+  // const exportToExcel = () => {
+  //   if (data) {
+  //     const worksheet = XLSX.utils.json_to_sheet(
+  //       data.map((item, index) => ({
+  //         No: index + 1,
+  //         Company: item.power?.company?.name ?? "",
+  //         Declaration: item.power?.name ?? "",
+  //         DAD_DD: `${item.powerNo} - EDL`,
+  //         DAILY_DECLARATION: parseFloat(
+  //           item.powerOriginal?.totalPower?.toString() ?? "0",
+  //         ),
+  //         DAILY_DISPATCH: parseFloat(
+  //           item.powerCurrent?.totalPower?.toString() ?? "0",
+  //         ),
+  //         Document: item.revise === false ? "Original" : "Revise",
+  //         StatusDAD: item.decAcknowUser?.firstname
+  //           ? `${item.decAcknowUser.firstname} ${item.decAcknowUser.lastname ?? ""}`.trim()
+  //           : "Not Acknowlege",
+  //         StatusDD: item.disAcknowUser?.firstname
+  //           ? `${item.disAcknowUser.firstname} ${item.disAcknowUser.lastname ?? ""}`.trim()
+  //           : "Not Acknowlege",
+  //         Date: moment(item.powerDate).format("DD/MM/YYYY"),
+  //         CreatedBy: `${item.createdByUser?.firstname ?? ""} ${
+  //           item.createdByUser?.lastname ?? ""
+  //         }`.trim(),
+  //         upstreamLevel: item.powerCurrent?.upstreamLevel,
+  //         downstreamLevel: item.powerCurrent?.downstreamLevel,
+  //         totalStorageamount: item.powerCurrent?.totalStorageamount,
+  //         totalStorageaverage: item.powerCurrent?.totalStorageaverage,
+  //         activeStorageamount: item.powerCurrent?.activeStorageamount,
+  //         activeStorageaverage: item.powerCurrent?.activeStorageaverage,
+  //         turbineDischargeamount: item.powerCurrent?.turbineDischargeamount,
+  //         turbineDischargeaverage: item.powerCurrent?.turbineDischargeaverage,
+  //         spillwayDischargeamount: item.powerCurrent?.spillwayDischargeamount,
+  //         spillwayDischargeaverage: item.powerCurrent?.spillwayDischargeaverage,
+  //         ecologicalDischargeamount:
+  //           item.powerCurrent?.ecologicalDischargeamount,
+  //         ecologicalDischargeaverage:
+  //           item.powerCurrent?.ecologicalDischargeaverage,
+  //         totalDischargeamount: item.powerCurrent?.totalDischargeamount,
+  //         totalDischargeaverage: item.powerCurrent?.totalDischargeaverage,
+  //       })),
+  //     );
+  //     const workbook = XLSX.utils.book_new();
+  //     XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
+  //     const excelBuffer = XLSX.write(workbook, {
+  //       bookType: "xlsx",
+  //       type: "array",
+  //     });
+  //     const blob = new Blob([excelBuffer], {
+  //       type: "application/octet-stream",
+  //     });
+  //     saveAs(blob, `Daily_Report_${moment().format("DDMMYYYY_HHmmss")}.xlsx`);
+  //   }
+  // };
 
   const exportToPDF = () => {
     const params = new URLSearchParams({
@@ -463,7 +463,7 @@ export default function DayTable() {
           </div>
 
           <div className="flex gap-2 self-start md:mt-6">
-            <button
+            {/* <button
               onClick={exportToExcel}
               disabled={loading || data.length === 0}
               // className={`rounded-md bg-green-500 px-4 py-2 text-lg text-white hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-green-500`}
@@ -474,19 +474,14 @@ export default function DayTable() {
                 src="/excel.png"
                 alt="Excel"
               />
-            </button>
+            </button> */}
 
             <button
               onClick={exportToPDF}
               disabled={loading || data.length === 0}
               // className={`rounded-md bg-red-500 px-4 py-2 text-lg text-white hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-red-500`}
             >
-              <img
-                width={45}
-                height={45}
-                src="/pdf.png"
-                alt="PDF"
-              />
+              <img width={45} height={45} src="/pdf.png" alt="PDF" />
             </button>
           </div>
         </div>

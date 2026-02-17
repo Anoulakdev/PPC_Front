@@ -21,9 +21,9 @@ import { getLocalStorage } from "@/utils/storage";
 import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
 import SelectDate from "@/components/form/SelectDate";
-import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
-import moment from "moment";
+// import * as XLSX from "xlsx";
+// import { saveAs } from "file-saver";
+// import moment from "moment";
 import { getYearOptions } from "@/utils/yearOptions";
 
 type UserAcKnow = {
@@ -168,45 +168,45 @@ export default function MonthTable() {
     return sum + (isNaN(val) ? 0 : val);
   }, 0);
 
-  const exportToExcel = () => {
-    if (data) {
-      const worksheet = XLSX.utils.json_to_sheet(
-        data.map((item, index) => ({
-          No: index + 1,
-          Month_Year: `${item.sMonth}/${item.sYear}`,
-          Company: item.power?.company?.name ?? "",
-          Declaration: item.power?.name ?? "",
-          MAD_MD: `${item.powerNo} - EDL`,
-          MONTHLY_DECLARATION: parseFloat(
-            item.powerOriginal?.totalPower?.toString() ?? "0",
-          ),
-          MONTHLY_DISPATCH: parseFloat(
-            item.powerCurrent?.totalPower?.toString() ?? "0",
-          ),
-          Document: item.revise === false ? "Original" : "Revise",
-          StatusMAD: item.decAcknowUser?.firstname
-            ? `${item.decAcknowUser.firstname} ${item.decAcknowUser.lastname ?? ""}`.trim()
-            : "Not Acknowlege",
-          StatusMD: item.disAcknowUser?.firstname
-            ? `${item.disAcknowUser.firstname} ${item.disAcknowUser.lastname ?? ""}`.trim()
-            : "Not Acknowlege",
-          CreatedBy: `${item.createdByUser?.firstname ?? ""} ${
-            item.createdByUser?.lastname ?? ""
-          }`.trim(),
-        })),
-      );
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
-      const excelBuffer = XLSX.write(workbook, {
-        bookType: "xlsx",
-        type: "array",
-      });
-      const blob = new Blob([excelBuffer], {
-        type: "application/octet-stream",
-      });
-      saveAs(blob, `Month_Report_${moment().format("DDMMYYYY_HHmmss")}.xlsx`);
-    }
-  };
+  // const exportToExcel = () => {
+  //   if (data) {
+  //     const worksheet = XLSX.utils.json_to_sheet(
+  //       data.map((item, index) => ({
+  //         No: index + 1,
+  //         Month_Year: `${item.sMonth}/${item.sYear}`,
+  //         Company: item.power?.company?.name ?? "",
+  //         Declaration: item.power?.name ?? "",
+  //         MAD_MD: `${item.powerNo} - EDL`,
+  //         MONTHLY_DECLARATION: parseFloat(
+  //           item.powerOriginal?.totalPower?.toString() ?? "0",
+  //         ),
+  //         MONTHLY_DISPATCH: parseFloat(
+  //           item.powerCurrent?.totalPower?.toString() ?? "0",
+  //         ),
+  //         Document: item.revise === false ? "Original" : "Revise",
+  //         StatusMAD: item.decAcknowUser?.firstname
+  //           ? `${item.decAcknowUser.firstname} ${item.decAcknowUser.lastname ?? ""}`.trim()
+  //           : "Not Acknowlege",
+  //         StatusMD: item.disAcknowUser?.firstname
+  //           ? `${item.disAcknowUser.firstname} ${item.disAcknowUser.lastname ?? ""}`.trim()
+  //           : "Not Acknowlege",
+  //         CreatedBy: `${item.createdByUser?.firstname ?? ""} ${
+  //           item.createdByUser?.lastname ?? ""
+  //         }`.trim(),
+  //       })),
+  //     );
+  //     const workbook = XLSX.utils.book_new();
+  //     XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
+  //     const excelBuffer = XLSX.write(workbook, {
+  //       bookType: "xlsx",
+  //       type: "array",
+  //     });
+  //     const blob = new Blob([excelBuffer], {
+  //       type: "application/octet-stream",
+  //     });
+  //     saveAs(blob, `Month_Report_${moment().format("DDMMYYYY_HHmmss")}.xlsx`);
+  //   }
+  // };
 
   const exportToPDF = () => {
     const params = new URLSearchParams({
@@ -447,13 +447,13 @@ export default function MonthTable() {
           </div>
 
           <div className="flex gap-2 self-start md:mt-6">
-            <button
+            {/* <button
               onClick={exportToExcel}
               disabled={loading || data.length === 0}
               // className={`rounded-md bg-green-500 px-4 py-2 text-lg text-white hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-green-500`}
             >
               <img width={45} height={45} src="/excel.png" alt="Excel" />
-            </button>
+            </button> */}
 
             <button
               onClick={exportToPDF}

@@ -12,7 +12,7 @@ type UserCreate = {
   lastname: string;
 };
 
-type Event = {
+type Maintenance = {
   id: number;
   maintenanceName: string;
   startDate: string;
@@ -38,7 +38,7 @@ type Power = {
 
 export default function MaintenanceView() {
   const { id } = useParams();
-  const [data, setData] = useState<Event | null>(null);
+  const [data, setData] = useState<Maintenance | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
 
@@ -96,7 +96,7 @@ export default function MaintenanceView() {
             <div className="w-full overflow-x-auto rounded-lg lg:w-1/2">
               <div className="overflow-x-auto rounded-lg border">
                 <div className="my-3 text-center text-xl font-bold">
-                  Event Report
+                  Maintenance Plan
                 </div>
                 <div className="border">
                   <table className="w-full border-collapse text-sm">

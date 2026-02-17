@@ -15,33 +15,6 @@ import { EventSourcePolyfill } from "event-source-polyfill";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
-const hours = [
-  "00:00-01:00",
-  "01:00-02:00",
-  "02:00-03:00",
-  "03:00-04:00",
-  "04:00-05:00",
-  "05:00-06:00",
-  "06:00-07:00",
-  "07:00-08:00",
-  "08:00-09:00",
-  "09:00-10:00",
-  "10:00-11:00",
-  "11:00-12:00",
-  "12:00-13:00",
-  "13:00-14:00",
-  "14:00-15:00",
-  "15:00-16:00",
-  "16:00-17:00",
-  "17:00-18:00",
-  "18:00-19:00",
-  "19:00-20:00",
-  "20:00-21:00",
-  "21:00-22:00",
-  "22:00-23:00",
-  "23:00-00:00",
-];
-
 interface ApiResponse {
   companyId: number;
   companyName: string;
@@ -178,81 +151,113 @@ export default function EnergyTablePage() {
   };
 
   const exportToExcel = () => {
-    if (data) {
-      const worksheet1 = XLSX.utils.json_to_sheet(
-        data.map((item, index) => {
-          const hourlyDataOriginal =
-            item.items?.[0]?.powerOriginal?.combinedHourlyOriginal ?? [];
-
-          const row: Record<string, any> = {
-            No: index + 1,
-            Company: item.companyName,
-            Power_Plant: item.items?.[0]?.power?.name ?? "",
-            Install_Capacity_MW: parseFloat(
-              item.items?.[0]?.power?.installCapacity ?? "0",
-            ),
-            Total_Energy_MWh: parseFloat(
-              item.items?.[0]?.powerOriginal?.totalPower ?? "0",
-            ),
-          };
-
-          // เพิ่มคอลัมน์ชั่วโมงทีหลัง
-          hours.forEach((hour, i) => {
-            row[hour] = hourlyDataOriginal[i] ?? "";
-          });
-
-          return row;
-        }),
-      );
-
-      const worksheet2 = XLSX.utils.json_to_sheet(
-        data.map((item, index) => {
-          const hourlyDataCurrent =
-            item.items?.[0]?.powerCurrent?.combinedHourlyCurrent ?? [];
-
-          const row: Record<string, any> = {
-            No: index + 1,
-            Company: item.companyName,
-            Power_Plant: item.items?.[0]?.power?.name ?? "",
-            Install_Capacity_MW: parseFloat(
-              item.items?.[0]?.power?.installCapacity ?? "0",
-            ),
-            Total_Energy_MWh: parseFloat(
-              item.items?.[0]?.powerCurrent?.totalPower ?? "0",
-            ),
-          };
-
-          // เพิ่มคอลัมน์ชั่วโมงทีหลัง
-          hours.forEach((hour, i) => {
-            row[hour] = hourlyDataCurrent[i] ?? "";
-          });
-
-          row["STATUS_DAD"] = item.items?.[0]?.decAcknow
-            ? `${item.items?.[0]?.decAcknowUser?.firstname} ${item.items?.[0]?.decAcknowUser?.lastname}`
-            : "Not Acknowledge Yet";
-          row["STATUS_DD"] = item.items?.[0]?.disAcknow
-            ? `${item.items?.[0]?.disAcknowUser?.firstname} ${item.items?.[0]?.disAcknowUser?.lastname}`
-            : "Not Acknowledge Yet";
-
-          return row;
-        }),
-      );
-
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet1, "Daily Declaration");
-      XLSX.utils.book_append_sheet(workbook, worksheet2, "Daily Dispatch");
-      const excelBuffer = XLSX.write(workbook, {
-        bookType: "xlsx",
-        type: "array",
-      });
-      const blob = new Blob([excelBuffer], {
-        type: "application/octet-stream",
-      });
-      saveAs(
-        blob,
-        `${moment(selectedDate).format("DDMMYYYY")}_${moment().format("DDMMYYYY_HHmmss")}.xlsx`,
-      );
+    if (!data || data.length === 0) {
+      toast.warning("No data to export");
+      return;
     }
+
+    // 🔥 Flatten company + items
+    const flatData = data.flatMap((company) =>
+      company.items.map((item) => ({
+        companyName: company.companyName,
+        item,
+      })),
+    );
+
+    // ==============================
+    // 📄 Sheet 1 : Daily Declaration (Original)
+    // ==============================
+
+    const worksheet1 = XLSX.utils.json_to_sheet(
+      flatData.map((row, index) => {
+        const hourlyData = row.item.powerOriginal?.combinedHourlyOriginal ?? [];
+
+        const excelRow: Record<string, any> = {
+          No: index + 1,
+          Company: row.companyName,
+          Power_Plant: row.item.power?.name ?? "",
+          Install_Capacity_MW: parseFloat(
+            row.item.power?.installCapacity ?? "0",
+          ),
+          Total_Energy_MWh: parseFloat(
+            row.item.powerOriginal?.totalPower ?? "0",
+          ),
+        };
+
+        // Add 24 hourly columns
+        hourLabels.forEach((hour, i) => {
+          excelRow[hour] = hourlyData[i] ?? "";
+        });
+
+        return excelRow;
+      }),
+    );
+
+    // ==============================
+    // 📄 Sheet 2 : Daily Dispatch (Current)
+    // ==============================
+
+    const worksheet2 = XLSX.utils.json_to_sheet(
+      flatData.map((row, index) => {
+        const hourlyData = row.item.powerCurrent?.combinedHourlyCurrent ?? [];
+
+        const excelRow: Record<string, any> = {
+          No: index + 1,
+          Company: row.companyName,
+          Power_Plant: row.item.power?.name ?? "",
+          Install_Capacity_MW: parseFloat(
+            row.item.power?.installCapacity ?? "0",
+          ),
+          Total_Energy_MWh: parseFloat(
+            row.item.powerCurrent?.totalPower ?? "0",
+          ),
+        };
+
+        // Add 24 hourly columns
+        hourLabels.forEach((hour, i) => {
+          excelRow[hour] = hourlyData[i] ?? "";
+        });
+
+        // Status Columns
+        excelRow["STATUS_DAD"] = row.item.decAcknow
+          ? `${row.item.decAcknowUser?.firstname ?? ""} ${
+              row.item.decAcknowUser?.lastname ?? ""
+            }`.trim()
+          : "Not Acknowledge Yet";
+
+        excelRow["STATUS_DD"] = row.item.disAcknow
+          ? `${row.item.disAcknowUser?.firstname ?? ""} ${
+              row.item.disAcknowUser?.lastname ?? ""
+            }`.trim()
+          : "Not Acknowledge Yet";
+
+        return excelRow;
+      }),
+    );
+
+    // ==============================
+    // 📘 Create Workbook
+    // ==============================
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet1, "Daily Declaration");
+    XLSX.utils.book_append_sheet(workbook, worksheet2, "Daily Dispatch");
+
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+
+    const blob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    saveAs(
+      blob,
+      `${moment(selectedDate).format("DDMMYYYY")}_${moment().format(
+        "DDMMYYYY_HHmmss",
+      )}.xlsx`,
+    );
   };
 
   return (
@@ -365,28 +370,34 @@ export default function EnergyTablePage() {
       {/* ▼ Table */}
       <div className="overflow-x-auto rounded-xl border bg-white shadow-lg">
         <table className="min-w-full border-collapse">
-          <thead>
+          <thead className="sticky top-0 z-20">
             <tr className="bg-gradient-to-r from-blue-700 to-teal-600 text-xs text-white">
-              <th className="border px-2 py-2 whitespace-nowrap">
+              <th className="sticky top-0 border bg-blue-700 px-2 py-2 whitespace-nowrap">
                 Power Plant
               </th>
 
-              <th className="border px-2 py-2 break-words whitespace-normal">
+              <th className="sticky top-0 border bg-blue-700 px-2 py-2 break-words whitespace-normal">
                 Install Capacity (MW)
               </th>
 
-              <th className="border px-2 py-2 break-words whitespace-normal">
+              <th className="sticky top-0 border bg-blue-700 px-2 py-2 break-words whitespace-normal">
                 Total Energy (MWh)
               </th>
+
               {hourLabels.map((h, i) => (
-                <th key={i} className="border px-2 py-2">
+                <th
+                  key={i}
+                  className="sticky top-0 border bg-blue-700 px-2 py-2"
+                >
                   {h}
                 </th>
               ))}
-              <th className="border px-2 py-2 break-words whitespace-normal">
+
+              <th className="sticky top-0 border bg-blue-700 px-2 py-2 break-words whitespace-normal">
                 STATUS (DAD)
               </th>
-              <th className="border px-2 py-2 break-words whitespace-normal">
+
+              <th className="sticky top-0 border bg-blue-700 px-2 py-2 break-words whitespace-normal">
                 STATUS (DD)
               </th>
             </tr>

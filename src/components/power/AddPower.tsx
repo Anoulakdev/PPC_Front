@@ -1,5 +1,5 @@
-// components/modals/AddModal.tsx
-import { useState, useEffect } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useState, useEffect, useMemo } from "react";
 import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
@@ -17,37 +17,7 @@ interface AddPowerProps {
   onAdd: () => void;
 }
 
-type Company = {
-  id: number;
-  name: string;
-};
-
-type Voltage = {
-  id: number;
-  name: string;
-};
-
-type Fuel = {
-  id: number;
-  name: string;
-};
-
-type Contract = {
-  id: number;
-  name: string;
-};
-
-type Branch = {
-  id: number;
-  name: string;
-};
-
-type Region = {
-  id: number;
-  name: string;
-};
-
-type Owner = {
+type OptionType = {
   id: number;
   name: string;
 };
@@ -80,17 +50,18 @@ export default function AddPower({ isOpen, onClose, onAdd }: AddPowerProps) {
     codDate: "",
   });
   const [loading, setLoading] = useState(false);
-  const [company, setCompany] = useState<Company[]>([]);
-  const [voltage, setVoltage] = useState<Voltage[]>([]);
-  const [fuel, setFuel] = useState<Fuel[]>([]);
-  const [contract, setContract] = useState<Contract[]>([]);
-  const [branch, setBranch] = useState<Branch[]>([]);
-  const [region, setRegion] = useState<Region[]>([]);
-  const [owner, setOwner] = useState<Owner[]>([]);
+  const [company, setCompany] = useState<OptionType[]>([]);
+  const [voltage, setVoltage] = useState<OptionType[]>([]);
+  const [fuel, setFuel] = useState<OptionType[]>([]);
+  const [contract, setContract] = useState<OptionType[]>([]);
+  const [branch, setBranch] = useState<OptionType[]>([]);
+  const [region, setRegion] = useState<OptionType[]>([]);
+  const [owner, setOwner] = useState<OptionType[]>([]);
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
+    if (company.length > 0) return;
 
     const fetchAllData = async () => {
       try {
@@ -144,40 +115,19 @@ export default function AddPower({ isOpen, onClose, onAdd }: AddPowerProps) {
     }));
   };
 
-  const companyOptions = company.map(({ id, name }) => ({
-    value: id.toString(),
-    label: name,
-  }));
+  const mapOptions = (data: OptionType[]) =>
+    data.map(({ id, name }) => ({
+      value: id.toString(),
+      label: name,
+    }));
 
-  const voltageOptions = voltage.map(({ id, name }) => ({
-    value: id.toString(),
-    label: name,
-  }));
-
-  const fuelOptions = fuel.map(({ id, name }) => ({
-    value: id.toString(),
-    label: name,
-  }));
-
-  const contractOptions = contract.map(({ id, name }) => ({
-    value: id.toString(),
-    label: name,
-  }));
-
-  const branchOptions = branch.map(({ id, name }) => ({
-    value: id.toString(),
-    label: name,
-  }));
-
-  const regionOptions = region.map(({ id, name }) => ({
-    value: id.toString(),
-    label: name,
-  }));
-
-  const ownerOptions = owner.map(({ id, name }) => ({
-    value: id.toString(),
-    label: name,
-  }));
+  const companyOptions = useMemo(() => mapOptions(company), [company]);
+  const voltageOptions = useMemo(() => mapOptions(voltage), [voltage]);
+  const fuelOptions = useMemo(() => mapOptions(fuel), [fuel]);
+  const contractOptions = useMemo(() => mapOptions(contract), [contract]);
+  const branchOptions = useMemo(() => mapOptions(branch), [branch]);
+  const regionOptions = useMemo(() => mapOptions(region), [region]);
+  const ownerOptions = useMemo(() => mapOptions(owner), [owner]);
 
   const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => ({
@@ -296,7 +246,7 @@ export default function AddPower({ isOpen, onClose, onAdd }: AddPowerProps) {
                   <Select
                     options={companyOptions}
                     onChange={(value) => handleSelectChange("companyId", value)}
-                    value={formData.companyId.toString()}
+                    value={formData.companyId}
                     placeholder="Select Company"
                     className="dark:bg-dark-900"
                     required
@@ -377,7 +327,7 @@ export default function AddPower({ isOpen, onClose, onAdd }: AddPowerProps) {
                   <Select
                     options={voltageOptions}
                     onChange={(value) => handleSelectChange("voltageId", value)}
-                    value={formData.voltageId.toString()}
+                    value={formData.voltageId}
                     placeholder="Select Voltage"
                     className="dark:bg-dark-900"
                     required
@@ -442,7 +392,7 @@ export default function AddPower({ isOpen, onClose, onAdd }: AddPowerProps) {
                     onChange={(value) =>
                       handleSelectChange("contractId", value)
                     }
-                    value={formData.contractId.toString()}
+                    value={formData.contractId}
                     placeholder="Select Contract"
                     className="dark:bg-dark-900"
                     required
@@ -459,7 +409,7 @@ export default function AddPower({ isOpen, onClose, onAdd }: AddPowerProps) {
                   <Select
                     options={branchOptions}
                     onChange={(value) => handleSelectChange("branchId", value)}
-                    value={formData.branchId.toString()}
+                    value={formData.branchId}
                     placeholder="Select Branch"
                     className="dark:bg-dark-900"
                     required
@@ -475,7 +425,7 @@ export default function AddPower({ isOpen, onClose, onAdd }: AddPowerProps) {
                   <Select
                     options={regionOptions}
                     onChange={(value) => handleSelectChange("regionId", value)}
-                    value={formData.regionId.toString()}
+                    value={formData.regionId}
                     placeholder="Select Region"
                     className="dark:bg-dark-900"
                     required
@@ -491,7 +441,7 @@ export default function AddPower({ isOpen, onClose, onAdd }: AddPowerProps) {
                   <Select
                     options={fuelOptions}
                     onChange={(value) => handleSelectChange("fuelId", value)}
-                    value={formData.fuelId.toString()}
+                    value={formData.fuelId}
                     placeholder="Select Fuel Type"
                     className="dark:bg-dark-900"
                     required
@@ -510,7 +460,7 @@ export default function AddPower({ isOpen, onClose, onAdd }: AddPowerProps) {
                   <Select
                     options={ownerOptions}
                     onChange={(value) => handleSelectChange("ownerId", value)}
-                    value={formData.ownerId.toString()}
+                    value={formData.ownerId}
                     placeholder="Select Owner"
                     className="dark:bg-dark-900"
                     required

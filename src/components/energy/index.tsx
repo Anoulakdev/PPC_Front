@@ -368,36 +368,33 @@ export default function EnergyTablePage() {
       </div>
 
       {/* ▼ Table */}
-      <div className="max-h-[80vh] overflow-x-auto overflow-y-auto rounded-xl border bg-white shadow-lg md:max-h-[70vh]">
+      <div className="max-h-[80vh] overflow-x-auto overflow-y-auto rounded-xl border bg-white shadow-lg">
         <table className="min-w-full border-collapse">
           <thead className="sticky top-0 z-20">
             <tr className="bg-gradient-to-r from-blue-700 to-teal-600 text-xs text-white">
-              <th className="sticky top-0 border bg-blue-700 px-2 py-2 whitespace-nowrap">
+              <th className="sticky top-0 border px-2 py-2 whitespace-nowrap">
                 Power Plant
               </th>
 
-              <th className="sticky top-0 border bg-blue-700 px-2 py-2 break-words whitespace-normal">
+              <th className="sticky top-0 border px-2 py-2 break-words whitespace-normal">
                 Install Capacity (MW)
               </th>
 
-              <th className="sticky top-0 border bg-blue-700 px-2 py-2 break-words whitespace-normal">
+              <th className="sticky top-0 border px-2 py-2 break-words whitespace-normal">
                 Total Energy (MWh)
               </th>
 
               {hourLabels.map((h, i) => (
-                <th
-                  key={i}
-                  className="sticky top-0 border bg-blue-700 px-2 py-2"
-                >
+                <th key={i} className="sticky top-0 border px-2 py-2">
                   {h}
                 </th>
               ))}
 
-              <th className="sticky top-0 border bg-blue-700 px-2 py-2 break-words whitespace-normal">
+              <th className="sticky top-0 border px-2 py-2 break-words whitespace-normal">
                 STATUS (DAD)
               </th>
 
-              <th className="sticky top-0 border bg-blue-700 px-2 py-2 break-words whitespace-normal">
+              <th className="sticky top-0 border px-2 py-2 break-words whitespace-normal">
                 STATUS (DD)
               </th>
             </tr>

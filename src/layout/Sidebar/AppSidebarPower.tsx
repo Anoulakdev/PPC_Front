@@ -73,9 +73,16 @@ const navItems: NavItem[] = [
     ],
   },
   {
-    icon: <PaperPlaneIcon />,
     name: "Daily Report",
-    path: "/declaration/createreport",
+    icon: <PaperPlaneIcon />,
+    subItems: [
+      { name: "Daily Report", path: "/declaration/createreport", pro: false },
+      {
+        name: "Net Energy Output Report",
+        path: "/declaration/netenergyoutput",
+        pro: false,
+      },
+    ],
   },
   {
     icon: <Event />,

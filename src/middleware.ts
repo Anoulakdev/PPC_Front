@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { jwtVerify } from "jose";
+// import { jwtVerify } from "jose";
 
 // ✅ Public paths ที่ไม่ต้อง login
 const publicPaths = [
@@ -25,9 +25,24 @@ export async function middleware(request: NextRequest) {
   }
 
   try {
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET as string);
-    const { payload } = await jwtVerify(token, secret);
-    const roleId = payload.roleId as number;
+    // const secret = new TextEncoder().encode(process.env.JWT_SECRET as string);
+    // const { payload } = await jwtVerify(token, secret);
+    // const roleId = payload.roleId as number;
+
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/me`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      cache: "no-store", // กัน cache มั่ว
+    });
+
+    if (!res.ok) {
+      throw new Error("Unauthorized");
+    }
+
+    const user = await res.json();
+    const roleId = user.roleId;
 
     // ✅ 3. RBAC Path Mapping
     const superAdminPaths = ["/role", "/user/superadmin"];
@@ -68,7 +83,7 @@ export async function middleware(request: NextRequest) {
 
     // ✅ Attach role to header if needed
     const response = NextResponse.next();
-    response.headers.set("x-user-role", String(roleId));
+    // response.headers.set("x-user-role", String(roleId));
     return response;
   } catch (err) {
     console.error("❌ JWT Verify Error:", err);

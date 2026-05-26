@@ -220,14 +220,12 @@ export default function EnergyTablePage() {
 
         // Status Columns
         excelRow["STATUS_DAD"] = row.item.decAcknow
-          ? `${row.item.decAcknowUser?.firstname ?? ""} ${
-              row.item.decAcknowUser?.lastname ?? ""
+          ? `${row.item.decAcknowUser?.firstname ?? ""} ${row.item.decAcknowUser?.lastname ?? ""
             }`.trim()
           : "Not Acknowledge Yet";
 
         excelRow["STATUS_DD"] = row.item.disAcknow
-          ? `${row.item.disAcknowUser?.firstname ?? ""} ${
-              row.item.disAcknowUser?.lastname ?? ""
+          ? `${row.item.disAcknowUser?.firstname ?? ""} ${row.item.disAcknowUser?.lastname ?? ""
             }`.trim()
           : "Not Acknowledge Yet";
 
@@ -303,7 +301,7 @@ export default function EnergyTablePage() {
             {/* Excel Button */}
             <button
               onClick={exportToExcel}
-              disabled={loading || data.length === 0}
+              disabled={data.length === 0}
               className="flex items-center justify-center gap-2 rounded-lg bg-gradient-to-br from-emerald-500 to-green-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:from-emerald-600 hover:to-green-700 hover:shadow-lg active:scale-95 md:w-auto"
             >
               <svg
@@ -352,11 +350,10 @@ export default function EnergyTablePage() {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`group relative overflow-hidden rounded-2xl px-8 py-3 text-sm font-bold transition-all duration-500 ${
-                activeTab === tab
+              className={`group relative overflow-hidden rounded-2xl px-8 py-3 text-sm font-bold transition-all duration-500 ${activeTab === tab
                   ? "bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-700 text-white shadow-2xl shadow-blue-500/40"
                   : "border border-white/20 bg-white/5 text-gray-700 backdrop-blur-sm hover:bg-white/20 hover:text-gray-900"
-              }`}
+                }`}
             >
               <span className="relative z-10">{tab}</span>
               {activeTab === tab && (
@@ -368,7 +365,24 @@ export default function EnergyTablePage() {
       </div>
 
       {/* ▼ Table */}
-      <div className="max-h-[80vh] overflow-x-auto overflow-y-auto rounded-xl border bg-white shadow-lg">
+      <div className="relative max-h-[80vh] overflow-x-auto overflow-y-auto rounded-xl border bg-white shadow-lg">
+        {/* Style Tag for custom premium animations */}
+        <style>{`
+          @keyframes shimmer-line {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+          }
+          .animate-shimmer-line {
+            animation: shimmer-line 1.5s infinite linear;
+          }
+        `}</style>
+
+        {loading && (
+          <div className="absolute left-0 right-0 top-0 z-30 h-1 overflow-hidden bg-blue-50/50">
+            <div className="h-full w-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 animate-shimmer-line shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
+          </div>
+        )}
+
         <table className="min-w-full border-collapse">
           <thead className="sticky top-0 z-20">
             <tr className="bg-gradient-to-r from-blue-700 to-teal-600 text-xs text-white">
@@ -401,97 +415,104 @@ export default function EnergyTablePage() {
           </thead>
 
           <tbody className="text-sm">
-            {loading && (
+            {/* Show full page loading ONLY when loading is active and there is no existing data */}
+            {loading && data.length === 0 && (
               <tr>
                 <td
                   colSpan={29}
-                  className="p-6 text-center font-semibold text-blue-600"
+                  className="p-12 text-center font-semibold text-blue-600"
                 >
-                  Loading data...
+                  <div className="flex flex-col items-center justify-center gap-3">
+                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+                    <span className="text-sm text-gray-500">Loading power telemetry data...</span>
+                  </div>
                 </td>
               </tr>
             )}
 
-            {!loading &&
-              data.map((company) => (
-                <Fragment key={`company-${company.companyId}`}>
-                  {/* ▼ Company Row */}
-                  <tr className="bg-gray-200 font-bold text-blue-700">
-                    <td colSpan={29} className="px-2 py-2">
-                      {company.companyName}
+            {data.map((company) => (
+              <Fragment key={`company-${company.companyId}`}>
+                {/* ▼ Company Row */}
+                <tr className="bg-gray-200 font-bold text-blue-700">
+                  <td colSpan={29} className="px-2 py-2">
+                    {company.companyName}
+                  </td>
+                </tr>
+
+                {/* ▼ Plant Rows */}
+                {company.items.map((item) => (
+                  <tr
+                    key={item.id}
+                    className="transition even:bg-gray-50 hover:bg-blue-50"
+                  >
+                    <td className="border px-2 py-2 font-medium whitespace-nowrap">
+                      {item.power.name}
+                    </td>
+
+                    <td className="border px-2 py-2 text-center font-bold text-green-700">
+                      {new Intl.NumberFormat("lo-LA").format(
+                        Number(item.power.installCapacity),
+                      )}
+                    </td>
+
+                    <td className="border px-2 py-2 text-center font-bold text-green-700">
+                      {new Intl.NumberFormat("lo-LA").format(
+                        Number(item.powerCurrent.totalPower),
+                      )}
+                    </td>
+
+                    {item.powerCurrent.combinedHourlyCurrent.map((h, i) => (
+                      <td key={i} className="border px-2 py-2 text-center">
+                        {h}
+                      </td>
+                    ))}
+
+                    <td className="border px-2 py-2 text-center">
+                      <div className="group relative inline-block">
+                        {item.decAcknow ? (
+                          <CheckCircleIcon className="mx-auto h-5 w-5 text-green-700" />
+                        ) : (
+                          <XCircleIcon className="mx-auto h-5 w-5 text-red-700" />
+                        )}
+
+                        {/* Tooltip */}
+                        <div className="absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 rounded bg-gray-800 px-1 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                          {item.decAcknowUser
+                            ? `${item.decAcknowUser.firstname ?? ""} ${item.decAcknowUser.lastname ?? ""}`.trim()
+                            : "Not Acknowledge Yet"}
+                        </div>
+                      </div>
+                    </td>
+
+                    <td className="border px-2 py-2 text-center">
+                      <div className="group relative inline-block">
+                        {item.disAcknow ? (
+                          <CheckCircleIcon className="mx-auto h-5 w-5 text-green-700" />
+                        ) : (
+                          <XCircleIcon className="mx-auto h-5 w-5 text-red-700" />
+                        )}
+
+                        {/* Tooltip */}
+                        <div className="absolute bottom-full left-0 z-10 mb-2 -translate-x-1/2 rounded bg-gray-800 px-1 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                          {item.disAcknowUser
+                            ? `${item.disAcknowUser.firstname ?? ""} ${item.disAcknowUser.lastname ?? ""}`.trim()
+                            : "Not Acknowledge Yet"}
+                        </div>
+                      </div>
                     </td>
                   </tr>
+                ))}
+              </Fragment>
+            ))}
 
-                  {/* ▼ Plant Rows */}
-                  {company.items.map((item) => (
-                    <tr
-                      key={item.id}
-                      className="transition even:bg-gray-50 hover:bg-blue-50"
-                    >
-                      <td className="border px-2 py-2 font-medium whitespace-nowrap">
-                        {item.power.name}
-                      </td>
-
-                      <td className="border px-2 py-2 text-center font-bold text-green-700">
-                        {new Intl.NumberFormat("lo-LA").format(
-                          Number(item.power.installCapacity),
-                        )}
-                      </td>
-
-                      <td className="border px-2 py-2 text-center font-bold text-green-700">
-                        {new Intl.NumberFormat("lo-LA").format(
-                          Number(item.powerCurrent.totalPower),
-                        )}
-                      </td>
-
-                      {item.powerCurrent.combinedHourlyCurrent.map((h, i) => (
-                        <td key={i} className="border px-2 py-2 text-center">
-                          {h}
-                        </td>
-                      ))}
-
-                      <td className="border px-2 py-2 text-center">
-                        <div className="group relative inline-block">
-                          {item.decAcknow ? (
-                            <CheckCircleIcon className="mx-auto h-5 w-5 text-green-700" />
-                          ) : (
-                            <XCircleIcon className="mx-auto h-5 w-5 text-red-700" />
-                          )}
-
-                          {/* Tooltip */}
-                          <div className="absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 rounded bg-gray-800 px-1 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                            {item.decAcknowUser
-                              ? `${item.decAcknowUser.firstname ?? ""} ${item.decAcknowUser.lastname ?? ""}`.trim()
-                              : "Not Acknowledge Yet"}
-                          </div>
-                        </div>
-                      </td>
-
-                      <td className="border px-2 py-2 text-center">
-                        <div className="group relative inline-block">
-                          {item.disAcknow ? (
-                            <CheckCircleIcon className="mx-auto h-5 w-5 text-green-700" />
-                          ) : (
-                            <XCircleIcon className="mx-auto h-5 w-5 text-red-700" />
-                          )}
-
-                          {/* Tooltip */}
-                          <div className="absolute bottom-full left-0 z-10 mb-2 -translate-x-1/2 rounded bg-gray-800 px-1 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                            {item.disAcknowUser
-                              ? `${item.disAcknowUser.firstname ?? ""} ${item.disAcknowUser.lastname ?? ""}`.trim()
-                              : "Not Acknowledge Yet"}
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </Fragment>
-              ))}
-
+            {/* Show "No Data" ONLY when not loading and data is empty */}
             {!loading && data.length === 0 && (
               <tr>
-                <td colSpan={29} className="p-6 text-center text-gray-400">
-                  ❌ No Data
+                <td colSpan={29} className="p-12 text-center text-gray-400">
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <span className="text-2xl">⚡</span>
+                    <span className="text-sm font-medium text-gray-500">No Data</span>
+                  </div>
                 </td>
               </tr>
             )}

@@ -12,7 +12,6 @@ import { useRouter } from "next/navigation";
 import { CheckCircleIcon, XCircleIcon } from "@heroicons/react/24/solid";
 import { getLocalStorage } from "@/utils/storage";
 import { EventSourcePolyfill } from "event-source-polyfill";
-import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
 interface ApiResponse {
@@ -150,11 +149,13 @@ export default function EnergyTablePage() {
     router.push("/");
   };
 
-  const exportToExcel = () => {
+  const exportToExcel = async () => {
     if (!data || data.length === 0) {
       toast.warning("No data to export");
       return;
     }
+
+    const XLSX = await import("xlsx");
 
     // 🔥 Flatten company + items
     const flatData = data.flatMap((company) =>
@@ -344,13 +345,13 @@ export default function EnergyTablePage() {
       </div>
 
       {/* Tabs Section */}
-      <div className="flex justify-center">
-        <div className="inline-flex gap-1 rounded-3xl border border-white/20 bg-white/10 p-2 shadow-2xl backdrop-blur-xl">
+      <div className="flex justify-center w-full px-2 sm:px-0">
+        <div className="flex w-full max-w-md sm:w-auto sm:inline-flex gap-1 rounded-2xl sm:rounded-3xl border border-white/20 bg-white/10 p-1 sm:p-2 shadow-2xl backdrop-blur-xl">
           {tabs.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`group relative overflow-hidden rounded-2xl px-8 py-3 text-sm font-bold transition-all duration-500 ${activeTab === tab
+              className={`flex-1 sm:flex-none group relative overflow-hidden rounded-xl sm:rounded-2xl px-1.5 py-2.5 sm:px-8 sm:py-3 text-[10px] min-[360px]:text-xs sm:text-sm font-bold transition-all duration-500 ${activeTab === tab
                   ? "bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-700 text-white shadow-2xl shadow-blue-500/40"
                   : "border border-white/20 bg-white/5 text-gray-700 backdrop-blur-sm hover:bg-white/20 hover:text-gray-900"
                 }`}

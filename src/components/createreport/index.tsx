@@ -24,7 +24,6 @@ import { getLocalStorage } from "@/utils/storage";
 import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
 import DatePickerAll from "@/components/form/date-pickerall";
-import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { useFilterStore } from "@/store/useDailyReportFilter";
 
@@ -535,8 +534,9 @@ export default function DayTable() {
     router.push("/declaration/createreport/create");
   };
 
-  const exportToExcel = () => {
+  const exportToExcel = async () => {
     if (data) {
+      const XLSX = await import("xlsx");
       const worksheet1 = XLSX.utils.json_to_sheet(
         data.map((item, index) => ({
           No: index + 1,

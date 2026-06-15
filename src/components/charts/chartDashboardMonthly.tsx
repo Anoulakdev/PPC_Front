@@ -3,11 +3,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Line } from "react-chartjs-2";
+import { Line, Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   LineElement,
   PointElement,
+  BarElement,
   CategoryScale,
   LinearScale,
   Tooltip,
@@ -24,6 +25,7 @@ import { getYearOptions } from "@/utils/yearOptions";
 ChartJS.register(
   LineElement,
   PointElement,
+  BarElement,
   CategoryScale,
   LinearScale,
   Tooltip,
@@ -53,6 +55,45 @@ export default function TotalChart() {
     now.getFullYear().toString(),
   );
   const [user, setUser] = useState<User | null>(null);
+  const [chartType, setChartType] = useState<"line" | "bar">("line");
+
+  const getFormattedChartData = () => {
+    if (!chartData) return null;
+
+    return {
+      ...chartData,
+      datasets: chartData.datasets.map((dataset: any, index: number) => {
+        const isDeclaration = index === 0;
+        const color = isDeclaration ? "rgb(255, 99, 132)" : "rgb(75, 192, 192)";
+        const barBgColor = isDeclaration
+          ? "rgba(255, 99, 132, 0.85)"
+          : "rgba(75, 192, 192, 0.85)";
+
+        if (chartType === "bar") {
+          return {
+            ...dataset,
+            type: "bar",
+            fill: false,
+            backgroundColor: barBgColor,
+            borderColor: color,
+            borderWidth: 1.5,
+          };
+        } else {
+          // line
+          return {
+            ...dataset,
+            type: "line",
+            fill: false,
+            borderColor: color,
+            borderWidth: 2,
+            pointBackgroundColor: "#fff",
+            pointBorderWidth: 2,
+            tension: 0.4,
+          };
+        }
+      }),
+    };
+  };
 
   useEffect(() => {
     const storedUser = getLocalStorage("user");
@@ -188,6 +229,34 @@ export default function TotalChart() {
               </span>
             </div>
           </div>
+
+          <div className="w-full md:w-auto md:ml-auto">
+            <Label>Chart Type</Label>
+            <div className="flex rounded-lg bg-gray-100 p-1 dark:bg-gray-800 w-fit">
+              <button
+                type="button"
+                onClick={() => setChartType("line")}
+                className={`rounded-md px-3 py-1.5 text-sm font-medium transition-all ${
+                  chartType === "line"
+                    ? "bg-white text-gray-900 shadow-sm dark:bg-gray-700 dark:text-white"
+                    : "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                }`}
+              >
+                Line
+              </button>
+              <button
+                type="button"
+                onClick={() => setChartType("bar")}
+                className={`rounded-md px-3 py-1.5 text-sm font-medium transition-all ${
+                  chartType === "bar"
+                    ? "bg-white text-gray-900 shadow-sm dark:bg-gray-700 dark:text-white"
+                    : "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                }`}
+              >
+                Bar
+              </button>
+            </div>
+          </div>
         </div>
         <hr />
 
@@ -197,24 +266,47 @@ export default function TotalChart() {
           </div>
         ) : chartData ? (
           <div className="mx-auto mt-5 h-[300px] w-full sm:h-screen md:h-[450px]">
-            <Line
-              data={chartData}
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-                // scales: {
-                //   x: {
-                //     ticks: {
-                //       maxRotation: 45, // หมุน label ได้สูงสุด 45 องศา
-                //       minRotation: 65, // หมุน label อย่างน้อย 30 องศา
-                //     },
-                //   },
-                //   y: {
-                //     beginAtZero: true,
-                //   },
-                // },
-              }}
-            />
+            {chartType === "bar" ? (
+              <Bar
+                key="bar"
+                data={getFormattedChartData() as any}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  scales: {
+                    x: {
+                      ticks: {
+                        maxRotation: 45,
+                        minRotation: 65,
+                      },
+                    },
+                    y: {
+                      beginAtZero: true,
+                    },
+                  },
+                }}
+              />
+            ) : (
+              <Line
+                key="line"
+                data={getFormattedChartData() as any}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  scales: {
+                    x: {
+                      ticks: {
+                        maxRotation: 45,
+                        minRotation: 65,
+                      },
+                    },
+                    y: {
+                      beginAtZero: true,
+                    },
+                  },
+                }}
+              />
+            )}
           </div>
         ) : (
           <div className="text-center text-gray-500 dark:text-gray-400">

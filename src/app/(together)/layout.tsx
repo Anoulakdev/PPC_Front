@@ -8,6 +8,7 @@ import AppSidebarSuperAdmin from "@/layout/Sidebar/AppSidebarSuperAdmin";
 import AppSidebarAdmin from "@/layout/Sidebar/AppSidebarAdmin";
 import AppSidebarEDL from "@/layout/Sidebar/AppSidebarEDL";
 import AppSidebarPower from "@/layout/Sidebar/AppSidebarPower";
+import AppSidebarMinistry from "@/layout/Sidebar/AppSidebarMinistry";
 import Backdrop from "@/layout/Backdrop";
 import React from "react";
 import { ToastContainer } from "react-toastify";
@@ -42,6 +43,8 @@ export default function AdminLayout({
       return <AppSidebarEDL />;
     } else if ([5, 6].includes(user?.roleId)) {
       return <AppSidebarPower />;
+    } else if ([9].includes(user?.roleId)) {
+      return <AppSidebarMinistry />;
     }
   };
 

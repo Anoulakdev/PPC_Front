@@ -11,16 +11,20 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { getLocalStorage } from "@/utils/storage";
 
+type User = {
+  roleId?: number;
+};
+
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const storedUser = getLocalStorage("user");
+    const storedUser = getLocalStorage("user") as User | null;
     setUser(storedUser);
   }, []);
 
@@ -32,9 +36,9 @@ export default function AdminLayout({
       : "lg:ml-[90px]";
 
   const renderSidebar = () => {
-    if ([3, 4].includes(user?.roleId)) {
+    if (user?.roleId && [3, 4].includes(user.roleId)) {
       return <AppSidebarEDL />;
-    } else if ([9].includes(user?.roleId)) {
+    } else if (user?.roleId && [9].includes(user.roleId)) {
       return <AppSidebarMinistry />;
     }
   };

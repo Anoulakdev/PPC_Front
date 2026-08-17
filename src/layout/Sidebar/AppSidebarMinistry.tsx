@@ -6,16 +6,9 @@ import { usePathname } from "next/navigation";
 import { useSidebar } from "../../context/SidebarContext";
 import {
   ChevronDownIcon,
-  GridIcon,
   HorizontaLDots,
-  ListIcon,
-  PageIcon,
   PieChartIcon,
-  ReportIcon,
   PaperPlaneIcon,
-  PeopleIcon,
-  Event,
-  Maintenance,
 } from "../../icons/index";
 // import SidebarWidget from "./SidebarWidget";
 

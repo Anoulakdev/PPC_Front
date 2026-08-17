@@ -129,10 +129,17 @@ export default function WeekAction() {
   const isReviseDisabled = useMemo(() => {
     if (!data?.endDate) return true;
 
-    const today = new Date();
     const endDate = new Date(data.endDate);
+    endDate.setHours(0, 0, 0, 0);
 
-    return today > endDate; // ถ้าวันนี้เกิน endDate → true (disabled)
+    // เพิ่มอีก 4 อาทิตย์ (28 วัน) จาก endDate
+    const maxDate = new Date(endDate);
+    maxDate.setDate(maxDate.getDate() + 28); // endDate + 28 วัน (4 อาทิตย์)
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return today > maxDate; // ถ้าวันนี้เกิน 4 อาทิตย์หลังจาก endDate → disable
   }, [data?.endDate]);
 
   const handleAcknowledge = async () => {
@@ -205,11 +212,10 @@ export default function WeekAction() {
               }
             }}
             disabled={isReviseDisabled}
-            className={`flex items-center gap-1 rounded-md px-4 py-2 text-sm text-white ${
-              isReviseDisabled
+            className={`flex items-center gap-1 rounded-md px-4 py-2 text-sm text-white ${isReviseDisabled
                 ? "cursor-not-allowed bg-gray-400"
                 : "bg-blue-500 hover:bg-blue-600"
-            }`}
+              }`}
           >
             <PencilIcon className="h-4 w-4" /> revise
           </button>
@@ -469,11 +475,10 @@ export default function WeekAction() {
           disabled={
             loading || (user.roleId === 4 ? data?.disAcknow : data?.decAcknow)
           }
-          className={`mt-6 w-full rounded-md px-4 py-2 text-lg text-white ${
-            loading || (user.roleId === 4 ? data?.disAcknow : data?.decAcknow)
+          className={`mt-6 w-full rounded-md px-4 py-2 text-lg text-white ${loading || (user.roleId === 4 ? data?.disAcknow : data?.decAcknow)
               ? "cursor-not-allowed bg-gray-400"
               : "bg-blue-500 hover:bg-blue-600"
-          }`}
+            }`}
         >
           {loading
             ? user.roleId === 4

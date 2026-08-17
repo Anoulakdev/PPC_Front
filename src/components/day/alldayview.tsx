@@ -200,7 +200,7 @@ export default function DayTable() {
 
     // เพิ่มอีก 5 วันจาก powerDate
     const maxDate = new Date(powerDate);
-    maxDate.setDate(maxDate.getDate() + 5); // powerDate + 5
+    maxDate.setDate(maxDate.getDate() + 30); // powerDate + 5
 
     const today = new Date();
     today.setHours(0, 0, 0, 0); // เปรียบเทียบแค่วันที่
@@ -215,18 +215,18 @@ export default function DayTable() {
           user?.roleId === 4 ||
           user?.roleId === 5 ||
           user?.roleId === 6) && (
-          <button
-            onClick={() =>
-              router.push(
-                `/${user?.roleId === 3 || user?.roleId === 4 ? "alldocument/edl" : "alldocument/power"}/day`,
-              )
-            }
-            className="flex items-center gap-1 rounded-md bg-blue-500 px-4 py-2 text-sm text-white hover:bg-blue-600"
-          >
-            <ArrowLeftIcon className="h-4 w-4" />
-            Back
-          </button>
-        )}
+            <button
+              onClick={() =>
+                router.push(
+                  `/${user?.roleId === 3 || user?.roleId === 4 ? "alldocument/edl" : "alldocument/power"}/day`,
+                )
+              }
+              className="flex items-center gap-1 rounded-md bg-blue-500 px-4 py-2 text-sm text-white hover:bg-blue-600"
+            >
+              <ArrowLeftIcon className="h-4 w-4" />
+              Back
+            </button>
+          )}
         <div>
           <h1 className="text-center text-xl font-bold">
             Daily Availability and Declaration
@@ -247,11 +247,10 @@ export default function DayTable() {
               }
             }}
             disabled={isReviseDisabled}
-            className={`flex items-center gap-1 rounded-md px-4 py-2 text-sm text-white ${
-              isReviseDisabled
+            className={`flex items-center gap-1 rounded-md px-4 py-2 text-sm text-white ${isReviseDisabled
                 ? "cursor-not-allowed bg-gray-400"
                 : "bg-blue-500 hover:bg-blue-600"
-            }`}
+              }`}
           >
             <PencilIcon className="h-4 w-4" /> revise
           </button>
@@ -823,8 +822,8 @@ export default function DayTable() {
                     <td className="border border-gray-300 px-2 py-1 text-center whitespace-nowrap dark:border-gray-700">
                       {revise.reviseDetail?.totalPower != null
                         ? new Intl.NumberFormat("lo-LA", {
-                            maximumFractionDigits: 2,
-                          }).format(revise.reviseDetail.totalPower)
+                          maximumFractionDigits: 2,
+                        }).format(revise.reviseDetail.totalPower)
                         : ""}
                     </td>
                     <td className="border border-gray-300 px-2 py-1 text-center whitespace-nowrap dark:border-gray-700">
@@ -835,19 +834,19 @@ export default function DayTable() {
                         user?.roleId === 4 ||
                         user?.roleId === 5 ||
                         user?.roleId === 6) && (
-                        <button
-                          onClick={() =>
-                            window.open(
-                              `/${user?.roleId === 3 || user?.roleId === 4 ? "dispatch" : "declaration"}/day/userrevise/${encryptId(revise.id)}`,
-                              "_blank",
-                              "noopener,noreferrer",
-                            )
-                          }
-                          className="rounded bg-blue-500 px-2 py-1 text-sm text-white hover:bg-blue-600"
-                        >
-                          View
-                        </button>
-                      )}
+                          <button
+                            onClick={() =>
+                              window.open(
+                                `/${user?.roleId === 3 || user?.roleId === 4 ? "dispatch" : "declaration"}/day/userrevise/${encryptId(revise.id)}`,
+                                "_blank",
+                                "noopener,noreferrer",
+                              )
+                            }
+                            className="rounded bg-blue-500 px-2 py-1 text-sm text-white hover:bg-blue-600"
+                          >
+                            View
+                          </button>
+                        )}
                     </td>
                   </tr>
                 ))}

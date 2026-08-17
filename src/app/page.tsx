@@ -57,6 +57,8 @@ export default function LoginPage() {
         router.push("/dashboard/day");
       } else if (user.roleId === 8) {
         router.push("/energy");
+      } else if (user.roleId === 9) {
+        router.push("/dispatch/createreport");
       } else {
         showAlert("error", "Invalid User Role");
         // toast.error("Invalid User Role");
@@ -87,7 +89,7 @@ export default function LoginPage() {
       setLocalStorage("token", token);
       setLocalStorage("user", user);
 
-      const maxAge = user.roleId === 8 ? 108000 : 3600;
+      const maxAge = user.roleId === 8 ? 108000 : 7200;
       document.cookie = `token=${token}; path=/; max-age=${maxAge}; secure; samesite=strict`;
 
       removeLocalStorage("day-filter-page");
@@ -215,7 +217,7 @@ export default function LoginPage() {
             <Image src="/edl.png" alt="EDL Logo" width={90} height={90} className="object-contain filter drop-shadow-md" />
           </motion.div>
 
-          <h2 
+          <h2
             className="mt-4.5 text-3xl font-extrabold tracking-tight select-none dark:brightness-110"
             style={{
               backgroundImage: "repeating-linear-gradient(45deg, #2563eb, #2563eb 2px, #0086c9 2px, #0086c9 4px, #60a5fa 4px, #60a5fa 6px)",

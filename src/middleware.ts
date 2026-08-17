@@ -72,7 +72,7 @@ export async function middleware(request: NextRequest) {
     const isDenied =
       (matchPath(pathname, superAdminPaths) && roleId !== 1) ||
       (matchPath(pathname, adminPaths) && roleId !== 2) ||
-      (matchPath(pathname, edlPaths) && ![3, 4].includes(roleId)) ||
+      (matchPath(pathname, edlPaths) && ![3, 4, 9].includes(roleId)) ||
       (matchPath(pathname, powerPaths) && ![5, 6].includes(roleId)) ||
       (matchPath(pathname, nccPaths) && ![8].includes(roleId)) ||
       (matchPath(pathname, togetherPaths) && ![3, 4, 5, 6].includes(roleId));

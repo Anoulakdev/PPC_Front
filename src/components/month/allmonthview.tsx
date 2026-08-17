@@ -149,10 +149,19 @@ export default function MonthView() {
     if (!data?.sYear || !data?.sMonth) return true;
 
     const now = new Date();
-    const currentYear = now.getFullYear().toString();
-    const currentMonth = String(now.getMonth() + 1).padStart(2, "0");
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1; // 1-12
 
-    return !(data.sYear === currentYear && data.sMonth === currentMonth);
+    const dataYear = parseInt(data.sYear, 10);
+    const dataMonth = parseInt(data.sMonth, 10);
+
+    if (isNaN(dataYear) || isNaN(dataMonth)) return true;
+
+    // คำนวณความต่างของเดือน (ปัจจุบัน - ข้อมูล)
+    const diffMonths = (currentYear - dataYear) * 12 + (currentMonth - dataMonth);
+
+    // disable ถ้าข้อมูลเก่าเกิน 3 เดือนย้อนหลัง (diffMonths > 3)
+    return diffMonths > 3;
   }, [data?.sYear, data?.sMonth]);
 
   return (

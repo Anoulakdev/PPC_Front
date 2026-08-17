@@ -154,7 +154,7 @@ export default function DayTable() {
     const fetchPowerList = async () => {
       if (!user) return;
 
-      if (user.roleId === 3 || user.roleId === 4) {
+      if (user.roleId === 3 || user.roleId === 4 || user.roleId === 9) {
         try {
           const response = await axiosInstance.get(`/powers/selectpower`);
           setPowerList(response.data);
@@ -495,22 +495,22 @@ export default function DayTable() {
             user?.roleId === 4 ||
             user?.roleId === 5 ||
             user?.roleId === 6) && (
-            <div className="group relative inline-block">
-              <button
-                onClick={() =>
-                  router.push(
-                    `/${user?.roleId === 3 || user?.roleId === 4 ? "dispatch" : "declaration"}/createreport/reportview/${encryptId(row.original.id)}`,
-                  )
-                }
-                className="rounded p-1 text-gray-600 hover:bg-blue-100"
-              >
-                <EyeIcon className="h-5 w-5" />
-              </button>
-              <div className="absolute bottom-full left-1/2 z-10 mb-2 w-max -translate-x-1/2 rounded bg-gray-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                View
+              <div className="group relative inline-block">
+                <button
+                  onClick={() =>
+                    router.push(
+                      `/${user?.roleId === 3 || user?.roleId === 4 ? "dispatch" : "declaration"}/createreport/reportview/${encryptId(row.original.id)}`,
+                    )
+                  }
+                  className="rounded p-1 text-gray-600 hover:bg-blue-100"
+                >
+                  <EyeIcon className="h-5 w-5" />
+                </button>
+                <div className="absolute bottom-full left-1/2 z-10 mb-2 w-max -translate-x-1/2 rounded bg-gray-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                  View
+                </div>
               </div>
-            </div>
-          )}
+            )}
         </div>
       ),
     },
@@ -570,9 +570,8 @@ export default function DayTable() {
           Total_Outflow: item.dayReportCurrent?.totalOutflow ?? "",
           Average_Outflow: item.dayReportCurrent?.averageOutflow ?? "",
           CreatedBy:
-            `${item.dayReportCurrent?.createdByUser?.firstname ?? ""} ${
-              item.dayReportCurrent?.createdByUser?.lastname ?? ""
-            }`.trim(),
+            `${item.dayReportCurrent?.createdByUser?.firstname ?? ""} ${item.dayReportCurrent?.createdByUser?.lastname ?? ""
+              }`.trim(),
         })),
       );
 
@@ -588,7 +587,7 @@ export default function DayTable() {
             Declaration: item.power?.name ?? "",
             Total_Power: parseFloat(
               item.dayReportCurrent?.powerCurrent?.totalPower?.toString() ??
-                "0",
+              "0",
             ),
             // CreatedBy ยังไม่ใส่ตรงนี้
           };
@@ -682,7 +681,7 @@ export default function DayTable() {
             <button
               onClick={exportToExcel}
               disabled={loading || data.length === 0}
-              // className={`rounded-md bg-green-500 px-4 py-2 text-lg text-white hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-green-500`}
+            // className={`rounded-md bg-green-500 px-4 py-2 text-lg text-white hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-green-500`}
             >
               <img width={45} height={45} src="/excel.png" alt="Excel" />
             </button>
@@ -690,7 +689,7 @@ export default function DayTable() {
             <button
               onClick={exportToPDF}
               disabled={loading || data.length === 0}
-              // className={`rounded-md bg-red-500 px-4 py-2 text-lg text-white hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-red-500`}
+            // className={`rounded-md bg-red-500 px-4 py-2 text-lg text-white hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-red-500`}
             >
               <img width={45} height={45} src="/pdf.png" alt="PDF" />
             </button>

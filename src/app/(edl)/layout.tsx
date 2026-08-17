@@ -1,12 +1,15 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useSidebar } from "@/context/SidebarContext";
 import AppHeader from "@/layout/AppHeader";
-import AppSidebar from "@/layout/Sidebar/AppSidebarEDL";
+import AppSidebarEDL from "@/layout/Sidebar/AppSidebarEDL";
+import AppSidebarMinistry from "@/layout/Sidebar/AppSidebarMinistry";
 import Backdrop from "@/layout/Backdrop";
 import React from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { getLocalStorage } from "@/utils/storage";
 
 export default function AdminLayout({
   children,
@@ -14,6 +17,12 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const storedUser = getLocalStorage("user");
+    setUser(storedUser);
+  }, []);
 
   // Dynamic class for main content margin based on sidebar state
   const mainContentMargin = isMobileOpen
@@ -21,6 +30,14 @@ export default function AdminLayout({
     : isExpanded || isHovered
       ? "lg:ml-[290px]"
       : "lg:ml-[90px]";
+
+  const renderSidebar = () => {
+    if ([3, 4].includes(user?.roleId)) {
+      return <AppSidebarEDL />;
+    } else if ([9].includes(user?.roleId)) {
+      return <AppSidebarMinistry />;
+    }
+  };
 
   return (
     <>
@@ -32,7 +49,7 @@ export default function AdminLayout({
       />
       <div className="min-h-screen xl:flex">
         {/* Sidebar and Backdrop */}
-        <AppSidebar />
+        {renderSidebar()}
         <Backdrop />
         {/* Main Content Area */}
         <div

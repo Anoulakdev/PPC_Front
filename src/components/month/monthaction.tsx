@@ -129,12 +129,13 @@ export default function MonthAction() {
     const dataYear = parseInt(data.sYear, 10);
     const dataMonth = parseInt(data.sMonth, 10);
 
-    // disable ถ้าปี/เดือนในปัจจุบัน > data
-    if (currentYear > dataYear) return true;
-    if (currentYear === dataYear && currentMonth > dataMonth) return true;
+    if (isNaN(dataYear) || isNaN(dataMonth)) return true;
 
-    // enable เฉพาะเดือนปัจจุบันหรือล่วงหน้า
-    return false;
+    // คำนวณความต่างของเดือน (ปัจจุบัน - ข้อมูล)
+    const diffMonths = (currentYear - dataYear) * 12 + (currentMonth - dataMonth);
+
+    // disable ถ้าข้อมูลเก่าเกิน 3 เดือนย้อนหลัง (diffMonths > 3)
+    return diffMonths > 3;
   }, [data?.sYear, data?.sMonth]);
 
   const handleAcknowledge = async () => {

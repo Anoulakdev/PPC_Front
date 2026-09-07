@@ -12,6 +12,7 @@ type FormData = {
   totalPower: number | null;
   totalUnit?: number | null;
   fuelId?: number | null;
+  hourListId?: number | null;
   turbineData: TurbineData[];
   remarks?: string[] | null;
   activeStorageamount: string | number | null;
@@ -55,6 +56,8 @@ export const useCreateReportStore = create<CreateReportState>()(
         powerDate: null,
         totalPower: null,
         totalUnit: null,
+        fuelId: null,
+        hourListId: null,
         turbineData: [],
         remarks: [],
         activeStorageamount: null,
@@ -94,6 +97,8 @@ export const useCreateReportStore = create<CreateReportState>()(
             powerDate: null,
             totalPower: null,
             totalUnit: null,
+            fuelId: null,
+            hourListId: null,
             turbineData: [],
             remarks: [],
             activeStorageamount: null,

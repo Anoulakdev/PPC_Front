@@ -6,33 +6,7 @@ import { useRouter, useParams } from "next/navigation";
 import { decryptId } from "@/lib/cryptoId";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
-
-const hours = [
-  "00:00-01:00",
-  "01:00-02:00",
-  "02:00-03:00",
-  "03:00-04:00",
-  "04:00-05:00",
-  "05:00-06:00",
-  "06:00-07:00",
-  "07:00-08:00",
-  "08:00-09:00",
-  "09:00-10:00",
-  "10:00-11:00",
-  "11:00-12:00",
-  "12:00-13:00",
-  "13:00-14:00",
-  "14:00-15:00",
-  "15:00-16:00",
-  "16:00-17:00",
-  "17:00-18:00",
-  "18:00-19:00",
-  "19:00-20:00",
-  "20:00-21:00",
-  "21:00-22:00",
-  "22:00-23:00",
-  "23:00-00:00",
-];
+import { getHoursByHourListId } from "@/utils/hoursHelper";
 
 type ReviseTurbine = {
   turbine: number;
@@ -64,6 +38,7 @@ type DayReviseData = {
       power: {
         id: number;
         fuelId: number;
+        hourListId?: number;
       };
     };
   };
@@ -80,6 +55,23 @@ export default function UserRevise() {
   const [data, setData] = useState<DayReviseData | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
+
+  const formatNumber = (val: number | string | null | undefined): string => {
+    if (val === null || val === undefined || val === "") return "";
+    const num = Number(val);
+    return isNaN(num) ? "" : num.toLocaleString();
+  };
+
+  const formatDecimal = (val: number | string | null | undefined): string => {
+    if (val === null || val === undefined || val === "") return "";
+    const num = Number(val);
+    return isNaN(num) ? "" : num.toFixed(2);
+  };
+
+  const activeHours = getHoursByHourListId(
+    data?.dayRevise?.dayPower?.power?.hourListId,
+    data?.reviseTurbines?.[0]?.hourly?.length,
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -155,7 +147,7 @@ export default function UserRevise() {
                 </tr>
               </thead>
               <tbody>
-                {Array.from({ length: 24 }, (_, hourIdx) => {
+                {activeHours.map((time, hourIdx) => {
                   const rowTotal =
                     data.reviseTurbines.reduce((sum, turbine) => {
                       return sum + (turbine.hourly[hourIdx] ?? 0);
@@ -166,7 +158,7 @@ export default function UserRevise() {
                   return (
                     <tr key={hourIdx}>
                       <td className="border px-2 py-1 text-center whitespace-nowrap">
-                        {hours[hourIdx]}
+                        {time}
                       </td>
 
                       {/* Hourly values per turbine */}
@@ -251,7 +243,7 @@ export default function UserRevise() {
                   <Input
                     type="text"
                     name="upstreamLevel"
-                    value={Number(data?.upstreamLevel).toLocaleString() || ""}
+                    value={formatDecimal(data?.upstreamLevel)}
                     disabled
                     className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                   />
@@ -262,7 +254,7 @@ export default function UserRevise() {
                   <Input
                     type="text"
                     name="downstreamLevel"
-                    value={Number(data?.downstreamLevel).toLocaleString() || ""}
+                    value={formatDecimal(data?.downstreamLevel)}
                     disabled
                     className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                   />
@@ -278,10 +270,7 @@ export default function UserRevise() {
                       <Input
                         type="text"
                         name="totalStorageamount"
-                        value={
-                          Number(data?.totalStorageamount).toLocaleString() ||
-                          ""
-                        }
+                        value={formatNumber(data?.totalStorageamount)}
                         disabled
                         className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                       />
@@ -292,8 +281,7 @@ export default function UserRevise() {
                       <Input
                         type="text"
                         name="totalStorageaverage"
-                        // value={data.powerCurrent?.totalStorageaverage || ""}
-                        value={`${Number(data?.totalStorageaverage ?? 0).toFixed(2)}`}
+                        value={formatDecimal(data?.totalStorageaverage)}
                         disabled
                         className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                       />
@@ -309,10 +297,7 @@ export default function UserRevise() {
                       <Input
                         type="text"
                         name="activeStorageamount"
-                        value={
-                          Number(data?.activeStorageamount).toLocaleString() ||
-                          ""
-                        }
+                        value={formatNumber(data?.activeStorageamount)}
                         disabled
                         className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                       />
@@ -323,8 +308,7 @@ export default function UserRevise() {
                       <Input
                         type="text"
                         name="activeStorageaverage"
-                        // value={data.powerCurrent?.activeStorageaverage || ""}
-                        value={`${Number(data?.activeStorageaverage ?? 0).toFixed(2)}`}
+                        value={formatDecimal(data?.activeStorageaverage)}
                         disabled
                         className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                       />
@@ -346,11 +330,7 @@ export default function UserRevise() {
                       <Input
                         type="text"
                         name="turbineDischargeamount"
-                        value={
-                          Number(
-                            data?.turbineDischargeamount,
-                          ).toLocaleString() || ""
-                        }
+                        value={formatNumber(data?.turbineDischargeamount)}
                         disabled
                         className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                       />
@@ -361,11 +341,7 @@ export default function UserRevise() {
                       <Input
                         type="text"
                         name="turbineDischargeaverage"
-                        value={
-                          Number(
-                            data?.turbineDischargeaverage,
-                          ).toLocaleString() || ""
-                        }
+                        value={formatDecimal(data?.turbineDischargeaverage)}
                         disabled
                         className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                       />
@@ -381,11 +357,7 @@ export default function UserRevise() {
                       <Input
                         type="text"
                         name="spillwayDischargeamount"
-                        value={
-                          Number(
-                            data?.spillwayDischargeamount,
-                          ).toLocaleString() || ""
-                        }
+                        value={formatNumber(data?.spillwayDischargeamount)}
                         disabled
                         className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                       />
@@ -396,11 +368,7 @@ export default function UserRevise() {
                       <Input
                         type="text"
                         name="spillwayDischargeaverage"
-                        value={
-                          Number(
-                            data?.spillwayDischargeaverage,
-                          ).toLocaleString() || ""
-                        }
+                        value={formatDecimal(data?.spillwayDischargeaverage)}
                         disabled
                         className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                       />
@@ -418,11 +386,7 @@ export default function UserRevise() {
                       <Input
                         type="text"
                         name="ecologicalDischargeamount"
-                        value={
-                          Number(
-                            data?.ecologicalDischargeamount,
-                          ).toLocaleString() || ""
-                        }
+                        value={formatNumber(data?.ecologicalDischargeamount)}
                         disabled
                         className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                       />
@@ -433,11 +397,7 @@ export default function UserRevise() {
                       <Input
                         type="text"
                         name="ecologicalDischargeaverage"
-                        value={
-                          Number(
-                            data?.ecologicalDischargeaverage,
-                          ).toLocaleString() || ""
-                        }
+                        value={formatDecimal(data?.ecologicalDischargeaverage)}
                         disabled
                         className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                       />
@@ -455,10 +415,7 @@ export default function UserRevise() {
                         disabled
                         name="totalDischargeamount"
                         className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                        value={
-                          Number(data?.totalDischargeamount).toLocaleString() ||
-                          ""
-                        }
+                        value={formatNumber(data?.totalDischargeamount)}
                       />
                     </div>
 
@@ -469,11 +426,7 @@ export default function UserRevise() {
                         disabled
                         name="totalDischargeaverage"
                         className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                        value={
-                          Number(
-                            data?.totalDischargeaverage,
-                          ).toLocaleString() || ""
-                        }
+                        value={formatDecimal(data?.totalDischargeaverage)}
                       />
                     </div>
                   </div>
@@ -491,12 +444,12 @@ export default function UserRevise() {
               <thead>
                 <tr className="border-b bg-gray-100 dark:border-gray-700 dark:bg-gray-800">
                   <th className="px-4 py-3 text-left font-bold"></th>
-                  {columnLabels.map((label, idx) => (
+                  {data?.machinesAvailability.map((m, idx) => (
                     <th
-                      key={`declaration-header-${idx}`}
+                      key={m.turbine ?? idx}
                       className="w-[130px] px-4 py-3 text-center whitespace-nowrap"
                     >
-                      {label} (MW)
+                      {columnLabels[idx] || `Unit-${m.turbine}`} (MW)
                     </th>
                   ))}
                 </tr>

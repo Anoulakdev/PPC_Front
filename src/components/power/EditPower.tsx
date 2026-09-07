@@ -56,6 +56,11 @@ type Owner = {
   name: string;
 };
 
+type HourList = {
+  id: number;
+  name: string;
+};
+
 type Power = {
   id: number;
   name: string;
@@ -71,6 +76,7 @@ type Power = {
   branchId: number;
   regionId: number;
   ownerId: number;
+  hourListId: number;
   latitude: number;
   longitude: number;
   installCapacity: string;
@@ -93,6 +99,7 @@ let dropdownCache: {
   branch: Branch[];
   region: Region[];
   owner: Owner[];
+  hourList: HourList[];
 } | null = null;
 
 let dropdownPromise: Promise<any> | null = null;
@@ -111,6 +118,7 @@ export default function EditPower({
   const [branch, setBranch] = useState<Branch[]>([]);
   const [region, setRegion] = useState<Region[]>([]);
   const [owner, setOwner] = useState<Owner[]>([]);
+  const [hourList, setHourList] = useState<HourList[]>([]);
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [dropdownLoading, setDropdownLoading] = useState(false);
@@ -126,6 +134,7 @@ export default function EditPower({
       setBranch(dropdownCache.branch);
       setRegion(dropdownCache.region);
       setOwner(dropdownCache.owner);
+      setHourList(dropdownCache.hourList);
       return;
     }
 
@@ -147,6 +156,7 @@ export default function EditPower({
         axiosInstance.get(`/branchs/selectbranch`),
         axiosInstance.get(`/regions/selectregion`),
         axiosInstance.get(`/owners/selectowner`),
+        axiosInstance.get(`/hourlists/selecthourlist`),
       ]);
 
       const [
@@ -157,6 +167,7 @@ export default function EditPower({
         branchRes,
         regionRes,
         ownerRes,
+        hourListRes,
       ] = await dropdownPromise;
 
       // เก็บไว้ใน cache
@@ -168,6 +179,7 @@ export default function EditPower({
         branch: branchRes.data,
         region: regionRes.data,
         owner: ownerRes.data,
+        hourList: hourListRes.data,
       };
 
       setCompany(companyRes.data);
@@ -177,6 +189,7 @@ export default function EditPower({
       setBranch(branchRes.data);
       setRegion(regionRes.data);
       setOwner(ownerRes.data);
+      setHourList(hourListRes.data);
     } catch (error) {
       console.error("Error fetching dropdown data:", error);
       // **ปรับปรุง: แจ้งเตือนผู้ใช้เมื่อโหลดไม่สำเร็จ**
@@ -239,6 +252,7 @@ export default function EditPower({
       formData.append("branchId", data.branchId.toString());
       formData.append("regionId", data.regionId.toString());
       formData.append("ownerId", data.ownerId.toString());
+      formData.append("hourListId", data.hourListId.toString());
       formData.append("latitude", data.latitude.toString());
       formData.append("longitude", data.longitude.toString());
       formData.append("installCapacity", data.installCapacity);
@@ -302,6 +316,11 @@ export default function EditPower({
   const ownerOptions = useMemo(
     () => owner.map((c) => ({ value: c.id.toString(), label: c.name })),
     [owner],
+  );
+
+  const hourListOptions = useMemo(
+    () => hourList.map((c) => ({ value: c.id.toString(), label: c.name })),
+    [hourList],
   );
 
   if (!isOpen) return null;
@@ -418,11 +437,11 @@ export default function EditPower({
                       setData((prev) =>
                         prev
                           ? {
-                              ...prev,
-                              codDate: moment(dates[0], "DD-MM-YYYY").format(
-                                "YYYY-MM-DD",
-                              ),
-                            }
+                            ...prev,
+                            codDate: moment(dates[0], "DD-MM-YYYY").format(
+                              "YYYY-MM-DD",
+                            ),
+                          }
                           : null,
                       )
                     }
@@ -585,6 +604,24 @@ export default function EditPower({
                 </div>
 
                 <div>
+                  <Label>Interval List</Label>
+                  <div className="relative">
+                    <Select
+                      options={hourListOptions}
+                      onChange={(value) =>
+                        handleSelectChange("hourListId", value)
+                      }
+                      placeholder="Select Hour List"
+                      value={data.hourListId?.toString()}
+                      className="dark:bg-dark-900"
+                    />
+                    <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                      <ChevronDownIcon />
+                    </span>
+                  </div>
+                </div>
+
+                <div>
                   <Label>Full Level (masl)</Label>
                   <Input
                     type="text"
@@ -605,6 +642,9 @@ export default function EditPower({
                     placeholder="0.00"
                   />
                 </div>
+              </div>
+
+              <div className="mt-3 grid grid-cols-1 gap-x-3 gap-y-5 md:grid-cols-4">
                 <div>
                   <Label>Total Active at Full Level (m³)</Label>
                   <Input
@@ -615,9 +655,7 @@ export default function EditPower({
                     placeholder="0.00"
                   />
                 </div>
-              </div>
 
-              <div className="mt-3 grid grid-cols-1 gap-x-3 gap-y-5 md:grid-cols-4">
                 <div>
                   <Label>Dead Level (masl)</Label>
                   <Input
@@ -639,6 +677,7 @@ export default function EditPower({
                     placeholder="0.00"
                   />
                 </div>
+
                 <div>
                   <Label>Total Active at Dead Level (m³)</Label>
                   <Input
@@ -649,7 +688,10 @@ export default function EditPower({
                     placeholder="0.00"
                   />
                 </div>
-                <div>
+              </div>
+
+              <div className="mt-3 grid grid-cols-1 gap-x-3 gap-y-5 md:grid-cols-4">
+                <div className="md:col-span-2">
                   <Label>Upload Image</Label>
                   <FileInput
                     accept="image/*"

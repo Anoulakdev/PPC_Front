@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import puppeteer from "puppeteer";
 import axios from "axios";
 import moment from "moment";
+import { getHoursByHourListId } from "@/utils/hoursHelper";
 
 export async function GET(req: NextRequest) {
   let browser;
@@ -62,10 +63,10 @@ export async function GET(req: NextRequest) {
       format: "A4",
       printBackground: true,
       margin: {
-        top: "10mm",
-        right: "10mm",
-        bottom: "10mm",
-        left: "10mm",
+        top: "4mm",
+        right: "6mm",
+        bottom: "4mm",
+        left: "6mm",
       },
       timeout: 60000,
     });
@@ -130,45 +131,41 @@ function generatePDF(data: any[]) {
           
           body { 
             font-family: 'Arial', sans-serif; 
-            font-size: 9pt;
             margin: 0;
             padding: 0;
           }
           
           .page { 
             page-break-after: always;
-            padding: 15px;
+            box-sizing: border-box;
+          }
+
+          .page:last-child {
+            page-break-after: auto;
           }
           
           .header {
             text-align: center;
-            margin-bottom: 10px;
-            border-bottom: 2px solid #000;
-            padding-bottom: 8px;
+            border-bottom: 1.5px solid #000;
           }
           
           .header h1 {
-            margin: 3px 0;
-            font-size: 14pt;
+            margin: 0;
             font-weight: bold;
           }
           
           .header h2 {
-            margin: 2px 0;
-            font-size: 11pt;
+            margin: 0;
             font-weight: normal;
           }
           
           .info-row {
             display: flex;
             justify-content: space-between;
-            margin: 5px 0;
-            font-size: 8.5pt;
           }
           
           .info-item {
             flex: 1;
-            padding: 3px 8px;
             border: 1px solid #666;
             background-color: #f5f5f5;
           }
@@ -179,23 +176,26 @@ function generatePDF(data: any[]) {
           
           .section-title {
             background-color: #d0d0d0;
-            padding: 4px 8px;
             font-weight: bold;
             border: 1px solid #000;
-            margin-top: 8px;
-            font-size: 9pt;
           }
           
           table { 
             width: 100%; 
             border-collapse: collapse;
-            margin-top: 3px;
-            font-size: 8pt;
+          }
+
+          thead {
+            display: table-header-group;
+          }
+
+          tr {
+            page-break-inside: avoid;
+            break-inside: avoid;
           }
           
           th, td { 
             border: 1px solid #000; 
-            padding: 2px 1px;
             text-align: center;
           }
           
@@ -210,21 +210,21 @@ function generatePDF(data: any[]) {
           .two-column {
             display: flex;
             justify-content: space-between;
-            
-            gap: 5px;
+            gap: 6px;
           }
           
           .column {
-            width: 48%;
+            flex: 1;
+            min-width: 0;
           }
           
           .signature-section {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-top: 25px;
-            font-size: 9pt;
             gap: 50px;
+            page-break-inside: avoid;
+            break-inside: avoid;
           }
 
           .signature-box {
@@ -234,18 +234,202 @@ function generatePDF(data: any[]) {
 
           .signature-box strong {
             display: block;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
             text-decoration: underline;
-          }
-
-          .signature-line {
-            margin-top: 20px;
           }
           
           .total-row {
             background-color: #e0e0e0;
             font-weight: bold;
           }
+
+          .time-col {
+            white-space: nowrap;
+          }
+          .num-col {
+            white-space: nowrap;
+          }
+          th.remark-col {
+            white-space: nowrap;
+          }
+          td.remark-col {
+            white-space: normal;
+            word-break: break-word;
+          }
+
+          /* ==================== SLOTS 24 Base ==================== */
+          .slots-24 {
+            padding: 5px 8px;
+            font-size: 8.5pt;
+          }
+          .slots-24 .header {
+            margin-bottom: 4px;
+            padding-bottom: 3px;
+          }
+          .slots-24 .header h1 { font-size: 13pt; }
+          .slots-24 .header h2 { font-size: 10.5pt; }
+          .slots-24 .info-row {
+            margin: 3px 0;
+            font-size: 8pt;
+          }
+          .slots-24 .info-item { padding: 3px 6px; }
+          .slots-24 .section-title {
+            padding: 3px 6px;
+            margin-top: 4px;
+            margin-bottom: 2px;
+            font-size: 8.5pt;
+          }
+          .slots-24 .sub-table td, .slots-24 .sub-table th, .slots-24 .avail-table td, .slots-24 .avail-table th {
+            padding: 2.5px 2px;
+            font-size: 7.5pt;
+          }
+          .slots-24 .hourly-table {
+            font-size: 8pt;
+            line-height: 1.25;
+          }
+          .slots-24 .hourly-table th { padding: 4px 2px; }
+          .slots-24 .hourly-table td { padding: 4.8px 2px; }
+          .slots-24 .signature-section {
+            margin-top: 18px;
+            font-size: 8.5pt;
+          }
+          .slots-24 .signature-line { margin-top: 12px; }
+
+          /* Tuning 24 slots by Unit Tier */
+          /* 1-2 Units */
+          .slots-24.u-few .time-col { width: 24%; }
+          .slots-24.u-few .remark-col { width: 16%; }
+
+          /* 3-4 Units */
+          .slots-24.u-mid .hourly-table {
+            font-size: 7.5pt;
+            line-height: 1.22;
+          }
+          .slots-24.u-mid .hourly-table th { padding: 4px 1px; font-size: 7.2pt; }
+          .slots-24.u-mid .hourly-table td { padding: 4.8px 1px; }
+          .slots-24.u-mid .time-col { width: 20%; font-size: 7pt; }
+          .slots-24.u-mid .remark-col { width: 12%; }
+          .slots-24.u-mid .signature-section { margin-top: 20px; }
+
+          /* 5-6 Units */
+          .slots-24.u-many .header h1 { font-size: 13pt; }
+          .slots-24.u-many .header h2 { font-size: 10.5pt; }
+          .slots-24.u-many .section-title { padding: 3px 5px; margin-top: 3px; margin-bottom: 2px; font-size: 8.5pt; }
+          .slots-24.u-many .sub-table td, .slots-24.u-many .sub-table th, .slots-24.u-many .avail-table td, .slots-24.u-many .avail-table th {
+            padding: 2.5px 1.5px; font-size: 7.5pt;
+          }
+          .slots-24.u-many .hourly-table {
+            font-size: 6.8pt;
+            line-height: 1.2;
+            letter-spacing: -0.1px;
+          }
+          .slots-24.u-many .hourly-table th { padding: 3.5px 0.5px; font-size: 6.5pt; }
+          .slots-24.u-many .hourly-table td { padding: 4.6px 0.5px; }
+          .slots-24.u-many .time-col { width: 17%; font-size: 6.5pt; }
+          .slots-24.u-many .remark-col { width: 10%; }
+          .slots-24.u-many .signature-section { margin-top: 22px; font-size: 8.5pt; }
+          .slots-24.u-many .signature-line { margin-top: 12px; }
+
+          /* 7+ Units */
+          .slots-24.u-max .header h1 { font-size: 12.5pt; }
+          .slots-24.u-max .header h2 { font-size: 10pt; }
+          .slots-24.u-max .section-title { padding: 2.5px 4px; margin-top: 3px; margin-bottom: 2px; font-size: 8.2pt; }
+          .slots-24.u-max .sub-table td, .slots-24.u-max .sub-table th, .slots-24.u-max .avail-table td, .slots-24.u-max .avail-table th {
+            padding: 2.2px 1px; font-size: 7.2pt;
+          }
+          .slots-24.u-max .hourly-table {
+            font-size: 6.0pt;
+            line-height: 1.18;
+            letter-spacing: -0.2px;
+          }
+          .slots-24.u-max .hourly-table th { padding: 3px 0.3px; font-size: 5.8pt; }
+          .slots-24.u-max .hourly-table td { padding: 4.4px 0.3px; }
+          .slots-24.u-max .time-col { width: 15%; font-size: 5.8pt; }
+          .slots-24.u-max .remark-col { width: 8%; }
+          .slots-24.u-max .signature-section { margin-top: 20px; font-size: 8.2pt; }
+          .slots-24.u-max .signature-line { margin-top: 10px; }
+
+          /* ==================== SLOTS 48 (Maximized to fill single page) ==================== */
+          .slots-48 {
+            padding: 4px 6px;
+            font-size: 8pt;
+          }
+          .slots-48 .header {
+            margin-bottom: 3px;
+            padding-bottom: 2px;
+          }
+          .slots-48 .header h1 { font-size: 11.5pt; }
+          .slots-48 .header h2 { font-size: 9.5pt; }
+          .slots-48 .info-row {
+            margin: 2px 0;
+            font-size: 7.5pt;
+          }
+          .slots-48 .info-item { padding: 2px 4px; }
+          .slots-48 .section-title {
+            padding: 2px 4px;
+            margin-top: 3px;
+            margin-bottom: 1px;
+            font-size: 7.8pt;
+          }
+          .slots-48 .sub-table td, .slots-48 .sub-table th, .slots-48 .avail-table td, .slots-48 .avail-table th {
+            padding: 1.5px 1px;
+            font-size: 7pt;
+          }
+          .slots-48 .hourly-table {
+            font-size: 6.8pt;
+            line-height: 1.15;
+          }
+          .slots-48 .hourly-table th { padding: 2.5px 1px; }
+          .slots-48 .hourly-table td { padding: 1.8px 1px; }
+          .slots-48 .signature-section {
+            margin-top: 10px;
+            font-size: 8pt;
+          }
+          .slots-48 .signature-line { margin-top: 8px; }
+          .slots-48.u-many .hourly-table { font-size: 5.8pt; line-height: 1.1; letter-spacing: -0.15px; }
+          .slots-48.u-many .hourly-table td { padding: 1.4px 0.5px; }
+          .slots-48.u-max .hourly-table { font-size: 5.1pt; line-height: 1.05; letter-spacing: -0.25px; }
+          .slots-48.u-max .hourly-table td { padding: 1.1px 0.3px; }
+
+          /* ==================== SLOTS 96 (Maximized to fill single page) ==================== */
+          .slots-96 {
+            padding: 2px 4px;
+            font-size: 7pt;
+          }
+          .slots-96 .header {
+            margin-bottom: 1px;
+            padding-bottom: 1px;
+          }
+          .slots-96 .header h1 { font-size: 10pt; }
+          .slots-96 .header h2 { font-size: 8.5pt; }
+          .slots-96 .info-row {
+            margin: 1px 0;
+            font-size: 6.5pt;
+          }
+          .slots-96 .info-item { padding: 1px 3px; }
+          .slots-96 .section-title {
+            padding: 1px 3px;
+            margin-top: 1px;
+            margin-bottom: 1px;
+            font-size: 7pt;
+          }
+          .slots-96 .sub-table td, .slots-96 .sub-table th, .slots-96 .avail-table td, .slots-96 .avail-table th {
+            padding: 0.8px 1px;
+            font-size: 6.2pt;
+          }
+          .slots-96 .hourly-table {
+            font-size: 4.8pt;
+            line-height: 1.05;
+          }
+          .slots-96 .hourly-table th { padding: 1px 0.5px; }
+          .slots-96 .hourly-table td { padding: 0.1px 0.5px; }
+          .slots-96 .signature-section {
+            margin-top: 4px;
+            font-size: 7pt;
+          }
+          .slots-96 .signature-line { margin-top: 5px; }
+          .slots-96.u-many .hourly-table { font-size: 4.5pt; line-height: 1.02; letter-spacing: -0.15px; }
+          .slots-96.u-max .hourly-table { font-size: 4.2pt; line-height: 1.0; letter-spacing: -0.25px; }
         </style>
       </head>
       <body>
@@ -259,6 +443,9 @@ function generatePDF(data: any[]) {
 function generatePage(item: any) {
   const powerOriginal = item.powerOriginal;
   const powerCurrent = item.powerCurrent;
+  const hourlyLength = powerCurrent?.currentTurbines?.[0]?.hourly?.length;
+  const activeHours = getHoursByHourListId(item.power?.hourListId, hourlyLength);
+  const slotCount = activeHours.length || 24;
 
   const machineNames: Record<number, string[]> = {
     3: ["Solar (MW)", "Battery (MW)"],
@@ -272,8 +459,25 @@ function generatePage(item: any) {
     ) ??
     [];
 
+  const unitCount = Math.max(
+    powerOriginal?.originalTurbines?.length || 0,
+    powerCurrent?.currentTurbines?.length || 0,
+    powerOriginal?.machinesAvailability?.length || 0,
+    headerNames.length,
+    1,
+  );
+
+  let unitTier = "u-few";
+  if (unitCount >= 7) {
+    unitTier = "u-max";
+  } else if (unitCount >= 5) {
+    unitTier = "u-many";
+  } else if (unitCount >= 3) {
+    unitTier = "u-mid";
+  }
+
   return `
-    <div class="page">
+    <div class="page slots-${slotCount} units-${unitCount} ${unitTier}">
       <!-- Header -->
       <div class="header">
         <h1>${item.power?.company?.name || "-"}</h1>
@@ -301,7 +505,7 @@ function generatePage(item: any) {
     <!-- Left Column: Reservoir Situation -->
     <div class="column">
         <div class="section-title">Reservoir Situation at 00:00 AM</div>
-        <table>
+        <table class="sub-table">
         <tr>
             <td class="left-align" style="width: 60%; border-right: 2px solid #000;">Upstream Level:</td>
             <td style="width: 25%;">${formatNumber(powerCurrent?.upstreamLevel)}</td>
@@ -336,7 +540,7 @@ function generatePage(item: any) {
     <!-- Right Column: Daily Water Discharge Plan -->
     <div class="column">
         <div class="section-title">Daily Water Discharge Plan</div>
-        <table>
+        <table class="sub-table">
         <tr>
             <th style="width: 50%;">Descriptions</th>
             <th style="width: 25%;">Amount<br/>m³</th>
@@ -371,7 +575,7 @@ function generatePage(item: any) {
       
       <!-- Machines Availability -->
       <div class="section-title">Machines Availability</div>
-      <table>
+      <table class="avail-table">
         <tr>
           <th>Units</th>
           ${headerNames.map((name) => `<th>${name}</th>`).join("")}
@@ -398,24 +602,16 @@ function generatePage(item: any) {
       <div class="two-column">
         <div class="column">
           <div class="section-title">Declaration Program</div>
-          <table>
-          ${
-            (powerOriginal?.originalTurbines?.length ?? 0) > 4
-              ? `<tr style="font-size:6pt;">`
-              : `<tr>`
-          }
-              <th style="width: 30%;">Time</th>
+          <table class="hourly-table">
+            <tr>
+              <th class="time-col">Time</th>
               ${headerNames.map((name) => `<th>${name}</th>`).join("")}
-              <th>Total</th>
-              <th style="width: 15%;">Remark</th>
+              <th class="num-col total-col">Total</th>
+              <th class="remark-col">Remark</th>
             </tr>
-            ${generateHourlyRows(powerOriginal?.originalTurbines, powerOriginal?.remarks)}
-            ${
-              (powerOriginal?.originalTurbines?.length ?? 0) > 4
-                ? `<tr style="font-size:6pt;" class="total-row">`
-                : `<tr class="total-row">`
-            }
-              <td>Total (MWh)</td>
+            ${generateHourlyRows(powerOriginal?.originalTurbines, powerOriginal?.remarks, item.power?.hourListId)}
+            <tr class="total-row">
+              <td class="time-col">Total (MWh)</td>
               ${
                 powerOriginal?.originalTurbines
                   ?.map((t: any) => {
@@ -423,36 +619,28 @@ function generatePage(item: any) {
                       (sum: number, val: any) => sum + (parseFloat(val) || 0),
                       0,
                     );
-                    return `<td>${formatNumber(total)}</td>`;
+                    return `<td class="num-col">${formatNumber(total)}</td>`;
                   })
                   .join("") ?? ""
               }
-              <td>${formatNumber(powerOriginal?.totalPower)}</td>
-              <td></td>
+              <td class="num-col total-col">${formatNumber(powerOriginal?.totalPower)}</td>
+              <td class="remark-col"></td>
             </tr>
           </table>
         </div>
         
         <div class="column">
           <div class="section-title">PCD Dispatch Program</div>
-          <table>
-            ${
-              (powerCurrent?.currentTurbines?.length ?? 0) > 4
-                ? `<tr style="font-size:6pt;">`
-                : `<tr>`
-            }
-              <th style="width: 30%;">Time</th>
+          <table class="hourly-table">
+            <tr>
+              <th class="time-col">Time</th>
               ${headerNames.map((name) => `<th>${name}</th>`).join("")}
-              <th>Total</th>
-              <th style="width: 15%;">Remark</th>
+              <th class="num-col total-col">Total</th>
+              <th class="remark-col">Remark</th>
             </tr>
-            ${generateHourlyRows(powerCurrent?.currentTurbines, powerCurrent?.remarks)}
-            ${
-              (powerCurrent?.currentTurbines?.length ?? 0) > 4
-                ? `<tr style="font-size:6pt;" class="total-row">`
-                : `<tr class="total-row">`
-            }
-              <td>Total (MWh)</td>
+            ${generateHourlyRows(powerCurrent?.currentTurbines, powerCurrent?.remarks, item.power?.hourListId)}
+            <tr class="total-row">
+              <td class="time-col">Total (MWh)</td>
               ${
                 powerCurrent?.currentTurbines
                   ?.map((t: any) => {
@@ -460,12 +648,12 @@ function generatePage(item: any) {
                       (sum: number, val: any) => sum + (parseFloat(val) || 0),
                       0,
                     );
-                    return `<td>${formatNumber(total)}</td>`;
+                    return `<td class="num-col">${formatNumber(total)}</td>`;
                   })
                   .join("") ?? ""
               }
-              <td>${formatNumber(powerCurrent?.totalPower)}</td>
-              <td></td>
+              <td class="num-col total-col">${formatNumber(powerCurrent?.totalPower)}</td>
+              <td class="remark-col"></td>
             </tr>
           </table>
         </div>
@@ -475,12 +663,12 @@ function generatePage(item: any) {
         ${
           powerOriginal?.remark || powerCurrent?.remark
             ? `
-        <div class="two-column" style="margin-top: 10px; font-size: 8.5pt;">
+        <div class="two-column" style="margin-top: 6px; font-size: 7.5pt;">
             <div class="column">
-            ${powerOriginal?.remark ? `<strong>Remark:</strong><br/>${powerOriginal.remark}` : ""}
+            ${powerOriginal?.remark ? `<strong>Remark:</strong> ${powerOriginal.remark}` : ""}
             </div>
             <div class="column">
-            ${powerCurrent?.remark ? `<strong>Remark:</strong><br/>${powerCurrent.remark}` : ""}
+            ${powerCurrent?.remark ? `<strong>Remark:</strong> ${powerCurrent.remark}` : ""}
             </div>
         </div>
         `
@@ -493,16 +681,16 @@ function generatePage(item: any) {
         <div class="signature-box">
           <strong>Issued by ${item.power?.name || "-"}</strong>
           <div class="signature-line">
-            <div>Name: ${item.decAcknowUser ? `${item.decAcknowUser.firstname} ${item.decAcknowUser.lastname}` : "_______________________"}</div>
-            <div>Date: ${item.decAcknowAt ? moment(item.decAcknowAt).format("DD/MM/YYYY HH:mm:ss") : "_______________________"}</div>
+            <div>Name: ${item.decAcknowUser ? `${item.decAcknowUser.firstname} ${item.decAcknowUser.lastname}` : "____________________"}</div>
+            <div>Date: ${item.decAcknowAt ? moment(item.decAcknowAt).format("DD/MM/YYYY HH:mm:ss") : "____________________"}</div>
           </div>
         </div>
         
         <div class="signature-box">
           <strong>Acknowledged by PCD</strong>
           <div class="signature-line">
-            <div>Name: ${item.disAcknowUser ? `${item.disAcknowUser.firstname} ${item.disAcknowUser.lastname}` : "_______________________"}</div>
-            <div>Date: ${item.disAcknowAt ? moment(item.disAcknowAt).format("DD/MM/YYYY HH:mm:ss") : "_______________________"}</div>
+            <div>Name: ${item.disAcknowUser ? `${item.disAcknowUser.firstname} ${item.disAcknowUser.lastname}` : "____________________"}</div>
+            <div>Date: ${item.disAcknowAt ? moment(item.disAcknowAt).format("DD/MM/YYYY HH:mm:ss") : "____________________"}</div>
           </div>
         </div>
       </div>
@@ -510,36 +698,40 @@ function generatePage(item: any) {
   `;
 }
 
-// ✅ Helper function สำหรับสร้างแถวข้อมูลรายชั่วโมง (แก้ไขแล้ว)
-function generateHourlyRows(turbines: any[], remarks: string[] = []) {
+// ✅ Helper function สำหรับสร้างแถวข้อมูลรายชั่วโมง (รองรับ 24, 48, 96 slots)
+function generateHourlyRows(
+  turbines: any[],
+  remarks: string[] = [],
+  hourListId?: number | null,
+) {
   if (!turbines || turbines.length === 0)
     return '<tr><td colspan="6">No data</td></tr>';
 
-  const rows = [];
-  for (let hour = 0; hour < 24; hour++) {
-    const timeRange = `${String(hour).padStart(2, "0")}:00-${String(hour + 1).padStart(2, "0")}:00`;
+  const hourlyLength = turbines[0]?.hourly?.length;
+  const activeHours = getHoursByHourListId(hourListId, hourlyLength);
+  const slotCount = activeHours.length;
 
-    // ✅ แก้ไข: จัดการค่า null/undefined และแปลงเป็นตัวเลข
+  const rows = [];
+  for (let idx = 0; idx < slotCount; idx++) {
+    const timeRange = activeHours[idx];
+
+    // ✅ จัดการค่า null/undefined และแปลงเป็นตัวเลข
     const turbineValues = turbines.map((t) => {
       const hourlyData = t.hourly || [];
-      const value = hourlyData[hour];
+      const value = hourlyData[idx];
       return parseFloat(value) || 0;
     });
 
     // ✅ คำนวณผลรวมและแสดงทศนิยม 2 ตำแหน่ง
     const total = turbineValues.reduce((sum, val) => sum + val, 0);
-    const remark = remarks[hour] || "";
+    const remark = remarks[idx] || "";
 
     rows.push(`
-      ${
-        (turbines?.length ?? 0) > 4
-          ? `<tr style="font-size:6pt;">`
-          : `<tr style="font-size:7pt;">`
-      }
-        <td>${timeRange}</td>
-        ${turbineValues.map((val) => `<td>${formatNumber(val)}</td>`).join("")}
-        <td>${formatNumber(total)}</td>
-        <td style="white-space: normal; word-break: break-word;">${remark}</td>
+      <tr>
+        <td class="time-col">${timeRange}</td>
+        ${turbineValues.map((val) => `<td class="num-col">${formatNumber(val)}</td>`).join("")}
+        <td class="num-col total-col">${formatNumber(total)}</td>
+        <td class="remark-col">${remark}</td>
       </tr>
     `);
   }

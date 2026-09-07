@@ -9,33 +9,7 @@ import moment from "moment";
 import { decryptId, encryptId } from "@/lib/cryptoId";
 import { ArrowLeftIcon, PencilIcon } from "@heroicons/react/24/solid";
 import { getLocalStorage } from "@/utils/storage";
-
-const hours = [
-  "00:00-01:00",
-  "01:00-02:00",
-  "02:00-03:00",
-  "03:00-04:00",
-  "04:00-05:00",
-  "05:00-06:00",
-  "06:00-07:00",
-  "07:00-08:00",
-  "08:00-09:00",
-  "09:00-10:00",
-  "10:00-11:00",
-  "11:00-12:00",
-  "12:00-13:00",
-  "13:00-14:00",
-  "14:00-15:00",
-  "15:00-16:00",
-  "16:00-17:00",
-  "17:00-18:00",
-  "18:00-19:00",
-  "19:00-20:00",
-  "20:00-21:00",
-  "21:00-22:00",
-  "22:00-23:00",
-  "23:00-00:00",
-];
+import { getHoursByHourListId } from "@/utils/hoursHelper";
 
 type MachineAvailability = {
   maxs: number;
@@ -136,6 +110,7 @@ export type DayPowerData = {
     id: number;
     name: string;
     fuelId: number;
+    hourListId?: number;
   };
 };
 
@@ -143,12 +118,30 @@ type User = {
   roleId: number;
 };
 
-export default function DayTable() {
+export default function AllDayView() {
   const { id } = useParams();
   const [data, setData] = useState<DayPowerData | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
+
+  const formatNumber = (val: number | string | null | undefined): string => {
+    if (val === null || val === undefined || val === "") return "";
+    const num = Number(val);
+    return isNaN(num) ? "" : num.toLocaleString();
+  };
+
+  const formatDecimal = (val: number | string | null | undefined): string => {
+    if (val === null || val === undefined || val === "") return "";
+    const num = Number(val);
+    return isNaN(num) ? "" : num.toFixed(2);
+  };
+
+  const activeHours = getHoursByHourListId(
+    data?.power?.hourListId,
+    data?.powerCurrent?.currentTurbines?.[0]?.hourly?.length ||
+    data?.powerOriginal?.originalTurbines?.[0]?.hourly?.length,
+  );
 
   useEffect(() => {
     const storedUser = getLocalStorage("user");
@@ -248,8 +241,8 @@ export default function DayTable() {
             }}
             disabled={isReviseDisabled}
             className={`flex items-center gap-1 rounded-md px-4 py-2 text-sm text-white ${isReviseDisabled
-                ? "cursor-not-allowed bg-gray-400"
-                : "bg-blue-500 hover:bg-blue-600"
+              ? "cursor-not-allowed bg-gray-400"
+              : "bg-blue-500 hover:bg-blue-600"
               }`}
           >
             <PencilIcon className="h-4 w-4" /> revise
@@ -295,11 +288,13 @@ export default function DayTable() {
                       </tr>
                     </thead>
                     <tbody>
-                      {Array.from({ length: 24 }, (_, hourIdx) => {
+                      {activeHours.map((time, hourIdx) => {
                         const rowTotal =
                           data.powerOriginal?.originalTurbines.reduce(
                             (sum, turbine) => {
-                              return sum + (turbine.hourly[hourIdx] ?? 0);
+                              return (
+                                sum + (Number(turbine.hourly?.[hourIdx]) || 0)
+                              );
                             },
                             0,
                           ) ?? 0;
@@ -310,7 +305,7 @@ export default function DayTable() {
                         return (
                           <tr key={hourIdx}>
                             <td className="sticky left-0 z-10 border bg-gray-100 px-2 py-1 text-center whitespace-nowrap dark:bg-gray-800">
-                              {hours[hourIdx]}
+                              {time}
                             </td>
 
                             {/* Hourly values per turbine */}
@@ -320,8 +315,9 @@ export default function DayTable() {
                                   key={`unit-${turbine.turbine}-hour-${hourIdx}`}
                                   className="border px-2 py-1 text-center whitespace-nowrap"
                                 >
-                                  {turbine.hourly[hourIdx]?.toFixed(2) ??
-                                    "0.00"}
+                                  {Number(
+                                    turbine.hourly?.[hourIdx] ?? 0,
+                                  ).toFixed(2)}
                                 </td>
                               ),
                             )}
@@ -342,8 +338,8 @@ export default function DayTable() {
                       <tr className="bg-gray-100 font-bold dark:bg-gray-800">
                         <td className="border p-2 text-center">Total (MWh)</td>
                         {data.powerOriginal?.originalTurbines.map((turbine) => {
-                          const total = turbine.hourly.reduce(
-                            (sum: number, v: number) => sum + v,
+                          const total = (turbine.hourly || []).reduce(
+                            (sum: number, v: number) => sum + (Number(v) || 0),
                             0,
                           );
                           return (
@@ -359,7 +355,11 @@ export default function DayTable() {
                           {new Intl.NumberFormat("lo-LA").format(
                             data.powerOriginal?.originalTurbines.reduce(
                               (grand: number, t: TurbineData) =>
-                                grand + t.hourly.reduce((s, v) => s + v, 0),
+                                grand +
+                                (t.hourly || []).reduce(
+                                  (s, v) => s + (Number(v) || 0),
+                                  0,
+                                ),
                               0,
                             ) || 0,
                           )}{" "}
@@ -397,7 +397,7 @@ export default function DayTable() {
                         </th>
                         {columnLabels.map((label, idx) => (
                           <th
-                            key={`declaration-header-${idx}`}
+                            key={`dispatch-header-${idx}`}
                             className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700"
                           >
                             {label} (MW)
@@ -412,11 +412,13 @@ export default function DayTable() {
                       </tr>
                     </thead>
                     <tbody>
-                      {Array.from({ length: 24 }, (_, hourIdx) => {
+                      {activeHours.map((time, hourIdx) => {
                         const rowTotal =
                           data.powerCurrent?.currentTurbines.reduce(
                             (sum, turbine) => {
-                              return sum + (turbine.hourly[hourIdx] ?? 0);
+                              return (
+                                sum + (Number(turbine.hourly?.[hourIdx]) || 0)
+                              );
                             },
                             0,
                           ) ?? 0;
@@ -427,7 +429,7 @@ export default function DayTable() {
                         return (
                           <tr key={hourIdx}>
                             <td className="sticky left-0 z-10 border bg-gray-100 px-2 py-1 text-center whitespace-nowrap dark:bg-gray-800">
-                              {hours[hourIdx]}
+                              {time}
                             </td>
 
                             {/* Hourly values per turbine */}
@@ -437,8 +439,9 @@ export default function DayTable() {
                                   key={`unit-${turbine.turbine}-hour-${hourIdx}`}
                                   className="border px-2 py-1 text-center whitespace-nowrap"
                                 >
-                                  {turbine.hourly[hourIdx]?.toFixed(2) ??
-                                    "0.00"}
+                                  {Number(
+                                    turbine.hourly?.[hourIdx] ?? 0,
+                                  ).toFixed(2)}
                                 </td>
                               ),
                             )}
@@ -459,8 +462,8 @@ export default function DayTable() {
                       <tr className="bg-gray-100 font-bold dark:bg-gray-800">
                         <td className="border p-2 text-center">Total (MWh)</td>
                         {data.powerCurrent?.currentTurbines.map((turbine) => {
-                          const total = turbine.hourly.reduce(
-                            (sum: number, v: number) => sum + v,
+                          const total = (turbine.hourly || []).reduce(
+                            (sum: number, v: number) => sum + (Number(v) || 0),
                             0,
                           );
                           return (
@@ -476,7 +479,11 @@ export default function DayTable() {
                           {new Intl.NumberFormat("lo-LA").format(
                             data.powerCurrent?.currentTurbines.reduce(
                               (grand: number, t: TurbineData) =>
-                                grand + t.hourly.reduce((s, v) => s + v, 0),
+                                grand +
+                                (t.hourly || []).reduce(
+                                  (s, v) => s + (Number(v) || 0),
+                                  0,
+                                ),
                               0,
                             ) || 0,
                           )}{" "}
@@ -517,7 +524,7 @@ export default function DayTable() {
                   <Input
                     type="text"
                     name="upstreamLevel"
-                    value={data.powerCurrent?.upstreamLevel || ""}
+                    value={formatDecimal(data.powerCurrent?.upstreamLevel)}
                     disabled
                     className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                   />
@@ -528,7 +535,7 @@ export default function DayTable() {
                   <Input
                     type="text"
                     name="downstreamLevel"
-                    value={data.powerCurrent?.downstreamLevel || ""}
+                    value={formatDecimal(data.powerCurrent?.downstreamLevel)}
                     disabled
                     className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                   />
@@ -544,7 +551,7 @@ export default function DayTable() {
                       <Input
                         type="text"
                         name="totalStorageamount"
-                        value={data.powerCurrent?.totalStorageamount || ""}
+                        value={formatNumber(data.powerCurrent?.totalStorageamount)}
                         disabled
                         className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                       />
@@ -555,7 +562,7 @@ export default function DayTable() {
                       <Input
                         type="text"
                         name="totalStorageaverage"
-                        value={data.powerCurrent?.totalStorageaverage || ""}
+                        value={formatDecimal(data.powerCurrent?.totalStorageaverage)}
                         disabled
                         className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                       />
@@ -571,7 +578,7 @@ export default function DayTable() {
                       <Input
                         type="text"
                         name="activeStorageamount"
-                        value={data.powerCurrent?.activeStorageamount || ""}
+                        value={formatNumber(data.powerCurrent?.activeStorageamount)}
                         disabled
                         className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                       />
@@ -582,7 +589,7 @@ export default function DayTable() {
                       <Input
                         type="text"
                         name="activeStorageaverage"
-                        value={data.powerCurrent?.activeStorageaverage || ""}
+                        value={formatDecimal(data.powerCurrent?.activeStorageaverage)}
                         disabled
                         className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                       />
@@ -604,7 +611,7 @@ export default function DayTable() {
                       <Input
                         type="text"
                         name="turbineDischargeamount"
-                        value={data.powerCurrent?.turbineDischargeamount || ""}
+                        value={formatNumber(data.powerCurrent?.turbineDischargeamount)}
                         disabled
                         className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                       />
@@ -615,7 +622,7 @@ export default function DayTable() {
                       <Input
                         type="text"
                         name="turbineDischargeaverage"
-                        value={data.powerCurrent?.turbineDischargeaverage || ""}
+                        value={formatDecimal(data.powerCurrent?.turbineDischargeaverage)}
                         disabled
                         className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                       />
@@ -631,7 +638,7 @@ export default function DayTable() {
                       <Input
                         type="text"
                         name="spillwayDischargeamount"
-                        value={data.powerCurrent?.spillwayDischargeamount || ""}
+                        value={formatNumber(data.powerCurrent?.spillwayDischargeamount)}
                         disabled
                         className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                       />
@@ -642,9 +649,7 @@ export default function DayTable() {
                       <Input
                         type="text"
                         name="spillwayDischargeaverage"
-                        value={
-                          data.powerCurrent?.spillwayDischargeaverage || ""
-                        }
+                        value={formatDecimal(data.powerCurrent?.spillwayDischargeaverage)}
                         disabled
                         className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                       />
@@ -662,9 +667,7 @@ export default function DayTable() {
                       <Input
                         type="text"
                         name="ecologicalDischargeamount"
-                        value={
-                          data.powerCurrent?.ecologicalDischargeamount || ""
-                        }
+                        value={formatNumber(data.powerCurrent?.ecologicalDischargeamount)}
                         disabled
                         className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                       />
@@ -675,9 +678,7 @@ export default function DayTable() {
                       <Input
                         type="text"
                         name="ecologicalDischargeaverage"
-                        value={
-                          data.powerCurrent?.ecologicalDischargeaverage || ""
-                        }
+                        value={formatDecimal(data.powerCurrent?.ecologicalDischargeaverage)}
                         disabled
                         className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                       />
@@ -691,20 +692,20 @@ export default function DayTable() {
                     <div>
                       <Label>Amount (m³)</Label>
                       <Input
-                        type="number"
+                        type="text"
                         disabled
                         className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                        value={data.powerCurrent?.totalDischargeamount || ""}
+                        value={formatNumber(data.powerCurrent?.totalDischargeamount)}
                       />
                     </div>
 
                     <div>
                       <Label>Average (m³/s)</Label>
                       <Input
-                        type="number"
+                        type="text"
                         disabled
                         className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                        value={data.powerCurrent?.totalDischargeaverage || ""}
+                        value={formatDecimal(data.powerCurrent?.totalDischargeaverage)}
                       />
                     </div>
                   </div>
@@ -722,12 +723,12 @@ export default function DayTable() {
               <thead>
                 <tr className="border-b bg-gray-100 dark:border-gray-700 dark:bg-gray-800">
                   <th className="px-4 py-3 text-left font-bold"></th>
-                  {data?.powerCurrent?.machinesAvailability.map((m) => (
+                  {data?.powerCurrent?.machinesAvailability.map((m, idx) => (
                     <th
-                      key={m.turbine}
+                      key={m.turbine ?? idx}
                       className="w-[130px] px-4 py-3 text-center whitespace-nowrap"
                     >
-                      Unit-{m.turbine} (MW)
+                      {columnLabels[idx] || `Unit-${m.turbine}`} (MW)
                     </th>
                   ))}
                 </tr>

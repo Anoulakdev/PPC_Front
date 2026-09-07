@@ -6,33 +6,7 @@ import { useRouter, useParams } from "next/navigation";
 import { decryptId } from "@/lib/cryptoId";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
-
-const hours = [
-  "00:00-01:00",
-  "01:00-02:00",
-  "02:00-03:00",
-  "03:00-04:00",
-  "04:00-05:00",
-  "05:00-06:00",
-  "06:00-07:00",
-  "07:00-08:00",
-  "08:00-09:00",
-  "09:00-10:00",
-  "10:00-11:00",
-  "11:00-12:00",
-  "12:00-13:00",
-  "13:00-14:00",
-  "14:00-15:00",
-  "15:00-16:00",
-  "16:00-17:00",
-  "17:00-18:00",
-  "18:00-19:00",
-  "19:00-20:00",
-  "20:00-21:00",
-  "21:00-22:00",
-  "22:00-23:00",
-  "23:00-00:00",
-];
+import { getHoursByHourListId } from "@/utils/hoursHelper";
 
 type TurbineData = {
   turbine: number;
@@ -41,7 +15,7 @@ type TurbineData = {
 
 type PowerHistory = {
   totalPower: number | null;
-  remarks: string;
+  remarks: string[] | string;
   originalTurbines: TurbineData[];
 };
 
@@ -72,8 +46,9 @@ type DayReportHistory = {
   dayReport: {
     power: {
       id: number;
-      name: number;
+      name: number | string;
       fuelId: number;
+      hourListId?: number;
     };
   };
 };
@@ -109,7 +84,12 @@ export default function ReportRevise() {
     fetchData();
   }, [id, router]);
 
-  // แปลง powerDate เป็น Date
+  const turbines = data?.powerHistory?.originalTurbines || [];
+  const fallbackSlots = turbines[0]?.hourly?.length;
+  const activeHours = getHoursByHourListId(
+    data?.dayReport?.power?.hourListId,
+    fallbackSlots,
+  );
 
   return (
     <div className="rounded-xl bg-white p-6 shadow-lg dark:bg-gray-900 dark:text-gray-100">
@@ -147,14 +127,14 @@ export default function ReportRevise() {
                     </tr>
                   </thead>
                   <tbody>
-                    {Array.from({ length: 24 }, (_, hourIdx) => {
+                    {activeHours.map((time, hourIdx) => {
                       const remark =
                         data.powerHistory?.remarks?.[hourIdx] || "";
 
                       return (
                         <tr key={hourIdx}>
                           <td className="border px-2 py-1 text-center whitespace-nowrap">
-                            {hours[hourIdx]}
+                            {time}
                           </td>
 
                           {/* Hourly values per turbine */}

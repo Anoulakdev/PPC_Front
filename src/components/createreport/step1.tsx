@@ -16,6 +16,7 @@ type Power = {
   name: string;
   totalUnit: number;
   fuelId: number;
+  hourListId?: number;
 };
 
 type User = {
@@ -126,6 +127,7 @@ export const Step1 = () => {
                       powerId: selected.id,
                       totalUnit: selected.totalUnit,
                       fuelId: selected.fuelId,
+                      hourListId: selected.hourListId,
                     });
                   }
                 }}

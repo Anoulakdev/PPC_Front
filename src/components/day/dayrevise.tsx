@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import axiosInstance from "@/utils/axiosInstance";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "react-toastify";
@@ -10,33 +10,7 @@ import { decryptId } from "@/lib/cryptoId";
 import { getLocalStorage } from "@/utils/storage";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
-
-const hours = [
-  "00:00-01:00",
-  "01:00-02:00",
-  "02:00-03:00",
-  "03:00-04:00",
-  "04:00-05:00",
-  "05:00-06:00",
-  "06:00-07:00",
-  "07:00-08:00",
-  "08:00-09:00",
-  "09:00-10:00",
-  "10:00-11:00",
-  "11:00-12:00",
-  "12:00-13:00",
-  "13:00-14:00",
-  "14:00-15:00",
-  "15:00-16:00",
-  "16:00-17:00",
-  "17:00-18:00",
-  "18:00-19:00",
-  "19:00-20:00",
-  "20:00-21:00",
-  "21:00-22:00",
-  "22:00-23:00",
-  "23:00-00:00",
-];
+import { getHoursByHourListId } from "@/utils/hoursHelper";
 
 type User = {
   roleId: number;
@@ -53,6 +27,13 @@ export default function DayRevise() {
   const [editingTD, setEditingTD] = useState<"amount" | "average" | null>(null);
   const [editingSW, setEditingSW] = useState<"amount" | "average" | null>(null);
   const [editingED, setEditingED] = useState<"amount" | "average" | null>(null);
+
+  const activeHours = getHoursByHourListId(
+    data?.power?.hourListId,
+    data?.currentTurbines?.[0]?.hourly?.length ||
+      data?.powerCurrent?.currentTurbines?.[0]?.hourly?.length,
+  );
+  const totalHoursCount = activeHours.length;
 
   useEffect(() => {
     const storedUser = getLocalStorage("user");
@@ -73,14 +54,28 @@ export default function DayRevise() {
         const response = await axiosInstance.get(`/daypowers/${decryptedId}`);
         const rawData = response.data;
 
-        const clonedTurbines = rawData.powerCurrent.currentTurbines.map(
-          (t: any) => ({
-            ...t,
-            hourly: [...t.hourly],
-          }),
+        const initialActiveHours = getHoursByHourListId(
+          rawData.power?.hourListId,
+          rawData.powerCurrent?.currentTurbines?.[0]?.hourly?.length,
         );
+        const initialTotalHours = initialActiveHours.length;
 
-        const remarks = rawData.powerCurrent.remarks ?? Array(24).fill("");
+        const clonedTurbines = (
+          rawData.powerCurrent?.currentTurbines || []
+        ).map((t: any) => {
+          const hourly = [...(t.hourly || [])];
+          while (hourly.length < initialTotalHours) hourly.push(0);
+          return {
+            ...t,
+            hourly,
+          };
+        });
+
+        const rawRemarks = rawData.powerCurrent?.remarks ?? [];
+        const remarks = Array.from(
+          { length: initialTotalHours },
+          (_, i) => rawRemarks[i] ?? "",
+        );
 
         setData({
           ...rawData,
@@ -126,17 +121,23 @@ export default function DayRevise() {
   };
 
   const handleHourlyChange = (tIdx: number, hourIdx: number, value: string) => {
-    const updated = [...data.currentTurbines];
     let val = parseFloat(value);
-
     if (isNaN(val)) val = 0;
+    const roundedVal = parseFloat(val.toFixed(2));
 
-    // แทนค่าทุกชั่วโมงตั้งแต่ hourIdx ถึง 23 ด้วยค่า val
-    for (let i = hourIdx; i < 24; i++) {
-      updated[tIdx].hourly[i] = parseFloat(val.toFixed(2));
-    }
-
-    setData({ ...data, currentTurbines: updated });
+    setData((prev: any) => {
+      if (!prev?.currentTurbines) return prev;
+      const updated = prev.currentTurbines.map((t: any, idx: number) => {
+        if (idx !== tIdx) return t;
+        const hourly = [...(t.hourly || [])];
+        while (hourly.length < totalHoursCount) hourly.push(0);
+        for (let i = hourIdx; i < totalHoursCount; i++) {
+          hourly[i] = roundedVal;
+        }
+        return { ...t, hourly };
+      });
+      return { ...prev, currentTurbines: updated };
+    });
   };
 
   const handlePaste = (
@@ -150,26 +151,34 @@ export default function DayRevise() {
       .map((v) => parseFloat(v))
       .filter((v) => !isNaN(v));
 
-    const updated = [...data.currentTurbines];
-    const turbineNum = updated[tIdx].turbine;
-    const machine = data?.powerCurrent?.machinesAvailability.find(
-      (m: any) => m.turbine === turbineNum,
-    );
+    setData((prev: any) => {
+      if (!prev?.currentTurbines) return prev;
+      const turbineNum = prev.currentTurbines[tIdx]?.turbine;
+      const machine = prev?.powerCurrent?.machinesAvailability?.find(
+        (m: any) => m.turbine === turbineNum,
+      );
 
-    for (let i = 0; i < 24; i++) {
-      let val = values[i] ?? 0;
-      if (val !== 0 && machine) {
-        if (val < machine.mins) val = machine.mins;
-        if (val > machine.maxs) val = machine.maxs;
-      }
-      updated[tIdx].hourly[i] = parseFloat(val.toFixed(2));
-    }
-
-    setData({ ...data, currentTurbines: updated });
+      const updated = prev.currentTurbines.map((t: any, idx: number) => {
+        if (idx !== tIdx) return t;
+        const hourly = [...(t.hourly || [])];
+        while (hourly.length < totalHoursCount) hourly.push(0);
+        for (let i = 0; i < totalHoursCount; i++) {
+          let val = values[i] ?? 0;
+          if (val !== 0 && machine) {
+            if (val < machine.mins) val = machine.mins;
+            if (val > machine.maxs) val = machine.maxs;
+          }
+          hourly[i] = parseFloat(val.toFixed(2));
+        }
+        return { ...t, hourly };
+      });
+      return { ...prev, currentTurbines: updated };
+    });
   };
 
   const handleRemarkChange = (hourIdx: number, value: string) => {
     const updatedRemarks = [...(data?.powerCurrent?.remarks ?? [])];
+    while (updatedRemarks.length < totalHoursCount) updatedRemarks.push("");
     updatedRemarks[hourIdx] = value;
     setData({
       ...data,
@@ -198,35 +207,54 @@ export default function DayRevise() {
     let num = parseFloat(value);
     if (isNaN(num)) num = 0;
 
-    const turbine = data.currentTurbines[turbineIdx].turbine;
-    const machine = data?.powerCurrent?.machinesAvailability.find(
-      (m: any) => m.turbine === turbine,
-    );
+    setData((prev: any) => {
+      if (!prev?.currentTurbines) return prev;
+      const turbine = prev.currentTurbines[turbineIdx]?.turbine;
+      const machine = prev?.powerCurrent?.machinesAvailability?.find(
+        (m: any) => m.turbine === turbine,
+      );
 
-    if (num !== 0 && machine) {
-      if (num < machine.mins) num = machine.mins;
-      if (num > machine.maxs) num = machine.maxs;
-    }
+      if (num !== 0 && machine) {
+        if (num < machine.mins) num = machine.mins;
+        if (num > machine.maxs) num = machine.maxs;
+      }
 
-    const updated = [...data.currentTurbines];
-    for (let i = hourIdx; i < 24; i++) {
-      updated[turbineIdx].hourly[i] = parseFloat(num.toFixed(2));
-    }
+      const roundedVal = parseFloat(num.toFixed(2));
 
-    setData({
-      ...data,
-      currentTurbines: updated,
+      const updated = prev.currentTurbines.map((t: any, idx: number) => {
+        if (idx !== turbineIdx) return t;
+        const hourly = [...(t.hourly || [])];
+        while (hourly.length < totalHoursCount) hourly.push(0);
+        for (let i = hourIdx; i < totalHoursCount; i++) {
+          hourly[i] = roundedVal;
+        }
+        return { ...t, hourly };
+      });
+
+      return {
+        ...prev,
+        currentTurbines: updated,
+      };
     });
   };
 
-  const getTurbineTotal = (turbine: any) =>
-    turbine.hourly.reduce((sum: number, v: number) => sum + v, 0);
+  const getTurbineTotal = useCallback(
+    (turbine: any) =>
+      (turbine?.hourly || []).reduce(
+        (sum: number, v: number) => sum + (Number(v) || 0),
+        0,
+      ),
+    [],
+  );
 
-  const getGrandTotal = () =>
-    data?.currentTurbines.reduce(
-      (grand: number, t: any) => grand + getTurbineTotal(t),
-      0,
-    );
+  const grandTotal = useMemo(
+    () =>
+      (data?.currentTurbines || []).reduce(
+        (grand: number, t: any) => grand + getTurbineTotal(t),
+        0,
+      ),
+    [data?.currentTurbines, getTurbineTotal],
+  );
 
   useEffect(() => {
     if (!data) return;
@@ -459,7 +487,7 @@ export default function DayRevise() {
         totalDischargeaverage: data.powerCurrent?.totalDischargeaverage,
         machinedata: data.powerCurrent?.machinesAvailability || [],
         turbinedata: data.currentTurbines,
-        totalPower: getGrandTotal().toFixed(2),
+        totalPower: grandTotal.toFixed(2),
         totalUnit: data.powerCurrent?.totalUnit,
         remark: data.powerCurrent?.remark ?? "",
         remarks: data.powerCurrent?.remarks ?? [],
@@ -512,7 +540,7 @@ export default function DayRevise() {
                         <span>{label} (MW)</span>
                         <textarea
                           onPaste={(e) => handlePaste(e, tIdx)}
-                          placeholder="Paste 24 values"
+                          placeholder={`Paste ${totalHoursCount} values`}
                           className="mt-1 w-full rounded border p-1 text-xs"
                         />
                       </div>
@@ -527,10 +555,10 @@ export default function DayRevise() {
                 </tr>
               </thead>
               <tbody>
-                {hours.map((time, hIdx) => {
+                {activeHours.map((time, hIdx) => {
                   const rowTotal =
                     data?.currentTurbines.reduce(
-                      (sum: number, t: any) => sum + (t.hourly[hIdx] ?? 0),
+                      (sum: number, t: any) => sum + (t.hourly?.[hIdx] ?? 0),
                       0,
                     ) ?? 0;
 
@@ -546,6 +574,11 @@ export default function DayRevise() {
                           data?.powerCurrent?.machinesAvailability.find(
                             (m: any) => m.turbine === t.turbine,
                           );
+                        const val = t.hourly?.[hIdx];
+                        const displayVal =
+                          val === 0 || val === undefined || val === null
+                            ? ""
+                            : val;
 
                         return (
                           <td
@@ -554,7 +587,7 @@ export default function DayRevise() {
                           >
                             <input
                               type="number"
-                              value={t.hourly[hIdx] === 0 ? "" : t.hourly[hIdx]}
+                              value={displayVal}
                               min={machine?.mins ?? 0}
                               max={machine?.maxs ?? 9999}
                               onChange={(e) => {
@@ -612,7 +645,7 @@ export default function DayRevise() {
                     </td>
                   ))}
                   <td className="border p-2 text-center">
-                    {(getGrandTotal() || 0).toFixed(2)} MWh
+                    {(grandTotal || 0).toFixed(2)} MWh
                   </td>
                   <td className="border p-2 text-center"></td>
                 </tr>

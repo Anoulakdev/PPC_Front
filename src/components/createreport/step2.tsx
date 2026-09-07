@@ -8,33 +8,7 @@ import { useRouter } from "next/navigation";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import moment from "moment";
-
-const hours = [
-  "00:00-01:00",
-  "01:00-02:00",
-  "02:00-03:00",
-  "03:00-04:00",
-  "04:00-05:00",
-  "05:00-06:00",
-  "06:00-07:00",
-  "07:00-08:00",
-  "08:00-09:00",
-  "09:00-10:00",
-  "10:00-11:00",
-  "11:00-12:00",
-  "12:00-13:00",
-  "13:00-14:00",
-  "14:00-15:00",
-  "15:00-16:00",
-  "16:00-17:00",
-  "17:00-18:00",
-  "18:00-19:00",
-  "19:00-20:00",
-  "20:00-21:00",
-  "21:00-22:00",
-  "22:00-23:00",
-  "23:00-00:00",
-];
+import { getHoursByHourListId } from "@/utils/hoursHelper";
 
 type Power = {
   id: number;
@@ -51,6 +25,7 @@ type Power = {
   branchId: number;
   regionId: number;
   ownerId: number;
+  hourListId?: number;
   latitude: number;
   longitude: number;
   installCapacity: string;
@@ -85,11 +60,20 @@ export const Step2 = () => {
   );
   const router = useRouter();
 
+  const hourListId = formData.hourListId ?? data?.hourListId ?? 1;
+  const activeHours = getHoursByHourListId(hourListId);
+  const totalHoursCount = activeHours.length;
+
   useEffect(() => {
     if (formData.powerId != null) {
       axiosInstance
         .get(`/powers/${formData.powerId}`)
-        .then((res) => setData(res.data))
+        .then((res) => {
+          setData(res.data);
+          if (res.data?.hourListId && !formData.hourListId) {
+            updateFormData({ hourListId: res.data.hourListId });
+          }
+        })
         .catch((err) => console.error("Fetch power error:", err));
     }
   }, [formData.powerId]);
@@ -111,36 +95,61 @@ export const Step2 = () => {
 
   useEffect(() => {
     if (!unit) return;
-    if (formData.turbineData?.length === unit) return;
 
-    const turbineData = Array.from({ length: unit }, (_, tIdx) => ({
-      turbine: tIdx + 1,
-      hourly: Array(24).fill(0),
-    }));
+    const needsInit =
+      !formData.turbineData ||
+      formData.turbineData.length !== unit ||
+      formData.turbineData.some(
+        (t) => !t.hourly || t.hourly.length !== totalHoursCount,
+      ) ||
+      !formData.remarks ||
+      formData.remarks.length !== totalHoursCount;
 
-    const remarks = Array(24).fill("");
+    if (needsInit) {
+      const turbineData = Array.from({ length: unit }, (_, tIdx) => {
+        const existing = formData.turbineData?.[tIdx]?.hourly || [];
+        const hourly = Array(totalHoursCount).fill(0);
+        for (let i = 0; i < Math.min(existing.length, totalHoursCount); i++) {
+          hourly[i] = existing[i];
+        }
+        return {
+          turbine: tIdx + 1,
+          hourly,
+        };
+      });
 
-    updateFormData({ turbineData, remarks });
-  }, [unit]);
+      const existingRemarks = formData.remarks || [];
+      const remarks = Array(totalHoursCount).fill("");
+      for (let i = 0; i < Math.min(existingRemarks.length, totalHoursCount); i++) {
+        remarks[i] = existingRemarks[i];
+      }
+
+      updateFormData({ turbineData, remarks });
+    }
+  }, [unit, totalHoursCount, formData.turbineData, formData.remarks]);
 
   const handleHourlyChange = (
     turbineIdx: number,
     hourIdx: number,
     value: string,
   ) => {
-    const updated = [...formData.turbineData];
-    const floatValue = parseFloat(value) || 0;
-
-    // แทนค่าทั้งหมดจาก hourIdx ถึง 23 ด้วยค่าที่กรอก
-    for (let i = hourIdx; i < 24; i++) {
-      updated[turbineIdx].hourly[i] = floatValue;
-    }
+    const floatValue = value === "" ? 0 : parseFloat(value);
+    const updated = (formData.turbineData || []).map((t, idx) => {
+      if (idx !== turbineIdx) return t;
+      const hourly = [...(t.hourly || [])];
+      while (hourly.length < totalHoursCount) hourly.push(0);
+      for (let i = hourIdx; i < totalHoursCount; i++) {
+        hourly[i] = floatValue;
+      }
+      return { ...t, hourly };
+    });
 
     updateFormData({ turbineData: updated });
   };
 
   const handleRemarkChange = (hourIdx: number, value: string) => {
-    const updated = [...(formData.remarks || Array(24).fill(""))];
+    const updated = [...(formData.remarks || Array(totalHoursCount).fill(""))];
+    while (updated.length < totalHoursCount) updated.push("");
     updated[hourIdx] = value;
     updateFormData({ remarks: updated });
   };
@@ -150,13 +159,19 @@ export const Step2 = () => {
     hourIdx: number,
     value: string,
   ) => {
-    const num = parseFloat(value) || 0;
+    let num = parseFloat(value);
+    if (isNaN(num)) num = 0;
     const fixed = parseFloat(num.toFixed(2));
-    const updated = [...formData.turbineData];
 
-    for (let i = hourIdx; i < 24; i++) {
-      updated[turbineIdx].hourly[i] = fixed;
-    }
+    const updated = (formData.turbineData || []).map((t, idx) => {
+      if (idx !== turbineIdx) return t;
+      const hourly = [...(t.hourly || [])];
+      while (hourly.length < totalHoursCount) hourly.push(0);
+      for (let i = hourIdx; i < totalHoursCount; i++) {
+        hourly[i] = fixed;
+      }
+      return { ...t, hourly };
+    });
 
     updateFormData({ turbineData: updated });
   };
@@ -172,10 +187,16 @@ export const Step2 = () => {
       .map((v) => parseFloat(v))
       .filter((v) => !isNaN(v));
 
-    const updated = [...formData.turbineData];
-    for (let i = 0; i < 24; i++) {
-      updated[turbineIdx].hourly[i] = values[i] ?? 0;
-    }
+    const updated = (formData.turbineData || []).map((t, idx) => {
+      if (idx !== turbineIdx) return t;
+      const hourly = [...(t.hourly || [])];
+      while (hourly.length < totalHoursCount) hourly.push(0);
+      for (let i = 0; i < totalHoursCount; i++) {
+        const val = values[i] ?? 0;
+        hourly[i] = parseFloat(val.toFixed(2));
+      }
+      return { ...t, hourly };
+    });
     updateFormData({ turbineData: updated });
   };
 
@@ -409,7 +430,7 @@ export const Step2 = () => {
         averageOutflow: formData.averageOutflow,
         totalPower: parseFloat((formData.totalPower ?? 0).toFixed(2)),
         totalUnit: formData.totalUnit ?? 0,
-        remarks: formData.remarks || Array(24).fill(""),
+        remarks: formData.remarks || Array(totalHoursCount).fill(""),
         turbinedata: formData.turbineData || [],
       };
 
@@ -447,7 +468,7 @@ export const Step2 = () => {
                     <span className="text-sm">Total (MW)</span>
                     <textarea
                       onPaste={(e) => handlePaste(e, tIdx)}
-                      placeholder="Paste 24 values"
+                      placeholder={`Paste ${totalHoursCount} values`}
                       className="mt-1 w-full rounded border p-1 text-xs"
                     />
                   </div>
@@ -459,7 +480,7 @@ export const Step2 = () => {
             </tr>
           </thead>
           <tbody>
-            {hours.map((time, hIdx) => {
+            {activeHours.map((time, hIdx) => {
               return (
                 <tr key={time}>
                   <td className="border p-2 text-center whitespace-nowrap">
@@ -473,7 +494,11 @@ export const Step2 = () => {
                       >
                         <input
                           type="number"
-                          value={t.hourly[hIdx] === 0 ? "" : t.hourly[hIdx]} // ถ้าเป็น 0 ให้แสดงว่าง
+                          value={
+                            t.hourly?.[hIdx] === 0 || t.hourly?.[hIdx] == null
+                              ? ""
+                              : t.hourly[hIdx]
+                          } // ถ้าเป็น 0 ให้แสดงว่าง
                           onChange={(e) => {
                             const val = e.target.value;
                             if (/^\d*\.?\d{0,2}$/.test(val)) {

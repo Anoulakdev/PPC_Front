@@ -33,7 +33,10 @@ export default function DatePicker({
       dateFormat: "d-m-Y",
       defaultDate,
       // minDate: new Date(),
-      minDate: new Date(new Date().setDate(new Date().getDate() - 5)), // ✅ ย้อนหลังได้ 5 วัน
+      minDate:
+        minDate !== undefined
+          ? minDate
+          : new Date(new Date().setDate(new Date().getDate() - 5)), // ✅ ค่าเริ่มต้นย้อนหลังได้ 5 วันหากไม่ได้ส่ง prop
       onChange,
     });
 

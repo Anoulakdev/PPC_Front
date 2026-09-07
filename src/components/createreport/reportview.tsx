@@ -9,33 +9,7 @@ import { getLocalStorage } from "@/utils/storage";
 import moment from "moment";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
-
-const hours = [
-  "00:00-01:00",
-  "01:00-02:00",
-  "02:00-03:00",
-  "03:00-04:00",
-  "04:00-05:00",
-  "05:00-06:00",
-  "06:00-07:00",
-  "07:00-08:00",
-  "08:00-09:00",
-  "09:00-10:00",
-  "10:00-11:00",
-  "11:00-12:00",
-  "12:00-13:00",
-  "13:00-14:00",
-  "14:00-15:00",
-  "15:00-16:00",
-  "16:00-17:00",
-  "17:00-18:00",
-  "18:00-19:00",
-  "19:00-20:00",
-  "20:00-21:00",
-  "21:00-22:00",
-  "22:00-23:00",
-  "23:00-00:00",
-];
+import { getHoursByHourListId } from "@/utils/hoursHelper";
 
 type TurbineData = {
   turbine: number;
@@ -51,6 +25,7 @@ type Power = {
   id: number;
   name: string;
   fuelId: number;
+  hourListId?: number;
   company: {
     name: string;
   };
@@ -58,7 +33,7 @@ type Power = {
 
 type PowerCurrent = {
   totalPower: number | null;
-  remarks: string;
+  remarks: string[] | string;
   originalTurbines: TurbineData[];
 };
 
@@ -143,7 +118,6 @@ export default function ReportView() {
     fetchData();
   }, [id, router]);
 
-  // แปลง powerDate เป็น Date
   const isReviseDisabled = useMemo(() => {
     if (!data?.powerDate) return true;
 
@@ -152,13 +126,21 @@ export default function ReportView() {
 
     // เพิ่มอีก 5 วันจาก powerDate
     const maxDate = new Date(powerDate);
-    maxDate.setDate(maxDate.getDate() + 5); // powerDate + 5
+    maxDate.setDate(maxDate.getDate() + 30); // powerDate + 30
 
     const today = new Date();
     today.setHours(0, 0, 0, 0); // เปรียบเทียบแค่วันที่
 
-    return today > maxDate; // ถ้าวันนี้มากกว่า powerDate + 5 → disable
+    return today > maxDate; // ถ้าวันนี้มากกว่า powerDate + 30 → disable
   }, [data?.powerDate]);
+
+  const turbines =
+    data?.dayReportCurrent?.powerCurrent?.originalTurbines || [];
+  const fallbackSlots = turbines[0]?.hourly?.length;
+  const activeHours = getHoursByHourListId(
+    data?.power?.hourListId,
+    fallbackSlots,
+  );
 
   return (
     <div className="rounded-xl bg-white p-6 shadow-lg dark:bg-gray-900 dark:text-gray-100">
@@ -167,18 +149,18 @@ export default function ReportView() {
           user?.roleId === 4 ||
           user?.roleId === 5 ||
           user?.roleId === 6) && (
-          <button
-            onClick={() =>
-              router.push(
-                `/${user?.roleId === 3 || user?.roleId === 4 ? "dispatch" : "declaration"}/createreport`,
-              )
-            }
-            className="flex items-center gap-1 rounded-md bg-blue-500 px-4 py-2 text-sm text-white hover:bg-blue-600"
-          >
-            <ArrowLeftIcon className="h-4 w-4" />
-            Back
-          </button>
-        )}
+            <button
+              onClick={() =>
+                router.push(
+                  `/${user?.roleId === 3 || user?.roleId === 4 ? "dispatch" : "declaration"}/createreport`,
+                )
+              }
+              className="flex items-center gap-1 rounded-md bg-blue-500 px-4 py-2 text-sm text-white hover:bg-blue-600"
+            >
+              <ArrowLeftIcon className="h-4 w-4" />
+              Back
+            </button>
+          )}
         <h1 className="text-center text-xl font-bold">
           Daily Operation{" "}
           <span className="text-red-700">
@@ -197,11 +179,10 @@ export default function ReportView() {
               }
             }}
             disabled={isReviseDisabled}
-            className={`flex items-center gap-1 rounded-md px-4 py-2 text-sm text-white ${
-              isReviseDisabled
-                ? "cursor-not-allowed bg-gray-400"
-                : "bg-blue-500 hover:bg-blue-600"
-            }`}
+            className={`flex items-center gap-1 rounded-md px-4 py-2 text-sm text-white ${isReviseDisabled
+              ? "cursor-not-allowed bg-gray-400"
+              : "bg-blue-500 hover:bg-blue-600"
+              }`}
           >
             <PencilIcon className="h-4 w-4" /> revise
           </button>
@@ -245,16 +226,16 @@ export default function ReportView() {
                     </tr>
                   </thead>
                   <tbody>
-                    {Array.from({ length: 24 }, (_, hourIdx) => {
+                    {activeHours.map((time, hourIdx) => {
                       const remark =
                         data.dayReportCurrent?.powerCurrent?.remarks?.[
-                          hourIdx
+                        hourIdx
                         ] || "";
 
                       return (
                         <tr key={hourIdx}>
                           <td className="border px-2 py-1 text-center whitespace-nowrap">
-                            {hours[hourIdx]}
+                            {time}
                           </td>
 
                           {/* Hourly values per turbine */}
@@ -745,7 +726,7 @@ export default function ReportView() {
               </thead>
               <tbody>
                 {Array.isArray(data.dayReportHistorys) &&
-                data.dayReportHistorys.length > 0 ? (
+                  data.dayReportHistorys.length > 0 ? (
                   data.dayReportHistorys.map((revise, index) => (
                     <tr key={revise.id}>
                       <td className="border px-2 py-1 text-center">
@@ -760,8 +741,8 @@ export default function ReportView() {
                       <td className="border px-2 py-1 text-center">
                         {revise.totalPower != null
                           ? new Intl.NumberFormat("lo-LA", {
-                              maximumFractionDigits: 2,
-                            }).format(revise.totalPower)
+                            maximumFractionDigits: 2,
+                          }).format(revise.totalPower)
                           : ""}
                       </td>
                       <td className="border px-2 py-1 text-center">
@@ -772,19 +753,19 @@ export default function ReportView() {
                           user?.roleId === 4 ||
                           user?.roleId === 5 ||
                           user?.roleId === 6) && (
-                          <button
-                            onClick={() =>
-                              window.open(
-                                `/${user?.roleId === 3 || user?.roleId === 4 ? "dispatch" : "declaration"}/createreport/reportrevise/${encryptId(revise.id)}`,
-                                "_blank",
-                                "noopener,noreferrer",
-                              )
-                            }
-                            className="rounded bg-blue-500 px-2 py-1 text-sm text-white hover:bg-blue-600"
-                          >
-                            View
-                          </button>
-                        )}
+                            <button
+                              onClick={() =>
+                                window.open(
+                                  `/${user?.roleId === 3 || user?.roleId === 4 ? "dispatch" : "declaration"}/createreport/reportrevise/${encryptId(revise.id)}`,
+                                  "_blank",
+                                  "noopener,noreferrer",
+                                )
+                              }
+                              className="rounded bg-blue-500 px-2 py-1 text-sm text-white hover:bg-blue-600"
+                            >
+                              View
+                            </button>
+                          )}
                       </td>
                     </tr>
                   ))

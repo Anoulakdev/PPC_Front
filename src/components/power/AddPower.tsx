@@ -37,6 +37,7 @@ export default function AddPower({ isOpen, onClose, onAdd }: AddPowerProps) {
     branchId: "",
     regionId: "",
     ownerId: "",
+    hourListId: "",
     latitude: "",
     longitude: "",
     installCapacity: "",
@@ -57,6 +58,7 @@ export default function AddPower({ isOpen, onClose, onAdd }: AddPowerProps) {
   const [branch, setBranch] = useState<OptionType[]>([]);
   const [region, setRegion] = useState<OptionType[]>([]);
   const [owner, setOwner] = useState<OptionType[]>([]);
+  const [hourList, setHourList] = useState<OptionType[]>([]);
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
 
   useEffect(() => {
@@ -73,6 +75,7 @@ export default function AddPower({ isOpen, onClose, onAdd }: AddPowerProps) {
           branchRes,
           regionRes,
           ownerRes,
+          hourListRes,
         ] = await Promise.all([
           axiosInstance.get(`/companys/selectcompany`),
           axiosInstance.get(`/voltages/selectvoltage`),
@@ -81,6 +84,7 @@ export default function AddPower({ isOpen, onClose, onAdd }: AddPowerProps) {
           axiosInstance.get(`/branchs/selectbranch`),
           axiosInstance.get(`/regions/selectregion`),
           axiosInstance.get(`/owners/selectowner`),
+          axiosInstance.get(`/hourlists/selecthourlist`),
         ]);
 
         setCompany(companyRes.data);
@@ -90,6 +94,7 @@ export default function AddPower({ isOpen, onClose, onAdd }: AddPowerProps) {
         setBranch(branchRes.data);
         setRegion(regionRes.data);
         setOwner(ownerRes.data);
+        setHourList(hourListRes.data);
       } catch (error) {
         console.error("Error fetching dropdown data:", error);
       }
@@ -128,6 +133,7 @@ export default function AddPower({ isOpen, onClose, onAdd }: AddPowerProps) {
   const branchOptions = useMemo(() => mapOptions(branch), [branch]);
   const regionOptions = useMemo(() => mapOptions(region), [region]);
   const ownerOptions = useMemo(() => mapOptions(owner), [owner]);
+  const hourListOptions = useMemo(() => mapOptions(hourList), [hourList]);
 
   const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => ({
@@ -158,6 +164,7 @@ export default function AddPower({ isOpen, onClose, onAdd }: AddPowerProps) {
       data.append("branchId", formData.branchId);
       data.append("regionId", formData.regionId);
       data.append("ownerId", formData.ownerId);
+      data.append("hourListId", formData.hourListId);
       data.append("latitude", formData.latitude);
       data.append("longitude", formData.longitude);
       data.append("installCapacity", formData.installCapacity);
@@ -198,6 +205,7 @@ export default function AddPower({ isOpen, onClose, onAdd }: AddPowerProps) {
         branchId: "",
         regionId: "",
         ownerId: "",
+        hourListId: "",
         latitude: "",
         longitude: "",
         installCapacity: "",
@@ -472,6 +480,22 @@ export default function AddPower({ isOpen, onClose, onAdd }: AddPowerProps) {
               </div>
 
               <div>
+                <Label>Interval List</Label>
+                <div className="relative">
+                  <Select
+                    options={hourListOptions}
+                    onChange={(value) => handleSelectChange("hourListId", value)}
+                    value={formData.hourListId}
+                    placeholder="Select Hour List"
+                    className="dark:bg-dark-900"
+                  />
+                  <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                    <ChevronDownIcon />
+                  </span>
+                </div>
+              </div>
+
+              <div>
                 <Label>Full Level (masl)</Label>
                 <Input
                   type="text"
@@ -492,7 +516,9 @@ export default function AddPower({ isOpen, onClose, onAdd }: AddPowerProps) {
                   placeholder="0.00"
                 />
               </div>
+            </div>
 
+            <div className="mt-3 grid grid-cols-1 gap-x-3 gap-y-5 md:grid-cols-4">
               <div>
                 <Label>Total Active at Full Level (m³)</Label>
                 <Input
@@ -503,9 +529,7 @@ export default function AddPower({ isOpen, onClose, onAdd }: AddPowerProps) {
                   placeholder="0.00"
                 />
               </div>
-            </div>
 
-            <div className="mt-3 grid grid-cols-1 gap-x-3 gap-y-5 md:grid-cols-4">
               <div>
                 <Label>Dead Level (masl)</Label>
                 <Input
@@ -538,8 +562,10 @@ export default function AddPower({ isOpen, onClose, onAdd }: AddPowerProps) {
                   placeholder="0.00"
                 />
               </div>
+            </div>
 
-              <div>
+            <div className="mt-3 grid grid-cols-1 gap-x-3 gap-y-5 md:grid-cols-4">
+              <div className="md:col-span-2">
                 <Label>Upload Image</Label>
                 <FileInput
                   accept="image/*"

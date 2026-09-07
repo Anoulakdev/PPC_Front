@@ -3,8 +3,8 @@ import { Metadata } from "next";
 import React from "react";
 
 export const metadata: Metadata = {
-  title: "Energy Dashboard",
-  description: "Energy Dashboard",
+  title: "NCC Dashboard",
+  description: "NCC Dashboard",
   // other metadata
 };
 

@@ -18,6 +18,7 @@ type FormData = {
   abbreviation: string | null;
   unit?: number | null;
   fuelId?: number | null;
+  hourListId?: number | null;
   machinesAvailability: MachineAvailability[];
   turbineData: TurbineData[];
   upstreamLevel: string | number | null;

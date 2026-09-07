@@ -9,33 +9,7 @@ import { decryptId } from "@/lib/cryptoId";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import moment from "moment";
-
-const hours = [
-  "00:00-01:00",
-  "01:00-02:00",
-  "02:00-03:00",
-  "03:00-04:00",
-  "04:00-05:00",
-  "05:00-06:00",
-  "06:00-07:00",
-  "07:00-08:00",
-  "08:00-09:00",
-  "09:00-10:00",
-  "10:00-11:00",
-  "11:00-12:00",
-  "12:00-13:00",
-  "13:00-14:00",
-  "14:00-15:00",
-  "15:00-16:00",
-  "16:00-17:00",
-  "17:00-18:00",
-  "18:00-19:00",
-  "19:00-20:00",
-  "20:00-21:00",
-  "21:00-22:00",
-  "22:00-23:00",
-  "23:00-00:00",
-];
+import { getHoursByHourListId } from "@/utils/hoursHelper";
 
 export default function DayRevise() {
   const { id } = useParams();
@@ -73,19 +47,28 @@ export default function DayRevise() {
         const current = rawData.dayReportCurrent;
         const powerCurrent = current?.powerCurrent;
 
+        const hourListId = rawData.power?.hourListId;
+        const fallbackSlots =
+          powerCurrent?.originalTurbines?.[0]?.hourly?.length;
+        const activeHours = getHoursByHourListId(hourListId, fallbackSlots);
+        const totalSlots = activeHours.length;
+
         const turbines =
           powerCurrent?.originalTurbines?.map((t: any) => ({
             turbine: t.turbine,
-            hourly: Array.isArray(t.hourly) ? [...t.hourly] : Array(24).fill(0),
+            hourly: Array.isArray(t.hourly)
+              ? [...t.hourly]
+              : Array(totalSlots).fill(0),
           })) ?? [];
 
-        const remarks = powerCurrent?.remarks ?? Array(24).fill("");
+        const remarks = powerCurrent?.remarks ?? Array(totalSlots).fill("");
 
         setData({
           id: rawData.id,
           powerId: rawData.powerId,
           powerDate: rawData.powerDate,
           fuelId: rawData.power.fuelId,
+          hourListId,
           // water section
           activeStorageamount: current?.activeStorageamount ?? 0,
           activeStorageaverage: current?.activeStorageaverage ?? 0,
@@ -149,16 +132,27 @@ export default function DayRevise() {
     }
   }, [data?.powerId, data?.powerDate]);
 
+  const hourListId = data?.hourListId ?? dataPower?.hourListId;
+  const fallbackSlots = data?.currentTurbines?.[0]?.hourly?.length;
+  const activeHours = getHoursByHourListId(hourListId, fallbackSlots);
+  const totalHoursCount = activeHours.length;
+
   // --- Event handlers ---
   const handleHourlyChange = (tIdx: number, hIdx: number, value: string) => {
-    const updated = [...data.currentTurbines];
     let val = parseFloat(value);
     if (isNaN(val)) val = 0;
+    const fixed = parseFloat(val.toFixed(2));
 
-    // Update subsequent hours with same value
-    for (let i = hIdx; i < 24; i++) {
-      updated[tIdx].hourly[i] = parseFloat(val.toFixed(2));
-    }
+    const updated = (data.currentTurbines || []).map((t: any, idx: number) => {
+      if (idx !== tIdx) return t;
+      const hourly = [...(t.hourly || [])];
+      while (hourly.length < totalHoursCount) hourly.push(0);
+      for (let i = hIdx; i < totalHoursCount; i++) {
+        hourly[i] = fixed;
+      }
+      return { ...t, hourly };
+    });
+
     setData({ ...data, currentTurbines: updated });
   };
 
@@ -173,15 +167,23 @@ export default function DayRevise() {
       .map((v) => parseFloat(v))
       .filter((v) => !isNaN(v));
 
-    const updated = [...data.currentTurbines];
-    for (let i = 0; i < 24; i++) {
-      updated[tIdx].hourly[i] = parseFloat((values[i] ?? 0).toFixed(2));
-    }
+    const updated = (data.currentTurbines || []).map((t: any, idx: number) => {
+      if (idx !== tIdx) return t;
+      const hourly = [...(t.hourly || [])];
+      while (hourly.length < totalHoursCount) hourly.push(0);
+      for (let i = 0; i < totalHoursCount; i++) {
+        const val = values[i] ?? 0;
+        hourly[i] = parseFloat(val.toFixed(2));
+      }
+      return { ...t, hourly };
+    });
+
     setData({ ...data, currentTurbines: updated });
   };
 
   const handleRemarkChange = (hourIdx: number, value: string) => {
     const updatedRemarks = [...(data?.remarks ?? [])];
+    while (updatedRemarks.length < totalHoursCount) updatedRemarks.push("");
     updatedRemarks[hourIdx] = value;
     setData({ ...data, remarks: updatedRemarks });
   };
@@ -193,11 +195,18 @@ export default function DayRevise() {
   ) => {
     let num = parseFloat(value);
     if (isNaN(num)) num = 0;
+    const fixed = parseFloat(num.toFixed(2));
 
-    const updated = [...data.currentTurbines];
-    for (let i = hourIdx; i < 24; i++) {
-      updated[turbineIdx].hourly[i] = parseFloat(num.toFixed(2));
-    }
+    const updated = (data.currentTurbines || []).map((t: any, idx: number) => {
+      if (idx !== turbineIdx) return t;
+      const hourly = [...(t.hourly || [])];
+      while (hourly.length < totalHoursCount) hourly.push(0);
+      for (let i = hourIdx; i < totalHoursCount; i++) {
+        hourly[i] = fixed;
+      }
+      return { ...t, hourly };
+    });
+
     setData({ ...data, currentTurbines: updated });
   };
 
@@ -461,7 +470,7 @@ export default function DayRevise() {
                         <span className="text-sm">Total (MWh)</span>
                         <textarea
                           onPaste={(e) => handlePaste(e, tIdx)}
-                          placeholder="Paste 24 values"
+                          placeholder={`Paste ${totalHoursCount} values`}
                           className="mt-1 w-full rounded border p-1 text-xs"
                         />
                       </div>
@@ -473,7 +482,7 @@ export default function DayRevise() {
                 </tr>
               </thead>
               <tbody>
-                {hours.map((time, hIdx) => (
+                {activeHours.map((time, hIdx) => (
                   <tr key={time}>
                     <td className="border p-2 text-center whitespace-nowrap">
                       {time}

@@ -10,33 +10,7 @@ import { toast } from "react-toastify";
 import { decryptId, encryptId } from "@/lib/cryptoId";
 import { getLocalStorage } from "@/utils/storage";
 import moment from "moment";
-
-const hours = [
-  "00:00-01:00",
-  "01:00-02:00",
-  "02:00-03:00",
-  "03:00-04:00",
-  "04:00-05:00",
-  "05:00-06:00",
-  "06:00-07:00",
-  "07:00-08:00",
-  "08:00-09:00",
-  "09:00-10:00",
-  "10:00-11:00",
-  "11:00-12:00",
-  "12:00-13:00",
-  "13:00-14:00",
-  "14:00-15:00",
-  "15:00-16:00",
-  "16:00-17:00",
-  "17:00-18:00",
-  "18:00-19:00",
-  "19:00-20:00",
-  "20:00-21:00",
-  "21:00-22:00",
-  "22:00-23:00",
-  "23:00-00:00",
-];
+import { getHoursByHourListId } from "@/utils/hoursHelper";
 
 type TurbineData = {
   turbine: number;
@@ -109,11 +83,27 @@ type DayPowerData = {
     id: number;
     name: string;
     fuelId: number;
+    hourListId?: number;
   };
 };
 
 type User = {
   roleId: number;
+};
+
+const formatNumber = (val: number | string | undefined | null) => {
+  if (val == null || val === "") return "";
+  const n = Number(val);
+  return isNaN(n) ? "" : n.toLocaleString();
+};
+
+const formatDecimal = (
+  val: number | string | undefined | null,
+  digits: number = 2,
+) => {
+  if (val == null || val === "") return "";
+  const n = Number(val);
+  return isNaN(n) ? "" : n.toFixed(digits);
 };
 
 export default function DayAction() {
@@ -122,6 +112,12 @@ export default function DayAction() {
   const [loading, setLoading] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
+
+  const activeHours = getHoursByHourListId(
+    data?.power?.hourListId,
+    data?.powerCurrent?.currentTurbines?.[0]?.hourly?.length ||
+      data?.powerOriginal?.originalTurbines?.[0]?.hourly?.length,
+  );
 
   useEffect(() => {
     const storedUser = getLocalStorage("user");
@@ -164,27 +160,27 @@ export default function DayAction() {
     return Array.from({ length: totalUnit }, (_, i) => `Unit-${i + 1}`);
   })();
 
-  // แปลง powerDate เป็น Date
+  // แปลง powerDate เป็น Date (อนุญาตให้แก้ไขย้อนหลังได้ไม่เกิน 30 วัน)
   const isReviseDisabled = useMemo(() => {
     if (!data?.powerDate) return true;
 
     const powerDate = new Date(data.powerDate);
     powerDate.setHours(0, 0, 0, 0); // ตัดเวลา
 
-    // เพิ่มอีก 5 วันจาก powerDate
     const maxDate = new Date(powerDate);
-    maxDate.setDate(maxDate.getDate() + 30); // powerDate + 5
+    maxDate.setDate(maxDate.getDate() + 30);
 
     const today = new Date();
     today.setHours(0, 0, 0, 0); // เปรียบเทียบแค่วันที่
 
-    return today > maxDate; // ถ้าวันนี้มากกว่า powerDate + 5 → disable
+    return today > maxDate;
   }, [data?.powerDate]);
 
   const handleAcknowledge = async () => {
+    if (!data?.id) return;
     try {
       setLoading(true);
-      await axiosInstance.put(`/daypowers/acknowleged/${data?.id}`);
+      await axiosInstance.put(`/daypowers/acknowleged/${data.id}`);
 
       toast.success("Acknowledged successfully");
       const redirectPath =
@@ -199,6 +195,7 @@ export default function DayAction() {
       }
     } catch (error) {
       console.error("Acknowledge error:", error);
+      toast.error("Acknowledge failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -236,7 +233,7 @@ export default function DayAction() {
               if (data?.id != null) {
                 router.push(
                   `/${user.roleId === 4 ? "dispatch" : "declaration"}/day/revise/${encryptId(data.id)}`,
-                );
+                )
               }
             }}
             disabled={isReviseDisabled}
@@ -285,7 +282,7 @@ export default function DayAction() {
                       </tr>
                     </thead>
                     <tbody>
-                      {Array.from({ length: 24 }, (_, hourIdx) => {
+                      {activeHours.map((time, hourIdx) => {
                         const rowTotal =
                           data.powerOriginal?.originalTurbines.reduce(
                             (sum, turbine) => {
@@ -300,7 +297,7 @@ export default function DayAction() {
                         return (
                           <tr key={hourIdx}>
                             <td className="sticky left-0 z-10 border bg-gray-100 px-2 py-1 text-center whitespace-nowrap dark:bg-gray-800">
-                              {hours[hourIdx]}
+                              {time}
                             </td>
 
                             {/* Hourly values per turbine */}
@@ -387,7 +384,7 @@ export default function DayAction() {
                         </th>
                         {columnLabels.map((label, idx) => (
                           <th
-                            key={`declaration-header-${idx}`}
+                            key={`dispatch-header-${idx}`}
                             className="border border-gray-300 px-2 py-2 text-center whitespace-nowrap dark:border-gray-700"
                           >
                             {label} (MW)
@@ -402,7 +399,7 @@ export default function DayAction() {
                       </tr>
                     </thead>
                     <tbody>
-                      {Array.from({ length: 24 }, (_, hourIdx) => {
+                      {activeHours.map((time, hourIdx) => {
                         const rowTotal =
                           data.powerCurrent?.currentTurbines.reduce(
                             (sum, turbine) => {
@@ -417,7 +414,7 @@ export default function DayAction() {
                         return (
                           <tr key={hourIdx}>
                             <td className="sticky left-0 z-10 border bg-gray-100 px-2 py-1 text-center whitespace-nowrap dark:bg-gray-800">
-                              {hours[hourIdx]}
+                              {time}
                             </td>
 
                             {/* Hourly values per turbine */}
@@ -506,11 +503,7 @@ export default function DayAction() {
                   <Input
                     type="text"
                     name="upstreamLevel"
-                    value={
-                      Number(
-                        data.powerCurrent?.upstreamLevel,
-                      ).toLocaleString() || ""
-                    }
+                    value={formatNumber(data.powerCurrent?.upstreamLevel)}
                     disabled
                     className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                   />
@@ -521,11 +514,7 @@ export default function DayAction() {
                   <Input
                     type="text"
                     name="downstreamLevel"
-                    value={
-                      Number(
-                        data.powerCurrent?.downstreamLevel,
-                      ).toLocaleString() || ""
-                    }
+                    value={formatNumber(data.powerCurrent?.downstreamLevel)}
                     disabled
                     className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                   />
@@ -541,11 +530,9 @@ export default function DayAction() {
                       <Input
                         type="text"
                         name="totalStorageamount"
-                        value={
-                          Number(
-                            data.powerCurrent?.totalStorageamount,
-                          ).toLocaleString() || ""
-                        }
+                        value={formatNumber(
+                          data.powerCurrent?.totalStorageamount,
+                        )}
                         disabled
                         className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                       />
@@ -556,8 +543,10 @@ export default function DayAction() {
                       <Input
                         type="text"
                         name="totalStorageaverage"
-                        // value={data.powerCurrent?.totalStorageaverage || ""}
-                        value={`${Number(data.powerCurrent?.totalStorageaverage ?? 0).toFixed(2)}`}
+                        value={formatDecimal(
+                          data.powerCurrent?.totalStorageaverage,
+                          2,
+                        )}
                         disabled
                         className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                       />
@@ -573,11 +562,9 @@ export default function DayAction() {
                       <Input
                         type="text"
                         name="activeStorageamount"
-                        value={
-                          Number(
-                            data.powerCurrent?.activeStorageamount,
-                          ).toLocaleString() || ""
-                        }
+                        value={formatNumber(
+                          data.powerCurrent?.activeStorageamount,
+                        )}
                         disabled
                         className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                       />
@@ -588,8 +575,10 @@ export default function DayAction() {
                       <Input
                         type="text"
                         name="activeStorageaverage"
-                        // value={data.powerCurrent?.activeStorageaverage || ""}
-                        value={`${Number(data.powerCurrent?.activeStorageaverage ?? 0).toFixed(2)}`}
+                        value={formatDecimal(
+                          data.powerCurrent?.activeStorageaverage,
+                          2,
+                        )}
                         disabled
                         className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                       />
@@ -611,11 +600,9 @@ export default function DayAction() {
                       <Input
                         type="text"
                         name="turbineDischargeamount"
-                        value={
-                          Number(
-                            data.powerCurrent?.turbineDischargeamount,
-                          ).toLocaleString() || ""
-                        }
+                        value={formatNumber(
+                          data.powerCurrent?.turbineDischargeamount,
+                        )}
                         disabled
                         className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                       />
@@ -626,11 +613,9 @@ export default function DayAction() {
                       <Input
                         type="text"
                         name="turbineDischargeaverage"
-                        value={
-                          Number(
-                            data.powerCurrent?.turbineDischargeaverage,
-                          ).toLocaleString() || ""
-                        }
+                        value={formatNumber(
+                          data.powerCurrent?.turbineDischargeaverage,
+                        )}
                         disabled
                         className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                       />
@@ -646,11 +631,9 @@ export default function DayAction() {
                       <Input
                         type="text"
                         name="spillwayDischargeamount"
-                        value={
-                          Number(
-                            data.powerCurrent?.spillwayDischargeamount,
-                          ).toLocaleString() || ""
-                        }
+                        value={formatNumber(
+                          data.powerCurrent?.spillwayDischargeamount,
+                        )}
                         disabled
                         className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                       />
@@ -661,11 +644,9 @@ export default function DayAction() {
                       <Input
                         type="text"
                         name="spillwayDischargeaverage"
-                        value={
-                          Number(
-                            data.powerCurrent?.spillwayDischargeaverage,
-                          ).toLocaleString() || ""
-                        }
+                        value={formatNumber(
+                          data.powerCurrent?.spillwayDischargeaverage,
+                        )}
                         disabled
                         className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                       />
@@ -683,11 +664,9 @@ export default function DayAction() {
                       <Input
                         type="text"
                         name="ecologicalDischargeamount"
-                        value={
-                          Number(
-                            data.powerCurrent?.ecologicalDischargeamount,
-                          ).toLocaleString() || ""
-                        }
+                        value={formatNumber(
+                          data.powerCurrent?.ecologicalDischargeamount,
+                        )}
                         disabled
                         className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                       />
@@ -698,11 +677,9 @@ export default function DayAction() {
                       <Input
                         type="text"
                         name="ecologicalDischargeaverage"
-                        value={
-                          Number(
-                            data.powerCurrent?.ecologicalDischargeaverage,
-                          ).toLocaleString() || ""
-                        }
+                        value={formatNumber(
+                          data.powerCurrent?.ecologicalDischargeaverage,
+                        )}
                         disabled
                         className="cursor-not-allowed bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                       />
@@ -719,11 +696,9 @@ export default function DayAction() {
                         type="text"
                         disabled
                         className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                        value={
-                          Number(
-                            data.powerCurrent?.totalDischargeamount,
-                          ).toLocaleString() || ""
-                        }
+                        value={formatNumber(
+                          data.powerCurrent?.totalDischargeamount,
+                        )}
                       />
                     </div>
 
@@ -733,11 +708,9 @@ export default function DayAction() {
                         type="text"
                         disabled
                         className="w-full cursor-not-allowed rounded border border-gray-300 bg-gray-100 px-3 py-3 text-sm font-bold text-gray-700"
-                        value={
-                          Number(
-                            data.powerCurrent?.totalDischargeaverage,
-                          ).toLocaleString() || ""
-                        }
+                        value={formatNumber(
+                          data.powerCurrent?.totalDischargeaverage,
+                        )}
                       />
                     </div>
                   </div>
@@ -755,14 +728,17 @@ export default function DayAction() {
               <thead>
                 <tr className="border-b bg-gray-100 dark:border-gray-700 dark:bg-gray-800">
                   <th className="px-4 py-3 text-left font-bold"></th>
-                  {columnLabels.map((label, idx) => (
-                    <th
-                      key={`declaration-header-${idx}`}
-                      className="w-[130px] px-4 py-3 text-center whitespace-nowrap"
-                    >
-                      {label} (MW)
-                    </th>
-                  ))}
+                  {data?.powerCurrent?.machinesAvailability?.map((m, idx) => {
+                    const label = columnLabels[idx] ?? `Unit-${m.turbine}`;
+                    return (
+                      <th
+                        key={`mach-header-${m.turbine}`}
+                        className="w-[130px] px-4 py-3 text-center whitespace-nowrap"
+                      >
+                        {label} (MW)
+                      </th>
+                    );
+                  })}
                 </tr>
               </thead>
               <tbody>

@@ -42,6 +42,7 @@ type Power = {
   powerimg: string;
   company: Company;
   contract: Contract;
+  hourList: Hourlist;
 };
 
 type Company = {
@@ -52,6 +53,11 @@ type Company = {
 };
 
 type Contract = {
+  id: number;
+  name: string;
+};
+
+type Hourlist = {
   id: number;
   name: string;
 };
@@ -190,6 +196,13 @@ export default function CompanyTable() {
       header: "Unit",
       cell: ({ row }) => (
         <div className="w-full text-center">{row.original?.unit}</div>
+      ),
+    },
+    {
+      accessorKey: "hourList.name",
+      header: "Interval List",
+      cell: ({ row }) => (
+        <div className="w-full text-center">{row.original?.hourList?.name}</div>
       ),
     },
     {

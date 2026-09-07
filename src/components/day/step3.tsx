@@ -6,32 +6,7 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import moment from "moment";
 
-const hours = [
-  "00:00-01:00",
-  "01:00-02:00",
-  "02:00-03:00",
-  "03:00-04:00",
-  "04:00-05:00",
-  "05:00-06:00",
-  "06:00-07:00",
-  "07:00-08:00",
-  "08:00-09:00",
-  "09:00-10:00",
-  "10:00-11:00",
-  "11:00-12:00",
-  "12:00-13:00",
-  "13:00-14:00",
-  "14:00-15:00",
-  "15:00-16:00",
-  "16:00-17:00",
-  "17:00-18:00",
-  "18:00-19:00",
-  "19:00-20:00",
-  "20:00-21:00",
-  "21:00-22:00",
-  "22:00-23:00",
-  "23:00-00:00",
-];
+import { getHoursByHourListId } from "@/utils/hoursHelper";
 
 export const Step3 = () => {
   const { formData, updateFormData, prevStep, resetForm } = useDayPowerStore();
@@ -39,6 +14,9 @@ export const Step3 = () => {
   const { machinesAvailability = [] } = formData;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
+
+  const activeHours = getHoursByHourListId(formData.hourListId);
+  const totalHoursCount = activeHours.length;
 
   const columnLabels = (() => {
     if (formData.fuelId === 3) {
@@ -57,38 +35,52 @@ export const Step3 = () => {
   const initializeTurbineData = useCallback(() => {
     const turbineData = Array.from({ length: unit }, (_, tIdx) => ({
       turbine: tIdx + 1,
-      hourly: Array(24).fill(0), // ใช้ 0 แทน "" เพื่อความสอดคล้อง
+      hourly: Array(totalHoursCount).fill(0), // ใช้ 0 แทน "" เพื่อความสอดคล้อง
     }));
-    const remarks = Array(24).fill("");
+    const remarks = Array(totalHoursCount).fill("");
     updateFormData({ turbineData, remarks });
-  }, [unit, updateFormData]);
+  }, [unit, totalHoursCount, updateFormData]);
 
   useEffect(() => {
-    // เช็คว่ามีข้อมูลอยู่แล้วหรือไม่
-    if (!formData.turbineData || formData.turbineData.length !== unit) {
+    // เช็คว่ามีข้อมูลอยู่แล้วหรือไม่ หรือขนาดไม่ตรงกับ unit/totalHoursCount
+    if (
+      !formData.turbineData ||
+      formData.turbineData.length !== unit ||
+      formData.turbineData.some((t) => t.hourly.length !== totalHoursCount) ||
+      (formData.remarks && formData.remarks.length !== totalHoursCount)
+    ) {
       initializeTurbineData();
     }
-  }, [unit, formData.turbineData, initializeTurbineData]);
+  }, [
+    unit,
+    totalHoursCount,
+    formData.turbineData,
+    formData.remarks,
+    initializeTurbineData,
+  ]);
 
   const handleHourlyChange = (
     turbineIdx: number,
     hourIdx: number,
     value: string,
   ) => {
-    const updated = [...formData.turbineData];
-    // เก็บค่าเป็น string ถ้ายังพิมพ์ไม่เสร็จ, เป็น number ถ้าพิมพ์เสร็จแล้ว
-    const floatValue = value === "" ? 0 : parseFloat(value);
-
-    // แทนค่าทั้งหมดจาก hourIdx ถึง 23 ด้วยค่าที่กรอก
-    for (let i = hourIdx; i < 24; i++) {
-      updated[turbineIdx].hourly[i] = floatValue;
-    }
+    const updated = (formData.turbineData || []).map((t, idx) => {
+      if (idx !== turbineIdx) return t;
+      const hourly = [...(t.hourly || [])];
+      while (hourly.length < totalHoursCount) hourly.push(0);
+      const floatValue = value === "" ? 0 : parseFloat(value);
+      for (let i = hourIdx; i < totalHoursCount; i++) {
+        hourly[i] = floatValue;
+      }
+      return { ...t, hourly };
+    });
 
     updateFormData({ turbineData: updated });
   };
 
   const handleRemarkChange = (hourIdx: number, value: string) => {
-    const updated = [...(formData.remarks || Array(24).fill(""))];
+    const updated = [...(formData.remarks || Array(totalHoursCount).fill(""))];
+    while (updated.length < totalHoursCount) updated.push("");
     updated[hourIdx] = value;
     updateFormData({ remarks: updated });
   };
@@ -101,7 +93,7 @@ export const Step3 = () => {
     let num = parseFloat(value);
     if (isNaN(num)) num = 0;
 
-    const turbine = formData.turbineData[turbineIdx].turbine;
+    const turbine = formData.turbineData?.[turbineIdx]?.turbine;
     const machine = machinesAvailability.find((m) => m.turbine === turbine);
 
     // 👉 ถ้าเป็น 0 ไม่ต้อง validate
@@ -110,10 +102,15 @@ export const Step3 = () => {
       if (num > machine.maxs) num = machine.maxs;
     }
 
-    const updated = [...formData.turbineData];
-    for (let i = hourIdx; i < 24; i++) {
-      updated[turbineIdx].hourly[i] = parseFloat(num.toFixed(2));
-    }
+    const updated = (formData.turbineData || []).map((t, idx) => {
+      if (idx !== turbineIdx) return t;
+      const hourly = [...(t.hourly || [])];
+      while (hourly.length < totalHoursCount) hourly.push(0);
+      for (let i = hourIdx; i < totalHoursCount; i++) {
+        hourly[i] = parseFloat(num.toFixed(2));
+      }
+      return { ...t, hourly };
+    });
 
     updateFormData({ turbineData: updated });
   };
@@ -129,19 +126,24 @@ export const Step3 = () => {
       .map((v) => parseFloat(v))
       .filter((v) => !isNaN(v));
 
-    const updated = [...formData.turbineData];
-    const turbine = updated[turbineIdx].turbine;
+    const turbine = formData.turbineData?.[turbineIdx]?.turbine;
     const machine = machinesAvailability.find((m) => m.turbine === turbine);
 
-    for (let i = 0; i < 24; i++) {
-      let val = values[i] ?? 0;
-      // ตรวจสอบ min/max เฉพาะเมื่อค่าไม่เป็น 0
-      if (val !== 0 && machine) {
-        if (val < machine.mins) val = machine.mins;
-        if (val > machine.maxs) val = machine.maxs;
+    const updated = (formData.turbineData || []).map((t, idx) => {
+      if (idx !== turbineIdx) return t;
+      const hourly = [...(t.hourly || [])];
+      while (hourly.length < totalHoursCount) hourly.push(0);
+      for (let i = 0; i < totalHoursCount; i++) {
+        let val = values[i] ?? 0;
+        // ตรวจสอบ min/max เฉพาะเมื่อค่าไม่เป็น 0
+        if (val !== 0 && machine) {
+          if (val < machine.mins) val = machine.mins;
+          if (val > machine.maxs) val = machine.maxs;
+        }
+        hourly[i] = parseFloat(val.toFixed(2));
       }
-      updated[turbineIdx].hourly[i] = parseFloat(val.toFixed(2));
-    }
+      return { ...t, hourly };
+    });
     updateFormData({ turbineData: updated });
   };
 
@@ -158,14 +160,10 @@ export const Step3 = () => {
     0,
   );
 
-  // ใช้ useCallback เพื่อป้องกัน infinite loop
-  const updateTotalPower = useCallback(() => {
+  const handlePrev = () => {
     updateFormData({ totalPower: grandTotal });
-  }, [grandTotal, updateFormData]);
-
-  useEffect(() => {
-    updateTotalPower();
-  }, [updateTotalPower]);
+    prevStep();
+  };
 
   // const toFixed2 = (val: string | number | undefined | null): string => {
   //   const num = typeof val === "string" ? parseFloat(val) : (val ?? 0);
@@ -212,9 +210,9 @@ export const Step3 = () => {
         totalDischargeaverage: formData.totalDischargeaverage,
         machinedata: formData.machinesAvailability || [],
         remark: formData.remark || "",
-        remarks: formData.remarks || Array(24).fill(""),
+        remarks: formData.remarks || Array(totalHoursCount).fill(""),
         turbinedata: formData.turbineData || [],
-        totalPower: Number(formData.totalPower).toFixed(2),
+        totalPower: grandTotal.toFixed(2),
         totalUnit: formData.unit ?? 0,
       };
 
@@ -248,7 +246,7 @@ export const Step3 = () => {
                     <span>{label} (MW)</span>
                     <textarea
                       onPaste={(e) => handlePaste(e, tIdx)}
-                      placeholder="Paste 24 values"
+                      placeholder={`Paste ${totalHoursCount} values`}
                       className="mt-1 w-full rounded border p-1 text-xs"
                     />
                   </div>
@@ -263,11 +261,11 @@ export const Step3 = () => {
             </tr>
           </thead>
           <tbody>
-            {hours.map((time, hIdx) => {
+            {activeHours.map((time, hIdx) => {
               const hourlyTotal = (formData.turbineData || []).reduce(
                 (sum, turbine) =>
                   sum +
-                  (typeof turbine.hourly[hIdx] === "number"
+                  (typeof turbine?.hourly?.[hIdx] === "number"
                     ? turbine.hourly[hIdx]
                     : 0),
                 0,
@@ -282,6 +280,12 @@ export const Step3 = () => {
                     const machine = machinesAvailability.find(
                       (m) => m.turbine === t.turbine,
                     );
+                    const val = t.hourly?.[hIdx];
+                    const displayVal =
+                      val === 0 || val === undefined || val === null
+                        ? ""
+                        : val;
+
                     return (
                       <td
                         key={`hourly-${t.turbine}-${hIdx}`}
@@ -289,7 +293,7 @@ export const Step3 = () => {
                       >
                         <input
                           type="number"
-                          value={t.hourly[hIdx] === 0 ? "" : t.hourly[hIdx]} // ถ้าเป็น 0 ให้แสดงว่าง
+                          value={displayVal}
                           min={machine?.mins ?? 0}
                           max={machine?.maxs ?? 9999}
                           step="any"
@@ -363,7 +367,7 @@ export const Step3 = () => {
       <div className="flex gap-3">
         <button
           type="button"
-          onClick={prevStep}
+          onClick={handlePrev}
           className="rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
         >
           Back
@@ -371,11 +375,10 @@ export const Step3 = () => {
         <button
           type="submit"
           disabled={isSubmitting}
-          className={`rounded px-4 py-2 text-white ${
-            isSubmitting
-              ? "cursor-not-allowed bg-blue-300"
-              : "bg-blue-500 hover:bg-blue-600"
-          }`}
+          className={`rounded px-4 py-2 text-white ${isSubmitting
+            ? "cursor-not-allowed bg-blue-300"
+            : "bg-blue-500 hover:bg-blue-600"
+            }`}
         >
           {isSubmitting ? "Submitting..." : "Submit"}
         </button>

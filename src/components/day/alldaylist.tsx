@@ -10,7 +10,7 @@ import {
   flexRender,
   SortingState,
 } from "@tanstack/react-table";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import axiosInstance from "@/utils/axiosInstance";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
@@ -75,8 +75,8 @@ export default function DayTable() {
   const [loading, setLoading] = useState<boolean>(false);
   const [powerList, setPowerList] = useState<Power[]>([]);
   const [selectedPowerId, setSelectedPowerId] = useState<string | null>(null);
-  const [startDate, setStartDate] = useState<Date>(new Date());
-  const [endDate, setEndDate] = useState<Date>(new Date());
+  const [startDate, setStartDate] = useState<Date | null>(new Date());
+  const [endDate, setEndDate] = useState<Date | null>(new Date());
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
 
@@ -105,7 +105,7 @@ export default function DayTable() {
           const userStr = localStorage.getItem("user");
           if (userStr) {
             const localUser: User = JSON.parse(userStr);
-            const powers = localUser.powers.map((p) => p.power);
+            const powers = localUser.powers?.map((p) => p.power) || [];
             setPowerList(powers);
           }
         } catch (error) {
@@ -121,7 +121,8 @@ export default function DayTable() {
     try {
       setLoading(true);
 
-      const formatDate = (date: Date) => moment(date).format("YYYY-MM-DD");
+      const formatDate = (date: Date | null) =>
+        date ? moment(date).format("YYYY-MM-DD") : "";
       const start = formatDate(startDate);
       const end = formatDate(endDate);
 
@@ -150,172 +151,175 @@ export default function DayTable() {
     label: name,
   }));
 
-  const columns: ColumnDef<Day>[] = [
-    {
-      accessorKey: "power.company.name",
-      header: "COMPANY",
-    },
-    {
-      accessorKey: "power.name",
-      header: "DECLARATION",
-    },
-    {
-      accessorKey: "powerNo",
-      header: "DAD - DD",
-      cell: ({ row }) => {
-        const powerNo = row.original.powerNo;
-        return `${powerNo} - EDL`;
+  const columns: ColumnDef<Day>[] = useMemo(
+    () => [
+      {
+        accessorKey: "power.company.name",
+        header: "COMPANY",
       },
-    },
-    {
-      accessorKey: "powerOriginal.totalPower",
-      header: "DAILY DECLARATION",
-      cell: ({ getValue }) => {
-        const value = getValue() as number | null;
-        if (value === null || value === undefined) return "-";
-        return `${new Intl.NumberFormat("lo-LA").format(value)} MWh`;
+      {
+        accessorKey: "power.name",
+        header: "DECLARATION",
       },
-    },
-    {
-      accessorKey: "powerCurrent.totalPower",
-      header: "DAILY DISPATCH",
-      cell: ({ getValue }) => {
-        const value = getValue() as number | null;
-        if (value === null || value === undefined) return "-";
-        return `${new Intl.NumberFormat("lo-LA").format(value)} MWh`;
+      {
+        accessorKey: "powerNo",
+        header: "DAD - DD",
+        cell: ({ row }) => {
+          const powerNo = row.original.powerNo;
+          return `${powerNo} - EDL`;
+        },
       },
-    },
-    {
-      accessorKey: "revise",
-      header: "DOCUMENT",
-      cell: ({ getValue }) => {
-        const value = getValue() as boolean;
-        const isOriginal = value === false;
+      {
+        accessorKey: "powerOriginal.totalPower",
+        header: "DAILY DECLARATION",
+        cell: ({ getValue }) => {
+          const value = getValue() as number | null;
+          if (value === null || value === undefined) return "-";
+          return `${new Intl.NumberFormat("lo-LA").format(value)} MWh`;
+        },
+      },
+      {
+        accessorKey: "powerCurrent.totalPower",
+        header: "DAILY DISPATCH",
+        cell: ({ getValue }) => {
+          const value = getValue() as number | null;
+          if (value === null || value === undefined) return "-";
+          return `${new Intl.NumberFormat("lo-LA").format(value)} MWh`;
+        },
+      },
+      {
+        accessorKey: "revise",
+        header: "DOCUMENT",
+        cell: ({ getValue }) => {
+          const value = getValue() as boolean;
+          const isOriginal = value === false;
 
-        return (
-          <span
-            className={`rounded-full px-2 py-1 text-sm font-medium ${
-              isOriginal
-                ? "bg-green-100 text-green-700"
-                : "bg-orange-100 text-orange-700"
-            }`}
-          >
-            {isOriginal ? "original" : "revise"}
-          </span>
-        );
-      },
-    },
-    {
-      accessorKey: "decAcknow",
-      header: "STATUS(DAD)",
-      cell: ({ getValue, row }) => {
-        const value = getValue() as boolean;
-        const isOriginal = value === false;
-
-        const firstname = row.original.decAcknowUser?.firstname ?? "";
-        const lastname = row.original.decAcknowUser?.lastname ?? "";
-        const userName = `${firstname} ${lastname}`.trim();
-
-        return (
-          <div className="group relative inline-block">
+          return (
             <span
-              className={`flex items-center justify-center rounded-full px-2 py-1 text-xs font-medium ${
-                isOriginal ? "text-red-700" : "text-green-700"
+              className={`rounded-full px-2 py-1 text-sm font-medium ${
+                isOriginal
+                  ? "bg-green-100 text-green-700"
+                  : "bg-orange-100 text-orange-700"
               }`}
             >
-              {isOriginal ? (
-                <XCircleIcon className="h-7 w-7" />
-              ) : (
-                <CheckCircleIcon className="h-7 w-7" />
-              )}
+              {isOriginal ? "original" : "revise"}
             </span>
-
-            {/* Tooltip */}
-            <div className="absolute bottom-full left-1/2 z-10 mb-2 w-max -translate-x-1/2 rounded bg-gray-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-              {userName || "Not Acknowlege Yet"}
-            </div>
-          </div>
-        );
+          );
+        },
       },
-    },
-    {
-      accessorKey: "disAcknow",
-      header: "STATUS(DD)",
-      cell: ({ getValue, row }) => {
-        const value = getValue() as boolean;
-        const isOriginal = value === false;
+      {
+        accessorKey: "decAcknow",
+        header: "STATUS(DAD)",
+        cell: ({ getValue, row }) => {
+          const value = getValue() as boolean;
+          const isOriginal = value === false;
 
-        const firstname = row.original.disAcknowUser?.firstname ?? "";
-        const lastname = row.original.disAcknowUser?.lastname ?? "";
-        const userName = `${firstname} ${lastname}`.trim();
+          const firstname = row.original.decAcknowUser?.firstname ?? "";
+          const lastname = row.original.decAcknowUser?.lastname ?? "";
+          const userName = `${firstname} ${lastname}`.trim();
 
-        return (
-          <div className="group relative inline-block">
-            <span
-              className={`flex items-center justify-center rounded-full px-2 py-1 text-xs font-medium ${
-                isOriginal ? "text-red-700" : "text-green-700"
-              }`}
-            >
-              {isOriginal ? (
-                <XCircleIcon className="h-7 w-7" />
-              ) : (
-                <CheckCircleIcon className="h-7 w-7" />
-              )}
-            </span>
-
-            {/* Tooltip */}
-            <div className="absolute bottom-full left-1/2 z-10 mb-2 w-max -translate-x-1/2 rounded bg-gray-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-              {userName || "Not Acknowlege Yet"}
-            </div>
-          </div>
-        );
-      },
-    },
-    {
-      accessorKey: "powerDate",
-      header: "DATE",
-      cell: ({ getValue }) => {
-        const value = getValue() as string;
-        return moment(value).format("DD/MM/YYYY");
-      },
-    },
-    {
-      header: "CREATED BY",
-      cell: ({ row }) => {
-        const firstname = row.original.createdByUser?.firstname ?? "";
-        const lastname = row.original.createdByUser?.lastname ?? "";
-        return `${firstname} ${lastname}`;
-      },
-    },
-    {
-      id: "actions",
-      header: "Action",
-      cell: ({ row }) => (
-        <div className="flex gap-2">
-          {(user?.roleId === 3 ||
-            user?.roleId === 4 ||
-            user?.roleId === 5 ||
-            user?.roleId === 6) && (
+          return (
             <div className="group relative inline-block">
-              <button
-                onClick={() =>
-                  router.push(
-                    `/${user?.roleId === 3 || user?.roleId === 4 ? "alldocument/edl" : "alldocument/power"}/day/dayview/${encryptId(row.original.id)}`,
-                  )
-                }
-                className="rounded p-1 text-gray-600 hover:bg-blue-100"
+              <span
+                className={`flex items-center justify-center rounded-full px-2 py-1 text-xs font-medium ${
+                  isOriginal ? "text-red-700" : "text-green-700"
+                }`}
               >
-                <EyeIcon className="h-5 w-5" />
-              </button>
+                {isOriginal ? (
+                  <XCircleIcon className="h-7 w-7" />
+                ) : (
+                  <CheckCircleIcon className="h-7 w-7" />
+                )}
+              </span>
+
+              {/* Tooltip */}
               <div className="absolute bottom-full left-1/2 z-10 mb-2 w-max -translate-x-1/2 rounded bg-gray-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                View
+                {userName || "Not Acknowlege Yet"}
               </div>
             </div>
-          )}
-        </div>
-      ),
-    },
-  ];
+          );
+        },
+      },
+      {
+        accessorKey: "disAcknow",
+        header: "STATUS(DD)",
+        cell: ({ getValue, row }) => {
+          const value = getValue() as boolean;
+          const isOriginal = value === false;
+
+          const firstname = row.original.disAcknowUser?.firstname ?? "";
+          const lastname = row.original.disAcknowUser?.lastname ?? "";
+          const userName = `${firstname} ${lastname}`.trim();
+
+          return (
+            <div className="group relative inline-block">
+              <span
+                className={`flex items-center justify-center rounded-full px-2 py-1 text-xs font-medium ${
+                  isOriginal ? "text-red-700" : "text-green-700"
+                }`}
+              >
+                {isOriginal ? (
+                  <XCircleIcon className="h-7 w-7" />
+                ) : (
+                  <CheckCircleIcon className="h-7 w-7" />
+                )}
+              </span>
+
+              {/* Tooltip */}
+              <div className="absolute bottom-full left-1/2 z-10 mb-2 w-max -translate-x-1/2 rounded bg-gray-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                {userName || "Not Acknowlege Yet"}
+              </div>
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: "powerDate",
+        header: "DATE",
+        cell: ({ getValue }) => {
+          const value = getValue() as string;
+          return moment(value).format("DD/MM/YYYY");
+        },
+      },
+      {
+        header: "CREATED BY",
+        cell: ({ row }) => {
+          const firstname = row.original.createdByUser?.firstname ?? "";
+          const lastname = row.original.createdByUser?.lastname ?? "";
+          return `${firstname} ${lastname}`;
+        },
+      },
+      {
+        id: "actions",
+        header: "Action",
+        cell: ({ row }) => (
+          <div className="flex gap-2">
+            {(user?.roleId === 3 ||
+              user?.roleId === 4 ||
+              user?.roleId === 5 ||
+              user?.roleId === 6) && (
+              <div className="group relative inline-block">
+                <button
+                  onClick={() =>
+                    router.push(
+                      `/${user?.roleId === 3 || user?.roleId === 4 ? "alldocument/edl" : "alldocument/power"}/day/dayview/${encryptId(row.original.id)}`,
+                    )
+                  }
+                  className="rounded p-1 text-gray-600 hover:bg-blue-100"
+                >
+                  <EyeIcon className="h-5 w-5" />
+                </button>
+                <div className="absolute bottom-full left-1/2 z-10 mb-2 w-max -translate-x-1/2 rounded bg-gray-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                  View
+                </div>
+              </div>
+            )}
+          </div>
+        ),
+      },
+    ],
+    [user, router],
+  );
 
   const table = useReactTable({
     data,
@@ -439,8 +443,11 @@ export default function DayTable() {
               previous
             </button>
             <span className="text-gray-600">
-              page {table.getState().pagination.pageIndex + 1} of{" "}
-              {table.getPageCount()}
+              page{" "}
+              {table.getFilteredRowModel().rows.length === 0
+                ? 0
+                : table.getState().pagination.pageIndex + 1}{" "}
+              of {table.getPageCount()}
             </span>
             <button
               onClick={() => table.nextPage()}
@@ -472,9 +479,10 @@ export default function DayTable() {
 
             <div className="ps-3 text-sm text-gray-600">
               {(() => {
+                const totalRows = table.getFilteredRowModel().rows.length;
+                if (totalRows === 0) return "0 - 0 of 0";
                 const pageIndex = table.getState().pagination.pageIndex;
                 const pageSize = table.getState().pagination.pageSize;
-                const totalRows = table.getFilteredRowModel().rows.length;
                 const start = pageIndex * pageSize + 1;
                 const end = Math.min(start + pageSize - 1, totalRows);
                 return `${start} - ${end} of ${totalRows}`;

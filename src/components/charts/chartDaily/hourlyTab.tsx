@@ -22,6 +22,7 @@ import Select from "@/components/form/Select";
 import DatePickerAll from "@/components/form/date-pickerall";
 import { getLocalStorage } from "@/utils/storage";
 import axiosInstance from "@/utils/axiosInstance";
+import { getHoursByHourListId } from "@/utils/hoursHelper";
 
 ChartJS.register(
   LineElement,
@@ -48,6 +49,8 @@ type Power = {
 };
 
 type TotalChartRawData = {
+  hourListId?: number;
+  totalSlots?: number;
   originalHourlySum: number[];
   currentHourlySum: number[];
 };
@@ -149,12 +152,11 @@ export default function TotalChart() {
       const response = await axiosInstance.get(url);
       const rawData: TotalChartRawData = response.data;
 
-      // สร้าง labels: 01:00 ถึง 00:00
-      const labels = Array.from({ length: 24 }, (_, i) => {
-        const start = i.toString().padStart(2, "0");
-        const end = ((i + 1) % 24).toString().padStart(2, "0");
-        return `${start} - ${end}`;
-      });
+      // สร้าง labels ตาม hourListId หรือ totalSlots
+      const labels = getHoursByHourListId(
+        rawData.hourListId,
+        rawData.totalSlots || rawData.originalHourlySum?.length,
+      );
 
       // สร้าง chartData สำหรับ chart.js
       const formattedData = {
@@ -162,13 +164,13 @@ export default function TotalChart() {
         datasets: [
           {
             label: "Declaration",
-            data: rawData.originalHourlySum,
+            data: rawData.originalHourlySum || [],
             borderColor: "rgb(255, 99, 132)",
             tension: 0.4,
           },
           {
             label: "Dispatch",
-            data: rawData.currentHourlySum,
+            data: rawData.currentHourlySum || [],
             borderColor: "rgb(75, 192, 192)",
             tension: 0.4,
           },
@@ -262,7 +264,7 @@ export default function TotalChart() {
           <div className="mx-auto mt-5 h-[300px] w-full sm:h-screen md:h-[400px]">
             {chartType === "bar" ? (
               <Bar
-                key="bar"
+                key={`bar-${chartData?.labels?.length || 24}`}
                 data={getFormattedChartData() as any}
                 options={{
                   responsive: true,
@@ -282,7 +284,7 @@ export default function TotalChart() {
               />
             ) : (
               <Line
-                key="line"
+                key={`line-${chartData?.labels?.length || 24}`}
                 data={getFormattedChartData() as any}
                 options={{
                   responsive: true,

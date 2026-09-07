@@ -26,33 +26,7 @@ import Select from "@/components/form/Select";
 import DatePickerAll from "@/components/form/date-pickerall";
 import { saveAs } from "file-saver";
 import { useFilterStore } from "@/store/useDailyReportFilter";
-
-const hours = [
-  "00:00-01:00",
-  "01:00-02:00",
-  "02:00-03:00",
-  "03:00-04:00",
-  "04:00-05:00",
-  "05:00-06:00",
-  "06:00-07:00",
-  "07:00-08:00",
-  "08:00-09:00",
-  "09:00-10:00",
-  "10:00-11:00",
-  "11:00-12:00",
-  "12:00-13:00",
-  "13:00-14:00",
-  "14:00-15:00",
-  "15:00-16:00",
-  "16:00-17:00",
-  "17:00-18:00",
-  "18:00-19:00",
-  "19:00-20:00",
-  "20:00-21:00",
-  "21:00-22:00",
-  "22:00-23:00",
-  "23:00-00:00",
-];
+import { getHoursByHourListId } from "@/utils/hoursHelper";
 
 type TurbineData = {
   turbine: number;
@@ -67,6 +41,7 @@ type UserAcKnow = {
 type Power = {
   id: number;
   name: string;
+  hourListId?: number | null;
   company: {
     name: string;
   };
@@ -575,39 +550,168 @@ export default function DayTable() {
         })),
       );
 
-      const worksheet2 = XLSX.utils.json_to_sheet(
-        data.map((item, index) => {
-          const hourlyData =
-            item.dayReportCurrent?.powerCurrent?.originalTurbines?.[0]
-              ?.hourly ?? [];
+      // กำหนดความกว้างคอลัมน์ของ Daily Report ให้อ่านง่าย
+      worksheet1["!cols"] = [
+        { wch: 6 }, // No
+        { wch: 12 }, // Date
+        { wch: 25 }, // Declaration
+        { wch: 14 }, // Total_Power
+        { wch: 14 }, // WaterLevel
+        { wch: 18 }, // Diff_with_Yesterday
+        { wch: 15 }, // Diff_with_full
+        { wch: 15 }, // Diff_with_Min
+        { wch: 22 }, // Potential_Water_Storage
+        { wch: 20 }, // Active_Storage_Amount
+        { wch: 20 }, // Active_Storage_Average
+        { wch: 16 }, // Inflow_Amount
+        { wch: 16 }, // Inflow_Average
+        { wch: 16 }, // Outflow_Amount
+        { wch: 16 }, // Outflow_Average
+        { wch: 16 }, // Spillway_Amount
+        { wch: 16 }, // Spillway_Average
+        { wch: 24 }, // Other_Water_Released_Amount
+        { wch: 24 }, // Other_Water_Released_Average
+        { wch: 12 }, // Rain_Fall
+        { wch: 18 }, // Power_Generation
+        { wch: 18 }, // Net_Energy_Import
+        { wch: 18 }, // Net_Energy_Output
+        { wch: 14 }, // Water_Rate
+        { wch: 16 }, // Total_Outflow
+        { wch: 16 }, // Average_Outflow
+        { wch: 20 }, // CreatedBy
+      ];
 
-          const row: Record<string, any> = {
-            No: index + 1,
-            Date: moment(item.powerDate).format("DD/MM/YYYY"),
-            Declaration: item.power?.name ?? "",
-            Total_Power: parseFloat(
-              item.dayReportCurrent?.powerCurrent?.totalPower?.toString() ??
-              "0",
-            ),
-            // CreatedBy ยังไม่ใส่ตรงนี้
-          };
+      // แยกกลุ่มข้อมูล Operation ตามจำนวนช่วงเวลา (24, 48, 96 ค่า)
+      const groupConfig = [
+        {
+          slots: 24,
+          sheetName: "Daily Operation (24 Values)",
+          hours: getHoursByHourListId(1),
+          items: [] as { item: (typeof data)[0]; originalNo: number }[],
+        },
+        {
+          slots: 48,
+          sheetName: "Daily Operation (48 Values)",
+          hours: getHoursByHourListId(2),
+          items: [] as { item: (typeof data)[0]; originalNo: number }[],
+        },
+        {
+          slots: 96,
+          sheetName: "Daily Operation (96 Values)",
+          hours: getHoursByHourListId(3),
+          items: [] as { item: (typeof data)[0]; originalNo: number }[],
+        },
+      ];
 
-          // เพิ่มคอลัมน์ชั่วโมงทีหลัง
-          hours.forEach((hour, i) => {
-            row[hour] = hourlyData[i] ?? "";
-          });
+      data.forEach((item, index) => {
+        const hourlyLength =
+          item.dayReportCurrent?.powerCurrent?.originalTurbines?.[0]?.hourly?.length;
+        const itemHours = getHoursByHourListId(
+          item.power?.hourListId,
+          hourlyLength,
+        );
+        const slotCount = itemHours.length;
 
-          // ใส่ CreatedBy ทีหลัง
-          row.CreatedBy =
-            `${item.dayReportCurrent?.createdByUser?.firstname ?? ""} ${item.dayReportCurrent?.createdByUser?.lastname ?? ""}`.trim();
-
-          return row;
-        }),
-      );
+        const targetGroup =
+          groupConfig.find((g) => g.slots === slotCount) || groupConfig[0];
+        targetGroup.items.push({ item, originalNo: index + 1 });
+      });
 
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet1, "Daily Report");
-      XLSX.utils.book_append_sheet(workbook, worksheet2, "Daily Operation");
+
+      let hasAddedOperationSheet = false;
+
+      // เพิ่มเฉพาะ Sheet ที่มีข้อมูลจริงในกลุ่มนั้น
+      groupConfig.forEach((group) => {
+        if (group.items.length > 0) {
+          hasAddedOperationSheet = true;
+          const headerKeys = [
+            "No",
+            "Date",
+            "Declaration",
+            "Total_Power",
+            ...group.hours,
+            "CreatedBy",
+          ];
+
+          const rows = group.items.map(({ item, originalNo }) => {
+            const turbines =
+              item.dayReportCurrent?.powerCurrent?.originalTurbines || [];
+
+            // คำนวณค่าไฟรายชั่วโมง
+            const hourlyValues = group.hours.map((_, hIdx) => {
+              if (turbines.length === 0) return "";
+              if (turbines.length === 1) {
+                const val = turbines[0]?.hourly?.[hIdx];
+                return val !== undefined && val !== null && !isNaN(Number(val))
+                  ? parseFloat(val.toString())
+                  : "";
+              }
+              // กรณีมีหลาย turbine ให้รวมค่าของแต่ละชั่วโมง
+              return turbines.reduce((sum, t) => {
+                const val = t?.hourly?.[hIdx];
+                return sum + (val ? parseFloat(val.toString()) || 0 : 0);
+              }, 0);
+            });
+
+            const row: Record<string, any> = {
+              No: originalNo,
+              Date: moment(item.powerDate).format("DD/MM/YYYY"),
+              Declaration: item.power?.name ?? "",
+              Total_Power: parseFloat(
+                item.dayReportCurrent?.powerCurrent?.totalPower?.toString() ?? "0",
+              ),
+            };
+
+            group.hours.forEach((hour, i) => {
+              row[hour] = hourlyValues[i];
+            });
+
+            row.CreatedBy =
+              `${item.dayReportCurrent?.createdByUser?.firstname ?? ""} ${item.dayReportCurrent?.createdByUser?.lastname ?? ""}`.trim();
+
+            return row;
+          });
+
+          const worksheet = XLSX.utils.json_to_sheet(rows, { header: headerKeys });
+
+          // กำหนดความกว้างคอลัมน์ให้อ่านง่ายและพอดีกับข้อความ
+          worksheet["!cols"] = [
+            { wch: 6 }, // No
+            { wch: 12 }, // Date
+            { wch: 25 }, // Declaration
+            { wch: 14 }, // Total_Power
+            ...group.hours.map(() => ({ wch: 14 })), // Time slots
+            { wch: 20 }, // CreatedBy
+          ];
+
+          XLSX.utils.book_append_sheet(workbook, worksheet, group.sheetName);
+        }
+      });
+
+      // กรณีไม่มีข้อมูล operation เลย ให้ใส่ template sheet เริ่มต้น
+      if (!hasAddedOperationSheet) {
+        const headerKeys = [
+          "No",
+          "Date",
+          "Declaration",
+          "Total_Power",
+          ...groupConfig[0].hours,
+          "CreatedBy",
+        ];
+        const emptySheet = XLSX.utils.json_to_sheet([], { header: headerKeys });
+        emptySheet["!cols"] = [
+          { wch: 6 },
+          { wch: 12 },
+          { wch: 25 },
+          { wch: 14 },
+          ...groupConfig[0].hours.map(() => ({ wch: 14 })),
+          { wch: 20 },
+        ];
+        XLSX.utils.book_append_sheet(workbook, emptySheet, "Daily Operation (24 Values)");
+      }
+
       const excelBuffer = XLSX.write(workbook, {
         bookType: "xlsx",
         type: "array",

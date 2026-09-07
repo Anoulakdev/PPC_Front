@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import DatePicker from "@/components/form/date-picker";
 import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
@@ -17,6 +17,7 @@ type Power = {
   abbreviation: string;
   unit: number;
   fuelId: number;
+  hourListId: number;
 };
 
 type User = {
@@ -32,10 +33,19 @@ export const Step1 = () => {
       abbreviation: string;
       unit: string;
       fuelId: number;
+      hourListId: number;
     }[]
   >([]);
   const [isChecking, setIsChecking] = useState(false);
   const [isValidDate, setIsValidDate] = useState(false);
+
+  // ย้อนหลังได้ 30 วัน
+  const minDate = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 30);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, []);
 
   const fetchData = async () => {
     try {
@@ -97,6 +107,7 @@ export const Step1 = () => {
           abbreviation: p.power.abbreviation,
           unit: p.power.unit.toString(),
           fuelId: p.power.fuelId,
+          hourListId: p.power.hourListId,
         }));
 
         setPowerOptions(options);
@@ -203,6 +214,7 @@ export const Step1 = () => {
                     abbreviation: selected?.abbreviation || null,
                     unit: finalUnit,
                     fuelId: selected?.fuelId || null,
+                    hourListId: selected?.hourListId || null,
                   });
                 }}
                 required
@@ -220,7 +232,7 @@ export const Step1 = () => {
               label="Date"
               placeholder="Select Date"
               defaultDate={formData.powerDate || ""}
-              minDate={new Date()}
+              minDate={minDate}
               onChange={(_, currentDateString) => {
                 updateFormData({ powerDate: currentDateString });
               }}

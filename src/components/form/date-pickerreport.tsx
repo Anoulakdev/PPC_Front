@@ -33,7 +33,7 @@ export default function DatePicker({
       dateFormat: "d-m-Y",
       defaultDate,
       // minDate: new Date(),
-      minDate: new Date(new Date().setDate(new Date().getDate() - 5)), // ✅ ย้อนหลังได้ 5 วัน
+      minDate: new Date(new Date().setDate(new Date().getDate() - 365)), // ✅ ย้อนหลังได้ 5 วัน
       maxDate: new Date(new Date().setDate(new Date().getDate() - 1)), // ❗ บล็อกวันนี้และวันอนาคต
       onChange,
     });

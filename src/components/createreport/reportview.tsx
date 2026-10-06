@@ -126,7 +126,7 @@ export default function ReportView() {
 
     // เพิ่มอีก 5 วันจาก powerDate
     const maxDate = new Date(powerDate);
-    maxDate.setDate(maxDate.getDate() + 30); // powerDate + 30
+    maxDate.setDate(maxDate.getDate() + 365); // powerDate + 30
 
     const today = new Date();
     today.setHours(0, 0, 0, 0); // เปรียบเทียบแค่วันที่

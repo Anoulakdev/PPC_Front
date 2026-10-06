@@ -116,7 +116,7 @@ export default function DayAction() {
   const activeHours = getHoursByHourListId(
     data?.power?.hourListId,
     data?.powerCurrent?.currentTurbines?.[0]?.hourly?.length ||
-      data?.powerOriginal?.originalTurbines?.[0]?.hourly?.length,
+    data?.powerOriginal?.originalTurbines?.[0]?.hourly?.length,
   );
 
   useEffect(() => {
@@ -168,7 +168,7 @@ export default function DayAction() {
     powerDate.setHours(0, 0, 0, 0); // ตัดเวลา
 
     const maxDate = new Date(powerDate);
-    maxDate.setDate(maxDate.getDate() + 30);
+    maxDate.setDate(maxDate.getDate() + 365);
 
     const today = new Date();
     today.setHours(0, 0, 0, 0); // เปรียบเทียบแค่วันที่
@@ -238,8 +238,8 @@ export default function DayAction() {
             }}
             disabled={isReviseDisabled}
             className={`flex items-center gap-1 rounded-md px-4 py-2 text-sm text-white ${isReviseDisabled
-                ? "cursor-not-allowed bg-gray-400"
-                : "bg-blue-500 hover:bg-blue-600"
+              ? "cursor-not-allowed bg-gray-400"
+              : "bg-blue-500 hover:bg-blue-600"
               }`}
           >
             <PencilIcon className="h-4 w-4" /> revise
@@ -792,8 +792,8 @@ export default function DayAction() {
             loading || (user.roleId === 4 ? data?.disAcknow : data?.decAcknow)
           }
           className={`mt-6 w-full rounded-md px-4 py-2 text-lg text-white ${loading || (user.roleId === 4 ? data?.disAcknow : data?.decAcknow)
-              ? "cursor-not-allowed bg-gray-400"
-              : "bg-blue-500 hover:bg-blue-600"
+            ? "cursor-not-allowed bg-gray-400"
+            : "bg-blue-500 hover:bg-blue-600"
             }`}
         >
           {loading

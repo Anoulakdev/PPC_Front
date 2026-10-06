@@ -42,7 +42,7 @@ export const Step1 = () => {
   // ย้อนหลังได้ 30 วัน
   const minDate = useMemo(() => {
     const d = new Date();
-    d.setDate(d.getDate() - 30);
+    d.setDate(d.getDate() - 365);
     d.setHours(0, 0, 0, 0);
     return d;
   }, []);

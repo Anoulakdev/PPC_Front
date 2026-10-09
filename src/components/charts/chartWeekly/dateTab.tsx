@@ -17,6 +17,7 @@ import {
 import { ChevronDownIcon } from "../../../icons";
 import Label from "@/components/form/Label";
 import Select from "@/components/form/Select";
+import SearchSelect from "@/components/form/SearchSelect";
 import { getLocalStorage } from "@/utils/storage";
 import axiosInstance from "@/utils/axiosInstance";
 import { getCurrentWeek, getWeeksInYear } from "@/utils/weeksInYear";
@@ -212,18 +213,14 @@ export default function TotalChart() {
         <div className="mb-3 flex flex-col items-center gap-3 md:flex-row">
           <div className="w-full md:w-1/3">
             <Label>Choose Power Source</Label>
-            <div className="relative">
-              <Select
-                options={powerOptions}
-                value={selectedPowerId ?? ""}
-                placeholder="Select All Power"
-                onChange={handleSelectChange}
-                className="dark:bg-dark-900"
-              />
-              <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 dark:text-gray-400">
-                <ChevronDownIcon />
-              </span>
-            </div>
+            <SearchSelect
+              options={powerOptions}
+              value={selectedPowerId ?? ""}
+              placeholder="Select All Power"
+              searchPlaceholder="Search power source..."
+              onChange={handleSelectChange}
+              className="dark:bg-dark-900"
+            />
           </div>
           <div className="w-full md:w-1/5">
             <Label>Choose Year</Label>

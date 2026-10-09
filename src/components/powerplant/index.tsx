@@ -3,11 +3,10 @@
 
 import { useState, useEffect } from "react";
 import axiosInstance from "@/utils/axiosInstance";
-import { ChevronDownIcon } from "../../icons";
 import moment from "moment";
 import { getLocalStorage } from "@/utils/storage";
 import Label from "@/components/form/Label";
-import Select from "@/components/form/Select";
+import SearchSelect from "@/components/form/SearchSelect";
 import Image from "next/image";
 
 type Company = {
@@ -165,18 +164,14 @@ export default function DayTable() {
         <div className="mb-3 flex flex-col items-center gap-3 md:flex-row">
           <div className="w-full md:w-1/2">
             <Label>Choose Power Source</Label>
-            <div className="relative">
-              <Select
-                options={powerOptions}
-                value={selectedPowerId ?? ""}
-                placeholder="Select Power"
-                onChange={handleSelectChange}
-                className="dark:bg-dark-900"
-              />
-              <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 dark:text-gray-400">
-                <ChevronDownIcon />
-              </span>
-            </div>
+            <SearchSelect
+              options={powerOptions}
+              value={selectedPowerId ?? ""}
+              placeholder="Select Power"
+              searchPlaceholder="Search power source..."
+              onChange={handleSelectChange}
+              className="dark:bg-dark-900"
+            />
           </div>
         </div>
 

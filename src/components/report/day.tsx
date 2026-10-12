@@ -195,6 +195,14 @@ export default function DayTable() {
 
   const columns: ColumnDef<Day>[] = [
     {
+      accessorKey: "powerDate",
+      header: "DATE",
+      cell: ({ getValue }) => {
+        const value = getValue() as string;
+        return moment(value).format("DD/MM/YYYY");
+      },
+    },
+    {
       accessorKey: "power.company.name",
       header: "COMPANY",
     },
@@ -248,11 +256,10 @@ export default function DayTable() {
 
         return (
           <span
-            className={`rounded-full px-2 py-1 text-sm font-medium ${
-              isOriginal
-                ? "bg-green-100 text-green-700"
-                : "bg-orange-100 text-orange-700"
-            }`}
+            className={`rounded-full px-2 py-1 text-sm font-medium ${isOriginal
+              ? "bg-green-100 text-green-700"
+              : "bg-orange-100 text-orange-700"
+              }`}
           >
             {isOriginal ? "original" : "revise"}
           </span>
@@ -273,9 +280,8 @@ export default function DayTable() {
         return (
           <div className="group relative inline-block">
             <span
-              className={`flex items-center justify-center rounded-full px-2 py-1 text-sm font-medium ${
-                isOriginal ? "text-red-700" : "text-black-700"
-              }`}
+              className={`flex items-center justify-center rounded-full px-2 py-1 text-sm font-medium ${isOriginal ? "text-red-700" : "text-black-700"
+                }`}
             >
               {isOriginal ? "Not Acknowlege" : userName}
             </span>
@@ -297,9 +303,8 @@ export default function DayTable() {
         return (
           <div className="group relative inline-block">
             <span
-              className={`flex items-center justify-center rounded-full px-2 py-1 text-sm font-medium ${
-                isOriginal ? "text-red-700" : "text-black-700"
-              }`}
+              className={`flex items-center justify-center rounded-full px-2 py-1 text-sm font-medium ${isOriginal ? "text-red-700" : "text-black-700"
+                }`}
             >
               {isOriginal ? "Not Acknowlege" : userName}
             </span>
@@ -307,14 +312,7 @@ export default function DayTable() {
         );
       },
     },
-    {
-      accessorKey: "powerDate",
-      header: "DATE",
-      cell: ({ getValue }) => {
-        const value = getValue() as string;
-        return moment(value).format("DD/MM/YYYY");
-      },
-    },
+
     {
       header: "CREATED BY",
       cell: ({ row }) => {
@@ -378,20 +376,21 @@ export default function DayTable() {
     const worksheet = XLSX.utils.json_to_sheet(
       data.map((item, index) => ({
         No: index + 1,
+        Date: moment(item.powerDate).format("DD/MM/YYYY"),
         Company: item.power?.company?.name ?? "",
         Declaration: item.power?.name ?? "",
         DAD_DD: `${item.powerNo} - EDL`,
-        DAILY_DECLARATION:
+        DAILY_DECLARATION_MWh:
           item.powerOriginal?.totalPower !== null &&
-          item.powerOriginal?.totalPower !== undefined
+            item.powerOriginal?.totalPower !== undefined
             ? parseFloat(item.powerOriginal.totalPower.toString())
             : 0,
-        DAILY_DISPATCH:
+        DAILY_DISPATCH_MWh:
           item.powerCurrent?.totalPower !== null &&
-          item.powerCurrent?.totalPower !== undefined
+            item.powerCurrent?.totalPower !== undefined
             ? parseFloat(item.powerCurrent.totalPower.toString())
             : 0,
-        NET_ENERGY_OUTPUT: parseNum(item.netEnergyOutput),
+        NET_ENERGY_OUTPUT_kWh: parseNum(item.netEnergyOutput),
         Document: item.revise === false ? "Original" : "Revise",
         StatusDAD: item.decAcknow
           ? `${item.decAcknowUser?.firstname ?? ""} ${item.decAcknowUser?.lastname ?? ""}`.trim() || "Acknowledge"
@@ -399,10 +398,8 @@ export default function DayTable() {
         StatusDD: item.disAcknow
           ? `${item.disAcknowUser?.firstname ?? ""} ${item.disAcknowUser?.lastname ?? ""}`.trim() || "Acknowledge"
           : "Not Acknowlege",
-        Date: moment(item.powerDate).format("DD/MM/YYYY"),
-        CreatedBy: `${item.createdByUser?.firstname ?? ""} ${
-          item.createdByUser?.lastname ?? ""
-        }`.trim(),
+        CreatedBy: `${item.createdByUser?.firstname ?? ""} ${item.createdByUser?.lastname ?? ""
+          }`.trim(),
         upstreamLevel: parseNum(item.powerCurrent?.upstreamLevel),
         downstreamLevel: parseNum(item.powerCurrent?.downstreamLevel),
         totalStorageamount: parseNum(item.powerCurrent?.totalStorageamount),
@@ -437,16 +434,16 @@ export default function DayTable() {
     // กำหนดความกว้างคอลัมน์ให้อ่านง่าย
     worksheet["!cols"] = [
       { wch: 6 }, // No
+      { wch: 14 }, // Date
       { wch: 25 }, // Company
       { wch: 25 }, // Declaration
       { wch: 15 }, // DAD_DD
-      { wch: 20 }, // DAILY_DECLARATION
-      { wch: 18 }, // DAILY_DISPATCH
-      { wch: 20 }, // NET_ENERGY_OUTPUT
+      { wch: 22 }, // DAILY_DECLARATION
+      { wch: 20 }, // DAILY_DISPATCH
+      { wch: 23 }, // NET_ENERGY_OUTPUT
       { wch: 14 }, // Document
       { wch: 22 }, // StatusDAD
       { wch: 22 }, // StatusDD
-      { wch: 14 }, // Date
       { wch: 20 }, // CreatedBy
       { wch: 16 }, // upstreamLevel
       { wch: 16 }, // downstreamLevel
@@ -545,7 +542,7 @@ export default function DayTable() {
             <button
               onClick={exportToPDF}
               disabled={loading || data.length === 0}
-              // className={`rounded-md bg-red-500 px-4 py-2 text-lg text-white hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-red-500`}
+            // className={`rounded-md bg-red-500 px-4 py-2 text-lg text-white hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-red-500`}
             >
               <img width={45} height={45} src="/pdf.png" alt="PDF" />
             </button>
@@ -602,7 +599,7 @@ export default function DayTable() {
               </tbody>
               <tfoot className="bg-gray-50 text-sm font-semibold whitespace-nowrap dark:bg-gray-800 dark:text-gray-200">
                 <tr>
-                  <td colSpan={3} className="px-4 py-3 text-center text-sm">
+                  <td colSpan={4} className="px-4 py-3 text-center text-sm">
                     Total
                   </td>
                   <td className="px-4 py-3">
@@ -614,7 +611,7 @@ export default function DayTable() {
                   <td className="px-4 py-3">
                     {new Intl.NumberFormat("lo-LA").format(totalNetEnergy)} kWh
                   </td>
-                  <td colSpan={columns.length - 6}></td>
+                  <td colSpan={columns.length - 7}></td>
                 </tr>
               </tfoot>
             </table>

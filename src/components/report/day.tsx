@@ -21,9 +21,7 @@ import { getLocalStorage } from "@/utils/storage";
 import Label from "@/components/form/Label";
 import SearchSelect from "@/components/form/SearchSelect";
 import DatePickerAll from "@/components/form/date-pickerall";
-// import * as XLSX from "xlsx";
-// import { saveAs } from "file-saver";
-// import Image from "next/image";
+import { saveAs } from "file-saver";
 
 type UserAcKnow = {
   firstname: string;
@@ -85,6 +83,7 @@ type Day = {
   power?: Power;
   powerOriginal?: PowerOriginal;
   powerCurrent?: PowerCurrent;
+  netEnergyOutput?: number | string | null;
   createdByUser?: UserAcKnow | null;
   decAcknowUser?: UserAcKnow | null;
   disAcknowUser?: UserAcKnow | null;
@@ -189,6 +188,11 @@ export default function DayTable() {
     return sum + (isNaN(val) ? 0 : val);
   }, 0);
 
+  const totalNetEnergy = data.reduce((sum, row) => {
+    const val = parseFloat((row.netEnergyOutput ?? "").toString()) || 0;
+    return sum + (isNaN(val) ? 0 : val);
+  }, 0);
+
   const columns: ColumnDef<Day>[] = [
     {
       accessorKey: "power.company.name",
@@ -222,6 +226,17 @@ export default function DayTable() {
         const value = getValue() as number | null;
         if (value === null || value === undefined) return "-";
         return `${new Intl.NumberFormat("lo-LA").format(value)} MWh`;
+      },
+    },
+    {
+      accessorKey: "netEnergyOutput",
+      header: "NET ENERGY OUTPUT",
+      cell: ({ getValue }) => {
+        const value = getValue() as number | string | null;
+        if (value === null || value === undefined || value === "") return "-";
+        const num = Number(value);
+        if (isNaN(num)) return "-";
+        return `${new Intl.NumberFormat("lo-LA").format(num)} kWh`;
       },
     },
     {
@@ -350,61 +365,116 @@ export default function DayTable() {
     getFilteredRowModel: getFilteredRowModel(),
   });
 
-  // const exportToExcel = () => {
-  //   if (data) {
-  //     const worksheet = XLSX.utils.json_to_sheet(
-  //       data.map((item, index) => ({
-  //         No: index + 1,
-  //         Company: item.power?.company?.name ?? "",
-  //         Declaration: item.power?.name ?? "",
-  //         DAD_DD: `${item.powerNo} - EDL`,
-  //         DAILY_DECLARATION: parseFloat(
-  //           item.powerOriginal?.totalPower?.toString() ?? "0",
-  //         ),
-  //         DAILY_DISPATCH: parseFloat(
-  //           item.powerCurrent?.totalPower?.toString() ?? "0",
-  //         ),
-  //         Document: item.revise === false ? "Original" : "Revise",
-  //         StatusDAD: item.decAcknowUser?.firstname
-  //           ? `${item.decAcknowUser.firstname} ${item.decAcknowUser.lastname ?? ""}`.trim()
-  //           : "Not Acknowlege",
-  //         StatusDD: item.disAcknowUser?.firstname
-  //           ? `${item.disAcknowUser.firstname} ${item.disAcknowUser.lastname ?? ""}`.trim()
-  //           : "Not Acknowlege",
-  //         Date: moment(item.powerDate).format("DD/MM/YYYY"),
-  //         CreatedBy: `${item.createdByUser?.firstname ?? ""} ${
-  //           item.createdByUser?.lastname ?? ""
-  //         }`.trim(),
-  //         upstreamLevel: item.powerCurrent?.upstreamLevel,
-  //         downstreamLevel: item.powerCurrent?.downstreamLevel,
-  //         totalStorageamount: item.powerCurrent?.totalStorageamount,
-  //         totalStorageaverage: item.powerCurrent?.totalStorageaverage,
-  //         activeStorageamount: item.powerCurrent?.activeStorageamount,
-  //         activeStorageaverage: item.powerCurrent?.activeStorageaverage,
-  //         turbineDischargeamount: item.powerCurrent?.turbineDischargeamount,
-  //         turbineDischargeaverage: item.powerCurrent?.turbineDischargeaverage,
-  //         spillwayDischargeamount: item.powerCurrent?.spillwayDischargeamount,
-  //         spillwayDischargeaverage: item.powerCurrent?.spillwayDischargeaverage,
-  //         ecologicalDischargeamount:
-  //           item.powerCurrent?.ecologicalDischargeamount,
-  //         ecologicalDischargeaverage:
-  //           item.powerCurrent?.ecologicalDischargeaverage,
-  //         totalDischargeamount: item.powerCurrent?.totalDischargeamount,
-  //         totalDischargeaverage: item.powerCurrent?.totalDischargeaverage,
-  //       })),
-  //     );
-  //     const workbook = XLSX.utils.book_new();
-  //     XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
-  //     const excelBuffer = XLSX.write(workbook, {
-  //       bookType: "xlsx",
-  //       type: "array",
-  //     });
-  //     const blob = new Blob([excelBuffer], {
-  //       type: "application/octet-stream",
-  //     });
-  //     saveAs(blob, `Daily_Report_${moment().format("DDMMYYYY_HHmmss")}.xlsx`);
-  //   }
-  // };
+  const exportToExcel = async () => {
+    if (!data || data.length === 0) return;
+
+    const XLSX = await import("xlsx");
+
+    const parseNum = (val: unknown) =>
+      val !== undefined && val !== null && val !== "" && !isNaN(Number(val))
+        ? parseFloat(Number(val).toString())
+        : "";
+
+    const worksheet = XLSX.utils.json_to_sheet(
+      data.map((item, index) => ({
+        No: index + 1,
+        Company: item.power?.company?.name ?? "",
+        Declaration: item.power?.name ?? "",
+        DAD_DD: `${item.powerNo} - EDL`,
+        DAILY_DECLARATION:
+          item.powerOriginal?.totalPower !== null &&
+          item.powerOriginal?.totalPower !== undefined
+            ? parseFloat(item.powerOriginal.totalPower.toString())
+            : 0,
+        DAILY_DISPATCH:
+          item.powerCurrent?.totalPower !== null &&
+          item.powerCurrent?.totalPower !== undefined
+            ? parseFloat(item.powerCurrent.totalPower.toString())
+            : 0,
+        NET_ENERGY_OUTPUT: parseNum(item.netEnergyOutput),
+        Document: item.revise === false ? "Original" : "Revise",
+        StatusDAD: item.decAcknow
+          ? `${item.decAcknowUser?.firstname ?? ""} ${item.decAcknowUser?.lastname ?? ""}`.trim() || "Acknowledge"
+          : "Not Acknowlege",
+        StatusDD: item.disAcknow
+          ? `${item.disAcknowUser?.firstname ?? ""} ${item.disAcknowUser?.lastname ?? ""}`.trim() || "Acknowledge"
+          : "Not Acknowlege",
+        Date: moment(item.powerDate).format("DD/MM/YYYY"),
+        CreatedBy: `${item.createdByUser?.firstname ?? ""} ${
+          item.createdByUser?.lastname ?? ""
+        }`.trim(),
+        upstreamLevel: parseNum(item.powerCurrent?.upstreamLevel),
+        downstreamLevel: parseNum(item.powerCurrent?.downstreamLevel),
+        totalStorageamount: parseNum(item.powerCurrent?.totalStorageamount),
+        totalStorageaverage: parseNum(item.powerCurrent?.totalStorageaverage),
+        activeStorageamount: parseNum(item.powerCurrent?.activeStorageamount),
+        activeStorageaverage: parseNum(item.powerCurrent?.activeStorageaverage),
+        turbineDischargeamount: parseNum(
+          item.powerCurrent?.turbineDischargeamount,
+        ),
+        turbineDischargeaverage: parseNum(
+          item.powerCurrent?.turbineDischargeaverage,
+        ),
+        spillwayDischargeamount: parseNum(
+          item.powerCurrent?.spillwayDischargeamount,
+        ),
+        spillwayDischargeaverage: parseNum(
+          item.powerCurrent?.spillwayDischargeaverage,
+        ),
+        ecologicalDischargeamount: parseNum(
+          item.powerCurrent?.ecologicalDischargeamount,
+        ),
+        ecologicalDischargeaverage: parseNum(
+          item.powerCurrent?.ecologicalDischargeaverage,
+        ),
+        totalDischargeamount: parseNum(item.powerCurrent?.totalDischargeamount),
+        totalDischargeaverage: parseNum(
+          item.powerCurrent?.totalDischargeaverage,
+        ),
+      })),
+    );
+
+    // กำหนดความกว้างคอลัมน์ให้อ่านง่าย
+    worksheet["!cols"] = [
+      { wch: 6 }, // No
+      { wch: 25 }, // Company
+      { wch: 25 }, // Declaration
+      { wch: 15 }, // DAD_DD
+      { wch: 20 }, // DAILY_DECLARATION
+      { wch: 18 }, // DAILY_DISPATCH
+      { wch: 20 }, // NET_ENERGY_OUTPUT
+      { wch: 14 }, // Document
+      { wch: 22 }, // StatusDAD
+      { wch: 22 }, // StatusDD
+      { wch: 14 }, // Date
+      { wch: 20 }, // CreatedBy
+      { wch: 16 }, // upstreamLevel
+      { wch: 16 }, // downstreamLevel
+      { wch: 20 }, // totalStorageamount
+      { wch: 20 }, // totalStorageaverage
+      { wch: 20 }, // activeStorageamount
+      { wch: 20 }, // activeStorageaverage
+      { wch: 22 }, // turbineDischargeamount
+      { wch: 22 }, // turbineDischargeaverage
+      { wch: 22 }, // spillwayDischargeamount
+      { wch: 22 }, // spillwayDischargeaverage
+      { wch: 24 }, // ecologicalDischargeamount
+      { wch: 24 }, // ecologicalDischargeaverage
+      { wch: 20 }, // totalDischargeamount
+      { wch: 20 }, // totalDischargeaverage
+    ];
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Daily Report");
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+    const blob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    saveAs(blob, `Daily_Report_${moment().format("DDMMYYYY_HHmmss")}.xlsx`);
+  };
 
   const exportToPDF = () => {
     const params = new URLSearchParams({
@@ -458,10 +528,11 @@ export default function DayTable() {
           </div>
 
           <div className="flex gap-2 self-start md:mt-6">
-            {/* <button
+            <button
               onClick={exportToExcel}
               disabled={loading || data.length === 0}
-              // className={`rounded-md bg-green-500 px-4 py-2 text-lg text-white hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-green-500`}
+              title="Export to Excel"
+              className="disabled:cursor-not-allowed disabled:opacity-50"
             >
               <img
                 width={45}
@@ -469,7 +540,7 @@ export default function DayTable() {
                 src="/excel.png"
                 alt="Excel"
               />
-            </button> */}
+            </button>
 
             <button
               onClick={exportToPDF}
@@ -540,7 +611,10 @@ export default function DayTable() {
                   <td className="px-4 py-3">
                     {new Intl.NumberFormat("lo-LA").format(totalDD)} MWh
                   </td>
-                  <td colSpan={columns.length - 5}></td>
+                  <td className="px-4 py-3">
+                    {new Intl.NumberFormat("lo-LA").format(totalNetEnergy)} kWh
+                  </td>
+                  <td colSpan={columns.length - 6}></td>
                 </tr>
               </tfoot>
             </table>

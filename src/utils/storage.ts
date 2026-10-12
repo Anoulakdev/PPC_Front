@@ -12,7 +12,12 @@ export const setLocalStorage = (key: string, value: any): void => {
 export const getLocalStorage = <T>(key: string): T | null => {
   if (typeof window !== "undefined") {
     const item = localStorage.getItem(key);
-    return item ? JSON.parse(item) : null;
+    if (!item) return null;
+    try {
+      return JSON.parse(item) as T;
+    } catch {
+      return item as unknown as T;
+    }
   }
   return null;
 };

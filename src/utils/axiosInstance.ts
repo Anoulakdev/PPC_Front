@@ -10,7 +10,14 @@ const axiosInstance = axios.create({
   },
 });
 
+let isInitialized = false;
+let currentRouter: any = null;
+
 export const setupInterceptors = (router: any) => {
+  currentRouter = router;
+  if (isInitialized) return;
+  isInitialized = true;
+
   axiosInstance.interceptors.request.use(
     (config) => {
       const token = getLocalStorage("token");
@@ -45,9 +52,17 @@ export const setupInterceptors = (router: any) => {
           // ลบ token จาก cookie
           document.cookie = "token=; path=/; max-age=0";
 
-          router.push("/");
+          if (currentRouter) {
+            currentRouter.push("/");
+          } else if (typeof window !== "undefined") {
+            window.location.href = "/";
+          }
         } else if (status === 403) {
-          router.push("/unauthorized");
+          if (currentRouter) {
+            currentRouter.push("/unauthorized");
+          } else if (typeof window !== "undefined") {
+            window.location.href = "/unauthorized";
+          }
         } else if (status >= 500) {
           console.error("Server error");
         }

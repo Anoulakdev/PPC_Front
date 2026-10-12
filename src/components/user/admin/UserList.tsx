@@ -4,15 +4,14 @@ import {
   useReactTable,
   getCoreRowModel,
   getSortedRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
   flexRender,
   SortingState,
+  PaginationState,
+  ColumnDef,
 } from "@tanstack/react-table";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import AddUser from "./AddUser";
 import EditUser from "./EditUser";
-import type { ColumnDef } from "@tanstack/react-table";
 import {
   PencilIcon,
   TrashIcon,
@@ -57,7 +56,14 @@ type Company = {
 
 export default function UserTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [globalFilter, setGlobalFilter] = useState("");
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+  const [total, setTotal] = useState<number>(0);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [search, setSearch] = useState<string>("");
+  const [debouncedSearch, setDebouncedSearch] = useState<string>("");
   const [data, setData] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -68,21 +74,63 @@ export default function UserTable() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [resetId, setResetId] = useState<number | null>(null);
 
-  const fetchData = async () => {
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPagination((prev) =>
+        prev.pageIndex === 0 ? prev : { ...prev, pageIndex: 0 },
+      );
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await axiosInstance.get(`/users/admin`);
-      setData(response.data);
+      const params = new URLSearchParams();
+      params.append("page", String(pagination.pageIndex + 1));
+      params.append("limit", String(pagination.pageSize));
+      if (debouncedSearch.trim()) {
+        params.append("search", debouncedSearch.trim());
+      }
+
+      const response = await axiosInstance.get(
+        `/users/admin?${params.toString()}`,
+      );
+      if (response.data && Array.isArray(response.data.data)) {
+        const users = response.data.data;
+        const totalCount = response.data.total ?? users.length;
+        const pagesCount = response.data.totalPages ?? 1;
+        setData(users);
+        setTotal(totalCount);
+        setTotalPages(pagesCount);
+
+        if (users.length === 0 && pagination.pageIndex > 0 && totalCount > 0) {
+          setPagination((prev) => ({
+            ...prev,
+            pageIndex: Math.max(0, pagesCount - 1),
+          }));
+        }
+      } else if (Array.isArray(response.data)) {
+        setData(response.data);
+        setTotal(response.data.length);
+        setTotalPages(1);
+      } else {
+        setData([]);
+        setTotal(0);
+        setTotalPages(1);
+      }
     } catch (err) {
-      console.error("Error loading powers:", err);
+      console.error("Error loading users:", err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.pageIndex, pagination.pageSize, debouncedSearch]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const openAddModal = () => setIsAddModalOpen(true);
   const closeAddModal = () => setIsAddModalOpen(false);
@@ -179,7 +227,11 @@ export default function UserTable() {
   const columns: ColumnDef<User>[] = [
     {
       header: "No",
-      cell: ({ row }) => row.index + 1,
+      cell: ({ row, table }) =>
+        table.getState().pagination.pageIndex *
+          table.getState().pagination.pageSize +
+        row.index +
+        1,
     },
     {
       accessorKey: "isActive",
@@ -285,16 +337,16 @@ export default function UserTable() {
   const table = useReactTable({
     data,
     columns,
+    pageCount: Math.max(1, totalPages),
+    manualPagination: true,
     state: {
       sorting,
-      globalFilter,
+      pagination,
     },
     onSortingChange: setSorting,
-    onGlobalFilterChange: setGlobalFilter,
+    onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
   });
 
   return (
@@ -313,8 +365,16 @@ export default function UserTable() {
             <input
               type="text"
               placeholder="Search..."
-              value={globalFilter}
-              onChange={(e) => setGlobalFilter(e.target.value)}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  setDebouncedSearch(search);
+                  setPagination((prev) =>
+                    prev.pageIndex === 0 ? prev : { ...prev, pageIndex: 0 },
+                  );
+                }
+              }}
               className="w-full rounded-md border border-gray-300 py-2 pr-4 pl-10 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
           </div>
@@ -385,8 +445,7 @@ export default function UserTable() {
               previous
             </button>
             <span className="text-gray-600">
-              page {table.getState().pagination.pageIndex + 1} of{" "}
-              {table.getPageCount()}
+              page {pagination.pageIndex + 1} of {Math.max(1, totalPages)}
             </span>
             <button
               onClick={() => table.nextPage()}
@@ -404,9 +463,10 @@ export default function UserTable() {
             <select
               id="rowsPerPage"
               className="rounded border px-2 py-1 dark:bg-gray-700"
-              value={table.getState().pagination.pageSize}
+              value={pagination.pageSize}
               onChange={(e) => {
-                table.setPageSize(Number(e.target.value));
+                const newSize = Number(e.target.value);
+                setPagination({ pageIndex: 0, pageSize: newSize });
               }}
             >
               {[10, 20, 50, 100].map((pageSize) => (
@@ -418,12 +478,13 @@ export default function UserTable() {
 
             <div className="ps-3 text-sm text-gray-600">
               {(() => {
-                const pageIndex = table.getState().pagination.pageIndex;
-                const pageSize = table.getState().pagination.pageSize;
-                const totalRows = table.getFilteredRowModel().rows.length;
-                const start = pageIndex * pageSize + 1;
-                const end = Math.min(start + pageSize - 1, totalRows);
-                return `${start} - ${end} of ${totalRows}`;
+                if (total === 0) return "0 - 0 of 0";
+                const start = pagination.pageIndex * pagination.pageSize + 1;
+                const end = Math.min(
+                  (pagination.pageIndex + 1) * pagination.pageSize,
+                  total,
+                );
+                return `${start} - ${end} of ${total}`;
               })()}
             </div>
           </div>

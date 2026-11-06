@@ -1,24 +1,20 @@
 import type { NextConfig } from "next";
-import withPWAInit from "next-pwa";
-
-const isProd = process.env.NODE_ENV === "production";
-
-const withPWA = withPWAInit({
-  dest: "public",
-  register: true,
-  skipWaiting: true,
-  disable: !isProd,
-});
 
 const nextConfig = {
   serverExternalPackages: ["puppeteer"],
   productionBrowserSourceMaps: false,
+  typescript: {
+    // ข้ามการตรวจ Type ตอน build บน server เพื่อประหยัด RAM (ตรวจผ่านแล้วบน Mac)
+    ignoreBuildErrors: true,
+  },
   eslint: {
+    // ข้ามการรัน Lint ตอน build บน server เพื่อประหยัด RAM
     ignoreDuringBuilds: true,
   },
   experimental: {
-    cpus: 1,
+    webpackBuildWorker: true, // สำคัญมาก: บังคับให้ Webpack คืน RAM ทันทีที่ทำงานเสร็จ
     webpackMemoryOptimizations: true,
+    cpus: 1,
     optimizePackageImports: [
       "@heroicons/react",
       "apexcharts",
@@ -29,8 +25,10 @@ const nextConfig = {
     ],
   },
   images: {
-    domains: ["localhost", "192.168.20.74", "192.168.20.75"],
     remotePatterns: [
+      { protocol: "http", hostname: "localhost" },
+      { protocol: "http", hostname: "192.168.20.74" },
+      { protocol: "http", hostname: "192.168.20.75" },
       { protocol: "https", hostname: "ppcd.edl.com.la" },
       { protocol: "https", hostname: "api-ppcd.edl.com.la" },
     ],

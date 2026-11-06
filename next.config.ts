@@ -11,6 +11,10 @@ const withPWA = withPWAInit({
 });
 
 const nextConfig = {
+  experimental: {
+    cpus: 2,
+    webpackMemoryOptimizations: true,
+  },
   images: {
     domains: ["localhost", "192.168.20.74", "192.168.20.75"],
     remotePatterns: [

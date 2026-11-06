@@ -27,8 +27,21 @@ export async function GET(req: NextRequest) {
 
     const data = response.data.data ?? [];
     const totalNetEnergy = Number(response.data.totalNetEnergy ?? 0);
+    const totalPowerGeneration = Number(
+      response.data.totalPowerGeneration ?? 0,
+    );
+    const totalNetEnergyImport = Number(
+      response.data.totalNetEnergyImport ?? 0,
+    );
 
-    const html = generatePDF(data, totalNetEnergy, startDate, endDate);
+    const html = generatePDF(
+      data,
+      totalNetEnergy,
+      totalPowerGeneration,
+      totalNetEnergyImport,
+      startDate,
+      endDate,
+    );
 
     browser = await puppeteer.launch({
       headless: true,
@@ -73,6 +86,8 @@ function formatNumber(value: any, decimals: number = 2): string {
 function generatePDF(
   data: any[],
   totalNetEnergy: number,
+  totalPowerGeneration: number,
+  totalNetEnergyImport: number,
   startDate: string | null,
   endDate: string | null,
 ) {
@@ -123,31 +138,48 @@ function generatePDF(
 
         /* Summary Cards */
         .summary-grid {
-          display: flex;
-          gap: 15px;
-          margin-bottom: 20px;
+          display: grid;
+          grid-template-columns: 1.15fr 1.15fr 1fr 1fr 1fr;
+          gap: 6px;
+          margin-bottom: 16px;
         }
 
         .card {
-          flex: 1;
-          padding: 15px;
+          padding: 6px 8px;
           background: #f8fafc;
-          border-radius: 8px;
+          border-radius: 6px;
           border: 1px solid #e2e8f0;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          min-width: 0;
+          box-sizing: border-box;
         }
 
         .card-label {
-          font-size: 8pt;
+          font-size: 6.5pt;
           font-weight: 600;
-          color: #94a3b8;
+          color: #64748b;
           text-transform: uppercase;
-          margin-bottom: 5px;
+          letter-spacing: 0.3px;
+          margin-bottom: 3px;
+          line-height: 1.2;
         }
 
         .card-value {
-          font-size: 11pt;
+          font-size: 7.5pt;
           font-weight: 700;
           color: #0f172a;
+          line-height: 1.3;
+          word-break: break-word;
+        }
+
+        .card-unit {
+          font-size: 6.5pt;
+          font-weight: 500;
+          color: #64748b;
+          margin-left: 2px;
+          white-space: nowrap;
         }
 
         .highlight-card {
@@ -155,9 +187,17 @@ function generatePDF(
           border-color: #bfdbfe;
         }
 
-        .highlight-card .card-value {
+        .highlight-card .card-label {
           color: #2563eb;
-          font-size: 14pt;
+        }
+
+        .highlight-card .card-value {
+          color: #1d4ed8;
+          font-size: 8pt;
+        }
+
+        .highlight-card .card-unit {
+          color: #3b82f6;
         }
 
         /* Table Style */
@@ -172,10 +212,9 @@ function generatePDF(
           background: #1e293b;
           color: white;
           font-weight: 600;
-          font-size: 9pt;
-          padding: 12px 15px;
+          font-size: 8.5pt;
+          padding: 10px 12px;
           text-align: left;
-          
           letter-spacing: 0.5px;
         }
 
@@ -183,9 +222,9 @@ function generatePDF(
         th:last-child { border-radius: 0 8px 0 0; }
 
         td {
-          padding: 10px 15px;
+          padding: 8px 12px;
           border-bottom: 1px solid #f1f5f9;
-          font-size: 9.5pt;
+          font-size: 8.5pt;
         }
 
         tr:nth-child(even) {
@@ -198,7 +237,7 @@ function generatePDF(
         .total-row td {
           background: #f1f5f9;
           font-weight: 700;
-          font-size: 10pt;
+          font-size: 9pt;
           border-top: 2px solid #1e293b;
           color: #0f172a;
         }
@@ -229,22 +268,32 @@ function generatePDF(
         </div>
         <div class="card">
           <div class="card-label">Date Range</div>
-          <div class="card-value">
+          <div class="card-value" style="font-size: 7pt; line-height: 1.2;">
             ${startDate ? moment(startDate).format("DD/MM/YYYY") : "-"} - ${endDate ? moment(endDate).format("DD/MM/YYYY") : "-"}
           </div>
         </div>
+        <div class="card">
+          <div class="card-label">Total Power Generation</div>
+          <div class="card-value">${formatNumber(totalPowerGeneration, 2)} <span class="card-unit">kWh</span></div>
+        </div>
+        <div class="card">
+          <div class="card-label">Total Net Energy Import</div>
+          <div class="card-value">${formatNumber(totalNetEnergyImport, 2)} <span class="card-unit">kWh</span></div>
+        </div>
         <div class="card highlight-card">
           <div class="card-label">Total Net Energy Output</div>
-          <div class="card-value">${formatNumber(totalNetEnergy, 2)} <span style="font-size: 9pt">kWh</span></div>
+          <div class="card-value">${formatNumber(totalNetEnergy, 2)} <span class="card-unit">kWh</span></div>
         </div>
       </div>
 
       <table>
         <thead>
           <tr>
-            <th width="20%">Date</th>
+            <th width="15%">Date</th>
+            <th class="text-right">Power Generation (kWh)</th>
+            <th class="text-right">Net Energy Import (kWh)</th>
             <th class="text-right">Net Energy Output (kWh)</th>
-            <th class="text-center" width="30%">Created By</th>
+            <th class="text-center" width="20%">Created By</th>
           </tr>
         </thead>
         <tbody>
@@ -252,27 +301,44 @@ function generatePDF(
             data.length
               ? data
                   .map((item) => {
-                    const current = item.dayReportCurrents?.[0];
-                    const netEnergy = Number(current?.netEnergyOutput ?? 0);
-                    const createdBy = current?.createdByUser
-                      ? `${current.createdByUser.firstname ?? ""} ${current.createdByUser.lastname ?? ""}`
+                    const powerGen = (item.dayReportCurrents || []).reduce(
+                      (sum: number, c: any) =>
+                        sum + Number(c.powerGeneration || 0),
+                      0,
+                    );
+                    const netImport = (item.dayReportCurrents || []).reduce(
+                      (sum: number, c: any) =>
+                        sum + Number(c.netEnergyImport || 0),
+                      0,
+                    );
+                    const netOutput = (item.dayReportCurrents || []).reduce(
+                      (sum: number, c: any) =>
+                        sum + Number(c.netEnergyOutput || 0),
+                      0,
+                    );
+                    const createdBy = item.dayReportCurrents?.[0]?.createdByUser
+                      ? `${item.dayReportCurrents[0].createdByUser.firstname ?? ""} ${item.dayReportCurrents[0].createdByUser.lastname ?? ""}`
                       : "-";
 
                     return `
               <tr>
                 <td>${moment(item.powerDate).format("DD/MM/YYYY")}</td>
-                <td class="text-right" style="font-family: monospace; font-weight: 600;">${formatNumber(netEnergy, 2)}</td>
+                <td class="text-right" style="font-family: monospace; font-weight: 600;">${formatNumber(powerGen, 2)}</td>
+                <td class="text-right" style="font-family: monospace; font-weight: 600;">${formatNumber(netImport, 2)}</td>
+                <td class="text-right" style="font-family: monospace; font-weight: 600;">${formatNumber(netOutput, 2)}</td>
                 <td class="text-center">${createdBy}</td>
               </tr>
             `;
                   })
                   .join("")
-              : '<tr><td colspan="3" class="text-center">No data available for the selected period</td></tr>'
+              : '<tr><td colspan="5" class="text-center">No data available for the selected period</td></tr>'
           }
         </tbody>
         <tfoot>
           <tr class="total-row">
             <td>Total</td>
+            <td class="text-right">${formatNumber(totalPowerGeneration, 2)}</td>
+            <td class="text-right">${formatNumber(totalNetEnergyImport, 2)}</td>
             <td class="text-right">${formatNumber(totalNetEnergy, 2)}</td>
             <td></td>
           </tr>

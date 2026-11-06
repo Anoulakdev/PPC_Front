@@ -43,6 +43,8 @@ type Day = {
   power: Power;
   dayReportCurrents: {
     id: number;
+    powerGeneration: string;
+    netEnergyImport: string;
     netEnergyOutput: string;
     createdByUser?: UserAcKnow | null;
   }[];
@@ -58,6 +60,8 @@ export default function DayTable() {
   const [data, setData] = useState<Day[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [totalNetEnergy, setTotalNetEnergy] = useState<number>(0);
+  const [totalPowerGeneration, setTotalPowerGeneration] = useState<number>(0);
+  const [totalNetEnergyImport, setTotalNetEnergyImport] = useState<number>(0);
   const [powerList, setPowerList] = useState<Power[]>([]);
   const [selectedPowerId, setSelectedPowerId] = useState<string | null>(null);
   const [startDate, setStartDate] = useState<Date>(new Date());
@@ -123,6 +127,8 @@ export default function DayTable() {
       );
 
       setData(response.data.data ?? []);
+      setTotalPowerGeneration(Number(response.data.totalPowerGeneration ?? 0));
+      setTotalNetEnergyImport(Number(response.data.totalNetEnergyImport ?? 0));
       setTotalNetEnergy(Number(response.data.totalNetEnergy ?? 0));
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -158,7 +164,47 @@ export default function DayTable() {
       },
     },
     {
+      id: "powerGeneration",
+      header: "POWER GENERATION (kWh)",
+      accessorFn: (row) =>
+        row.dayReportCurrents.reduce(
+          (sum, item) => sum + Number(item.powerGeneration || 0),
+          0,
+        ),
+      cell: ({ row }) => {
+        const total = row.original.dayReportCurrents.reduce(
+          (sum, item) => sum + Number(item.powerGeneration || 0),
+          0,
+        );
+
+        return `${new Intl.NumberFormat("lo-LA").format(total)}`;
+      },
+    },
+    {
+      id: "netEnergyImport",
+      header: "NET ENERGY IMPORT (kWh)",
+      accessorFn: (row) =>
+        row.dayReportCurrents.reduce(
+          (sum, item) => sum + Number(item.netEnergyImport || 0),
+          0,
+        ),
+      cell: ({ row }) => {
+        const total = row.original.dayReportCurrents.reduce(
+          (sum, item) => sum + Number(item.netEnergyImport || 0),
+          0,
+        );
+
+        return `${new Intl.NumberFormat("lo-LA").format(total)}`;
+      },
+    },
+    {
+      id: "netEnergyOutput",
       header: "NET ENERGY OUTPUT (kWh)",
+      accessorFn: (row) =>
+        row.dayReportCurrents.reduce(
+          (sum, item) => sum + Number(item.netEnergyOutput || 0),
+          0,
+        ),
       cell: ({ row }) => {
         const total = row.original.dayReportCurrents.reduce(
           (sum, item) => sum + Number(item.netEnergyOutput || 0),
@@ -169,7 +215,12 @@ export default function DayTable() {
       },
     },
     {
+      id: "createdBy",
       header: "CREATED BY",
+      accessorFn: (row) => {
+        const user = row.dayReportCurrents?.[0]?.createdByUser;
+        return user ? `${user.firstname ?? ""} ${user.lastname ?? ""}` : "";
+      },
       cell: ({ row }) => {
         const user = row.original.dayReportCurrents?.[0]?.createdByUser;
         if (!user) return "-";
@@ -199,6 +250,14 @@ export default function DayTable() {
           Company: item.power?.company?.name ?? "",
           Declaration: item.power?.name ?? "",
           Date: moment(item.powerDate).format("DD/MM/YYYY"),
+          "Power Generation (kWh)": item.dayReportCurrents.reduce(
+            (sum, current) => sum + Number(current.powerGeneration || 0),
+            0,
+          ),
+          "Net Energy Import (kWh)": item.dayReportCurrents.reduce(
+            (sum, current) => sum + Number(current.netEnergyImport || 0),
+            0,
+          ),
           "Net Energy Output (kWh)": item.dayReportCurrents.reduce(
             (sum, current) => sum + Number(current.netEnergyOutput || 0),
             0,
@@ -346,6 +405,12 @@ export default function DayTable() {
                 <tr>
                   <td colSpan={3} className="px-4 py-3 text-center text-sm">
                     Total
+                  </td>
+                  <td className="px-4 py-3">
+                    {new Intl.NumberFormat("lo-LA").format(totalPowerGeneration)} kWh
+                  </td>
+                  <td className="px-4 py-3">
+                    {new Intl.NumberFormat("lo-LA").format(totalNetEnergyImport)} kWh
                   </td>
                   <td className="px-4 py-3">
                     {new Intl.NumberFormat("lo-LA").format(totalNetEnergy)} kWh

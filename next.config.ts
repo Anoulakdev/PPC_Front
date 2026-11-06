@@ -11,9 +11,22 @@ const withPWA = withPWAInit({
 });
 
 const nextConfig = {
+  serverExternalPackages: ["puppeteer"],
+  productionBrowserSourceMaps: false,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   experimental: {
-    cpus: 2,
+    cpus: 1,
     webpackMemoryOptimizations: true,
+    optimizePackageImports: [
+      "@heroicons/react",
+      "apexcharts",
+      "chart.js",
+      "framer-motion",
+      "moment",
+      "xlsx",
+    ],
   },
   images: {
     domains: ["localhost", "192.168.20.74", "192.168.20.75"],
